@@ -153,8 +153,8 @@ const calculateFollowForce = (sprite, speed) => {
 app.ticker.add((delta) => {
   bunnies.forEach(sprite => {
     const separationForce = calculateSeparationForce(sprite, bunnies, 50, 0.5);
-    const cohesionForce = calculateCohesionForce(sprite, bunnies, 10);
-    const alignmentForce = calculateAlignmentForce(sprite, bunnies, 30);
+    const cohesionForce = calculateCohesionForce(sprite, bunnies, 5);
+    const alignmentForce = calculateAlignmentForce(sprite, bunnies, 1);
     const followForce = calculateFollowForce(sprite, 0.1);
 
     // Normalize forces
@@ -207,19 +207,22 @@ app.ticker.add((delta) => {
     sprite.vy += -sprite.vy * 0.01;
     */
 
-    if (sprite.x + 10 < targetX || sprite.x - 10 > targetX) {
+    const closeEnough = Math.random() * (50 - 10) + 10;
+
+    if (sprite.x + closeEnough < targetX || sprite.x - closeEnough > targetX) {
       sprite.vx += totalForceX * delta;
-      sprite.x += sprite.vx;
     } else {
-      sprite.vx = 0;
+      sprite.vx *= 0.7;
     }
 
-    if (sprite.y + 10 < targetY || sprite.y - 10 > targetY) {
+    if (sprite.y + closeEnough < targetY || sprite.y - closeEnough > targetY) {
       sprite.vy += totalForceY * delta;
-      sprite.y += sprite.vy;
     } else {
-      sprite.vy = 0;
+      sprite.vy *= 0.7;
     }
+
+    sprite.x += sprite.vx;
+    sprite.y += sprite.vy;
   })
 })
 
