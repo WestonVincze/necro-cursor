@@ -1,12 +1,14 @@
-import { fromEvent } from 'rxjs'
+import { auditTime, fromEvent } from 'rxjs'
 import { Sprite } from "pixi.js"
 
 export const FollowCursor = (app, spriteURL, spriteCount) => {
   // register mousemove event
   const move$ = fromEvent(container, 'mousemove');
+  const result$ = move$.pipe(auditTime(200));
 
-  let targetX = container.clientWidth / 2;
-  let targetY = container.clientHeight / 2;
+  console.log(container);
+  let targetX = app.screen.width / 2;
+  let targetY = app.screen.height / 2;
 
   const followMouse = (e) => {
     const rect = container.getBoundingClientRect();
@@ -14,8 +16,9 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
     targetY = e.clientY - rect.top;
   }
 
-  move$.subscribe(followMouse);
+  result$.subscribe(followMouse)
 
+  // create and move sprites
   const sprites = [];
   const maxSpeed = 0.05;
 
