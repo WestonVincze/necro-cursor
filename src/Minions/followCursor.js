@@ -6,9 +6,8 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
   const move$ = fromEvent(container, 'mousemove');
   const result$ = move$.pipe(auditTime(200));
 
-  console.log(container);
-  let targetX = app.screen.width / 2;
-  let targetY = app.screen.height / 2;
+  let targetX = 0
+  let targetY = 0;
 
   const followMouse = (e) => {
     const rect = container.getBoundingClientRect();
@@ -81,6 +80,7 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
 
 const calculateFollowForce = ({ targetX, targetY }, sprite, speed) => {
   const followForce = { x: 0, y: 0 };
+  if (targetX === 0 && targetY === 0) return followForce;
   const dx = targetX - sprite.x;
   const dy = targetY - sprite.y;
   const distance = Math.sqrt(dx * dx + dy * dy);
@@ -88,7 +88,6 @@ const calculateFollowForce = ({ targetX, targetY }, sprite, speed) => {
   if (distance > 0) {
     const directionX = dx / distance;
     const directionY = dy / distance;
-
 
     followForce.x = directionX * speed;
     followForce.y = directionY * speed;

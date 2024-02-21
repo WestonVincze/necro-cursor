@@ -22,7 +22,6 @@ export const Player = (app) => {
   let [ moveX, moveY ] = [0, 0]
 
   const updateMoveInput = ({ x, y }) => {
-    console.log(x, y);
     moveX = x;
     moveY = y;
   }
