@@ -19,7 +19,7 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
 
   // create and move sprites
   const sprites = [];
-  const maxSpeed = 0.05;
+  const maxSpeed = 3;
 
   for (let i = 0; i < spriteCount; i++) {
     const sprite = Sprite.from(spriteURL);
@@ -41,13 +41,12 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
   const isIntersecting = (a, b) => {
 
   }
-  
 
   app.ticker.add((delta) => {
     sprites.forEach((sprite, i) => {
       // if (isIntersecting(sprite, enemy)) return;
-      let followForce = calculateFollowForce({ targetX, targetY }, sprite, 0.1);
-      let separationForce = calculateSeparationForce(sprite, sprites, 50, 0.5);
+      let followForce = calculateFollowForce({ targetX, targetY }, sprite, 0.5);
+      let separationForce = calculateSeparationForce(sprite, sprites, 50, 0.01);
       let cohesionForce = calculateCohesionForce(sprite, sprites, 20);
       let alignmentForce = calculateAlignmentForce(sprite, sprites, 20);
       // if (i === 0) console.log(followForce, separationForce, cohesionForce, alignmentForce);
@@ -58,30 +57,33 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
       alignmentForce = normalizeForce(alignmentForce);
       cohesionForce = normalizeForce(cohesionForce);
 
-      let totalForceX = followForce.x + separationForce.x + alignmentForce.x / 2 + cohesionForce.x / 2;
-      let totalForceY = followForce.y + separationForce.y; + alignmentForce.y / 2 + cohesionForce.y / 2;
+      let totalForceX = followForce.x + separationForce.x + alignmentForce.x / 2 + cohesionForce.x / 4;
+      let totalForceY = followForce.y + separationForce.y + alignmentForce.y / 2 + cohesionForce.y / 4;
+
+      // friction (stronger when close to target)
+      const closeEnough = Math.random() * (80 - 20) + 20;
+      if (!(sprite.x + closeEnough < targetX || sprite.x - closeEnough > targetX) &&
+         !(sprite.y + closeEnough < targetY || sprite.y - closeEnough > targetY)) {
+        sprite.vx *= 0.80;
+        sprite.vy *= 0.80;
+      } else {
+        sprite.vx *= 0.95;
+        sprite.vy *= 0.95;
+      }
+
+      sprite.vx += totalForceX * 0.1 * delta;
+      sprite.vy += totalForceY * 0.1 * delta;
+
 
       // Limit maximum speed
+      /*
       const velocityMagnitude = Math.sqrt(sprite.vx * sprite.vx + sprite.vy * sprite.vy);
       if (velocityMagnitude > maxSpeed) {
         const scale = maxSpeed / velocityMagnitude;
-        totalForceX *= scale;
-        totalForceY *= scale;
+        sprite.vy *= scale;
+        sprite.vx *= scale;
       }
-
-      const closeEnough = Math.random() * (80 - 20) + 20;
-
-      if (sprite.x + closeEnough < targetX || sprite.x - closeEnough > targetX) {
-        sprite.vx += totalForceX * delta;
-      } else {
-        sprite.vx *= 0.95;
-      }
-
-      if (sprite.y + closeEnough < targetY || sprite.y - closeEnough > targetY) {
-        sprite.vy += totalForceY * delta;
-      } else {
-        sprite.vy *= 0.95;
-      }
+      */
 
       sprite.x += sprite.vx;
       sprite.y += sprite.vy;
