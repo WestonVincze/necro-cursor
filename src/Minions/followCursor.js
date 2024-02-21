@@ -34,21 +34,32 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
     sprite.vy = 0;
   }
 
+  const enemy = Sprite.from("https://pixijs.com/assets/bunny.png");
+  enemy.position.set(app.screen.width / 4, app.screen.height / 4);
+  app.stage.addChild(enemy);
+
+  const isIntersecting = (a, b) => {
+
+  }
+  
+
   app.ticker.add((delta) => {
-    sprites.forEach(sprite => {
+    sprites.forEach((sprite, i) => {
+      // if (isIntersecting(sprite, enemy)) return;
       let followForce = calculateFollowForce({ targetX, targetY }, sprite, 0.1);
       let separationForce = calculateSeparationForce(sprite, sprites, 50, 0.5);
-      // let cohesionForce = calculateCohesionForce(sprite, bunnies, 5);
-      // let alignmentForce = calculateAlignmentForce(sprite, bunnies, 1);
+      let cohesionForce = calculateCohesionForce(sprite, sprites, 20);
+      let alignmentForce = calculateAlignmentForce(sprite, sprites, 20);
+      // if (i === 0) console.log(followForce, separationForce, cohesionForce, alignmentForce);
 
       // Normalize forces
       followForce = normalizeForce(followForce);
       separationForce = normalizeForce(separationForce);
-      // alignmentForce = normalizeForce(alignmentForce);
-      // cohesionForce = normalizeForce(cohesionForce);
+      alignmentForce = normalizeForce(alignmentForce);
+      cohesionForce = normalizeForce(cohesionForce);
 
-      let totalForceX = followForce.x + separationForce.x; // + alignmentForce.x + cohesionForce.x;
-      let totalForceY = followForce.y + separationForce.y; // + alignmentForce.y + cohesionForce.y;
+      let totalForceX = followForce.x + separationForce.x + alignmentForce.x / 2 + cohesionForce.x / 2;
+      let totalForceY = followForce.y + separationForce.y; + alignmentForce.y / 2 + cohesionForce.y / 2;
 
       // Limit maximum speed
       const velocityMagnitude = Math.sqrt(sprite.vx * sprite.vx + sprite.vy * sprite.vy);
@@ -58,18 +69,18 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
         totalForceY *= scale;
       }
 
-      const closeEnough = Math.random() * (50 - 10) + 10;
+      const closeEnough = Math.random() * (80 - 20) + 20;
 
       if (sprite.x + closeEnough < targetX || sprite.x - closeEnough > targetX) {
         sprite.vx += totalForceX * delta;
       } else {
-        sprite.vx *= 0.7;
+        sprite.vx *= 0.95;
       }
 
       if (sprite.y + closeEnough < targetY || sprite.y - closeEnough > targetY) {
         sprite.vy += totalForceY * delta;
       } else {
-        sprite.vy *= 0.7;
+        sprite.vy *= 0.95;
       }
 
       sprite.x += sprite.vx;
@@ -111,11 +122,11 @@ const calculateSeparationForce = (sprite, flock, separationRadius = 1, maxOverla
         const overlapRatio = (minDistance - distance) / minDistance;
 
         if (overlapRatio > maxOverlapRatio && distance < separationRadius) {
-            const separationDirectionX = dx / distance;
-            const separationDirectionY = dy / distance;
+          const separationDirectionX = dx / distance;
+          const separationDirectionY = dy / distance;
 
-            separationForce.x -= separationDirectionX;
-            separationForce.y -= separationDirectionY;
+          separationForce.x -= separationDirectionX;
+          separationForce.y -= separationDirectionY;
         }
       }
     }

@@ -7,7 +7,7 @@ const container = document.querySelector('#container');
 const app = new Application({ background: '#aeaeae', resizeTo: container});
 container.appendChild(app.view);
 
-FollowCursor(app, "/assets/skele.png", 25);
+FollowCursor(app, "/assets/skele.png", 50);
 
 Player(app);
   
