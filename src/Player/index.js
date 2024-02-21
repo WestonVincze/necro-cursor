@@ -3,7 +3,9 @@ import { distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } 
 
 const initializePlayer = (app) => {
   // initialize player
-  const player = Sprite.from("https://pixijs.com/assets/bunny.png");
+  const player = Sprite.from("assets/necro.png");
+  player.width = 50;
+  player.height = 114;
   player.anchor.set(0.5);
   player.position.set(app.screen.width / 2, app.screen.height / 2);
   player.vx = 0;

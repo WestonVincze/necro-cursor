@@ -11,7 +11,8 @@
       box-sizing: border-box;
     }
     body {
-      background-color: darkslategrey;
+      background-color: #555;
+      font-family: monospace;
     }
     h1 {
       text-align: center;
@@ -24,10 +25,15 @@
       height: 80svh;
       margin: 0 auto;
     }
+    #container canvas {
+      filter: drop-shadow(0 0 40px #333);
+      border: 5px solid #eee3;
+      border-radius: 15px;
+    }
   </style>
 </head>
 <body>
-  <h1>NECRO CURSOR</h1>
+  <h1>Necro Cursor</h1>
   <div id="container"> </div>
 </body>
 </html>

@@ -4,10 +4,10 @@ import { Player } from "./Player";
 
 // Setup PixiJS APP
 const container = document.querySelector('#container');
-const app = new Application({ background: '#fafafa', resizeTo: container});
+const app = new Application({ background: '#aeaeae', resizeTo: container});
 container.appendChild(app.view);
 
-FollowCursor(app, "https://pixijs.com/assets/bunny.png", 10);
+FollowCursor(app, "/assets/skele.png", 25);
 
 Player(app);
   

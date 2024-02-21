@@ -24,6 +24,8 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
 
   for (let i = 0; i < spriteCount; i++) {
     const sprite = Sprite.from(spriteURL);
+    sprite.width = 40;
+    sprite.height = 60;
     sprite.anchor.set(0.5);
     sprite.position.set(Math.random() * app.screen.width, Math.random() * app.screen.height);
     app.stage.addChild(sprite);
