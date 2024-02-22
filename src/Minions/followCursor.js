@@ -1,5 +1,8 @@
 import { auditTime, fromEvent } from 'rxjs'
 import { Sprite } from "pixi.js"
+import { addAttacker, enemies, getEnemyById } from '../Enemy';
+import { isIntersectingRect } from '../Colliders/isIntersecting';
+import { normalizeForce } from '../helpers';
 
 export const FollowCursor = (app, spriteURL, spriteCount) => {
   // register mousemove event
@@ -18,7 +21,8 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
   result$.subscribe(followMouse)
 
   // create and move sprites
-  const sprites = [];
+  let minions = [];
+  let id = 0;
   const maxSpeed = 3;
 
   for (let i = 0; i < spriteCount; i++) {
@@ -28,70 +32,82 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
     sprite.anchor.set(0.5);
     sprite.position.set(Math.random() * app.screen.width, Math.random() * app.screen.height);
     app.stage.addChild(sprite);
-    sprites.push(sprite);
-
     sprite.vx = 0;
     sprite.vy = 0;
-  }
 
-  const enemy = Sprite.from("https://pixijs.com/assets/bunny.png");
-  enemy.position.set(app.screen.width / 4, app.screen.height / 4);
-  app.stage.addChild(enemy);
-
-  const isIntersecting = (a, b) => {
-
+    minions.push({
+      id: id++,
+      sprite,
+      target: 'cursor',
+    });
   }
 
   app.ticker.add((delta) => {
-    sprites.forEach((sprite, i) => {
-      // if (isIntersecting(sprite, enemy)) return;
-      let followForce = calculateFollowForce({ targetX, targetY }, sprite, 0.5);
-      let separationForce = calculateSeparationForce(sprite, sprites, 50, 0.01);
-      let cohesionForce = calculateCohesionForce(sprite, sprites, 20);
-      let alignmentForce = calculateAlignmentForce(sprite, sprites, 20);
-      // if (i === 0) console.log(followForce, separationForce, cohesionForce, alignmentForce);
+    minions.forEach(minion => {
+
+      enemies.forEach(enemy => {
+        if (minion.target !== 'cursor') return;
+        if (isIntersectingRect(minion.sprite, enemy.sprite, 50) && addAttacker(enemy.id)) {
+          minion.target = enemy.id;
+        }
+      })
+
+      const target = { x: targetX, y: targetY };
+
+      if (minion.target !== 'cursor') {
+        const enemy = getEnemyById(minion.target);
+        if (enemy) {
+          target.x = enemy.sprite.x;
+          target.y = enemy.sprite.y;
+        } else {
+          minion.target = 'cursor';
+        }
+      }
+
+      let followForce = calculateFollowForce({ targetX: target.x, targetY: target.y }, minion.sprite, 0.01);
+      let separationForce = calculateSeparationForce(minion.sprite, minions, 50, 0.01);
+      // let cohesionForce = calculateCohesionForce(sprite, sprites, 20);
+      // let alignmentForce = calculateAlignmentForce(sprite, sprites, 20);
 
       // Normalize forces
       followForce = normalizeForce(followForce);
       separationForce = normalizeForce(separationForce);
-      alignmentForce = normalizeForce(alignmentForce);
-      cohesionForce = normalizeForce(cohesionForce);
+      // alignmentForce = normalizeForce(alignmentForce);
+      // cohesionForce = normalizeForce(cohesionForce);
 
-      let totalForceX = followForce.x + separationForce.x + alignmentForce.x / 2 + cohesionForce.x / 4;
-      let totalForceY = followForce.y + separationForce.y + alignmentForce.y / 2 + cohesionForce.y / 4;
+      let totalForceX = followForce.x + separationForce.x; // + alignmentForce.x / 2 + cohesionForce.x / 4;
+      let totalForceY = followForce.y + separationForce.y; // + alignmentForce.y / 2 + cohesionForce.y / 4;
 
+      minion.sprite.vx += totalForceX * 0.1 * delta;
+      minion.sprite.vy += totalForceY * 0.1 * delta;
       // friction (stronger when close to target)
       const closeEnough = Math.random() * (80 - 20) + 20;
-      if (!(sprite.x + closeEnough < targetX || sprite.x - closeEnough > targetX) &&
-         !(sprite.y + closeEnough < targetY || sprite.y - closeEnough > targetY)) {
-        sprite.vx *= 0.80;
-        sprite.vy *= 0.80;
+      if (!(minion.sprite.x + closeEnough < target.x || minion.sprite.x - closeEnough > target.x) &&
+         !(minion.sprite.y + closeEnough < target.y || minion.sprite.y - closeEnough > target.y)) {
+        minion.sprite.vx *= 0.80;
+        minion.sprite.vy *= 0.80;
       } else {
-        sprite.vx *= 0.95;
-        sprite.vy *= 0.95;
+        minion.sprite.vx *= 0.95;
+        minion.sprite.vy *= 0.95;
       }
 
-      sprite.vx += totalForceX * 0.1 * delta;
-      sprite.vy += totalForceY * 0.1 * delta;
-
-
       // Limit maximum speed
-      /*
-      const velocityMagnitude = Math.sqrt(sprite.vx * sprite.vx + sprite.vy * sprite.vy);
+      /* no point right now, sprites cannot reach max speed
+      const velocityMagnitude = Math.sqrt(minion.sprite.vx * minion.sprite.vx + minion.sprite.vy * minion.sprite.vy);
       if (velocityMagnitude > maxSpeed) {
         const scale = maxSpeed / velocityMagnitude;
-        sprite.vy *= scale;
-        sprite.vx *= scale;
+        minion.sprite.vy *= scale;
+        minion.sprite.vx *= scale;
       }
       */
 
-      sprite.x += sprite.vx;
-      sprite.y += sprite.vy;
+      minion.sprite.x += minion.sprite.vx;
+      minion.sprite.y += minion.sprite.vy;
     })
   })
 }
 
-const calculateFollowForce = ({ targetX, targetY }, sprite, speed) => {
+export const calculateFollowForce = ({ targetX, targetY }, sprite, speed) => {
   const followForce = { x: 0, y: 0 };
   if (targetX === 0 && targetY === 0) return followForce;
   const dx = targetX - sprite.x;
@@ -112,7 +128,8 @@ const calculateFollowForce = ({ targetX, targetY }, sprite, speed) => {
 const calculateSeparationForce = (sprite, flock, separationRadius = 1, maxOverlapRatio) => {
   const separationForce = { x: 0, y: 0 };
 
-  flock.forEach(otherSprite => {
+  flock.forEach(minion => {
+    const otherSprite = minion.sprite;
     if (otherSprite !== sprite) {
       const dx = otherSprite.x - sprite.x;
       const dy = otherSprite.y - sprite.y;
@@ -206,14 +223,3 @@ const calculateAlignmentForce = (sprite, flock, alignmentRadius) => {
 
   return alignmentForce;
 };
-
-const normalizeForce = ({ x, y }) => {
-  const magnitude = Math.sqrt(x * x + y * y);
-
-  if (magnitude > 0) {
-    x /= magnitude;
-    y /= magnitude;
-  }
-
-  return { x, y }
-}
