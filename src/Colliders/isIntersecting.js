@@ -5,7 +5,7 @@ import { Graphics } from "pixi.js";
  */
 
 /** Rectangular */
-export const isIntersectingRect = (a, b, range) => {
+export const isIntersectingRect = (a, b, range = 0) => {
   const aBox = a.getBounds();
   const bBox = b.getBounds();
 

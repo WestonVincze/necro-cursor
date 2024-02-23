@@ -1,26 +1,41 @@
-import { Sprite } from "pixi.js";
+import { Graphics, Sprite } from "pixi.js";
 import { distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } from "rxjs";
+import { Health } from "../Health";
+import { isIntersectingRect } from "../Colliders/isIntersecting";
 
 const initializePlayer = (app) => {
   // initialize player
-  const player = Sprite.from("assets/necro.png");
-  player.width = 50;
-  player.height = 114;
-  player.anchor.set(0.5);
-  player.position.set(app.screen.width / 2, app.screen.height / 2);
-  player.vx = 0;
-  player.vy = 0;
-  app.stage.addChild(player);
+  const sprite = Sprite.from("assets/necro.png");
+  sprite.width = 50;
+  sprite.height = 114;
+  sprite.anchor.set(0.5);
+  sprite.position.set(app.screen.width / 2, app.screen.height / 2);
+  sprite.vx = 0;
+  sprite.vy = 0;
+  app.stage.addChild(sprite);
+  console.log(sprite);
+  const health = Health({ maxHP: 100, sprite })
+  sprite.parent.addChild(health.healthBar.container);
+  health.subscribeToDeath(() => {
+    alert("GAME OVER KID");
+    window.location.reload();
+  })
+
+  const player = {
+    sprite,
+    health,
+    attackers: [],
+  }
   
   return player;
 }
 
 export const Player = (app) => {
   const player = initializePlayer(app);
+  const sprite = player.sprite;
 
   // state
   let [ moveX, moveY ] = [0, 0]
-
   const updateMoveInput = ({ x, y }) => {
     moveX = x;
     moveY = y;
@@ -31,31 +46,31 @@ export const Player = (app) => {
   // apply x and y state to move player
   app.ticker.add((delta) => {
     if (moveX === 0) {
-      player.vx += -player.vx * 0.1 * delta;
+      sprite.vx += -sprite.vx * 0.1 * delta;
     } else {
-      player.vx += moveX * 0.3 * delta;
+      sprite.vx += moveX * 0.3 * delta;
     }
 
     if (moveY === 0) {
-      player.vy += -player.vy * 0.1 * delta;
+      sprite.vy += -sprite.vy * 0.1 * delta;
     } else {
-      player.vy += moveY * 0.3 * delta;
+      sprite.vy += moveY * 0.3 * delta;
     }
 
     // limit max speed
-    const magnitude = (player.vx * player.vx + player.vy * player.vy);
+    const magnitude = (sprite.vx * sprite.vx + sprite.vy * sprite.vy);
     if (magnitude > 3) {
       const scale = 3 / magnitude
-      player.vx *= scale;
-      player.vy *= scale;
+      sprite.vx *= scale;
+      sprite.vy *= scale;
     }
 
-    const position = { x: player.x += player.vx, y: player.y += player.vy }
+    const position = { x: sprite.x += sprite.vx, y: sprite.y += sprite.vy }
 
-    position.x = Math.min(Math.max(position.x, player.width / 2), app.screen.width - player.width / 2);
-    position.y = Math.min(Math.max(position.y, player.height / 2), app.screen.height - player.height / 2);
-    player.x = position.x;
-    player.y = position.y;
+    position.x = Math.min(Math.max(position.x, sprite.width / 2), app.screen.width - sprite.width / 2);
+    position.y = Math.min(Math.max(position.y, sprite.height / 2), app.screen.height - sprite.height / 2);
+    sprite.x = position.x;
+    sprite.y = position.y;
   })
 
   return player;

@@ -4,6 +4,7 @@ import { addAttacker, enemies, getEnemyById } from '../Enemy';
 import { isIntersectingRect } from '../Colliders/isIntersecting';
 import { normalizeForce } from '../helpers';
 
+// TODO: refactor and utilize the new followTarget script
 export const FollowCursor = (app, spriteURL, spriteCount) => {
   // register mousemove event
   const move$ = fromEvent(container, 'mousemove');
@@ -47,7 +48,7 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
 
       enemies.forEach(enemy => {
         if (minion.target !== 'cursor') return;
-        if (isIntersectingRect(minion.sprite, enemy.sprite, 50) && addAttacker(enemy.id)) {
+        if (isIntersectingRect(minion.sprite, enemy.sprite, 100) && addAttacker(enemy.id)) {
           minion.target = enemy.id;
         }
       })

@@ -1,8 +1,8 @@
 import { Sprite } from "pixi.js";
-import { drawHitboxRect } from "../Colliders/isIntersecting";
 import { interval } from "rxjs";
-import { calculateFollowForce } from "../Minions/followCursor";
-import { normalizeForce } from "../helpers";
+import { drawHitboxRect } from "../Colliders/isIntersecting";
+import { followTarget } from "../Movement/followTarget";
+import { Health } from "../Health";
 
 export let enemies = [];
 let id = 0;
@@ -17,17 +17,23 @@ export const createEnemy = (container, position = { x: 0, y: 0 }) => {
   sprite.vy = 0;
   container.addChild(sprite);
   // const hitbox = drawHitboxRect(sprite, 50);
+  const health = Health({ maxHP: 100, sprite });
+  sprite.parent.addChild(health.healthBar.container);
 
   const enemy = {
     id: id++,
     sprite,
     // hitbox,
-    health: 100,
+    health,
     maxAttackers: 10,
     attackers: 0,
   }
 
   enemies.push(enemy)
+
+  health.subscribeToDeath(() => {
+    removeEnemy(enemy.id);
+  })
 
   return enemy;
 }
@@ -50,6 +56,7 @@ export const addAttacker = (id) => {
   return true;
 }
 
+/*
 export const damageEnemy = (id, damage) => {
   const enemy = getEnemyById(id);
   if (!enemy) return;
@@ -58,9 +65,11 @@ export const damageEnemy = (id, damage) => {
 
   if (enemy.health <= 0) removeEnemy(id);
 }
+*/
 
 // continuously spawns enemies
 export const Spawner = (app, container, rate = 5000, player) => {
+  if (enemies.length > 0) return;
   const timer$ = interval(rate);
 
   timer$.subscribe(() => {
@@ -70,22 +79,12 @@ export const Spawner = (app, container, rate = 5000, player) => {
     })
 
     app.ticker.add((delta) => {
-      damageEnemy(enemy.id, enemy.attackers * 0.1);
-
+      enemy.health.takeDamage(enemy.attackers * 0.1);
       if (!getEnemyById(enemy.id)) return;
 
-      const followForce = calculateFollowForce({ targetX: player.x, targetY: player.y }, enemy.sprite, 0.1)
-
-      const force = normalizeForce(followForce);
-
-      enemy.sprite.vx += force.x * delta * 0.05;
-      enemy.sprite.vy += force.y * delta * 0.05;
-
-      enemy.sprite.vx *= 0.95;
-      enemy.sprite.vy *= 0.95;
-
-      enemy.sprite.x += enemy.sprite.vx;
-      enemy.sprite.y += enemy.sprite.vy;
+      const inRange = followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 0.05, maxSpeed: 1.5 / Math.max(1, enemy.attackers), separation: 2, cohesion: 1 });
+      // TODO: develop proper damaging system
+      if (inRange) player.health.takeDamage(0.5);
     })
   })
 }

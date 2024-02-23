@@ -1,13 +1,25 @@
 import { Application, Container } from "pixi.js";
 import { FollowCursor } from "./Minions/followCursor";
 import { Player } from "./Player";
-import { Spawner } from "./Enemy";
+import { Spawner, enemies } from "./Enemy";
 import { getURLParam } from "./helpers";
 
 // Setup PixiJS APP
+export const appService = {
+  app: null,
+  initialize(app) {
+    this.app = app;
+  },
+  getApp() {
+    return this.app;
+  }
+}
+
 const container = document.querySelector('#container');
 const app = new Application({ background: '#aeaeae', resizeTo: container});
 container.appendChild(app.view);
+
+appService.initialize(app);
 
 const skeletons = getURLParam("skeletons", 69);
 const spawnRate = getURLParam("spawnRate", 2500);
