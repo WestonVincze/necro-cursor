@@ -52,21 +52,22 @@ const HealthBar = ({ maxHP, hp, sprite }) => {
     container.position.y = sprite.y - (sprite._height / 2) - 5;
   }
 
+  // look into creating a reference object and cloning it with .clone()
   const bg = new Graphics();
-  bg.beginFill(0xff0000);
+  bg.beginFill(0xff5555);
   bg.drawRect(0, 0, width, height);
   bg.endFill();
   container.addChild(bg);
 
   const healthBar = new Graphics();
-  healthBar.beginFill(0x00ff00);
+  healthBar.beginFill(0x55ff55);
   healthBar.drawRect(0, 0, width * (hp / maxHP), height);
   healthBar.endFill();
   container.addChild(healthBar);
 
   const updateHealth = (newHP) => {
     healthBar.clear();
-    healthBar.beginFill(0x00ff00);
+    healthBar.beginFill(0x55ff55);
     healthBar.drawRect(0, 0, width * (newHP / maxHP), height);
     healthBar.endFill();
   }

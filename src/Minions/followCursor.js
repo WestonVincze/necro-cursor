@@ -3,9 +3,33 @@ import { Sprite } from "pixi.js"
 import { addAttacker, enemies, getEnemyById } from '../Enemy';
 import { isIntersectingRect } from '../Colliders/isIntersecting';
 import { normalizeForce } from '../helpers';
+import { appService } from '../app';
 
 // TODO: refactor and utilize the new followTarget script
-export const FollowCursor = (app, spriteURL, spriteCount) => {
+export let minions = [];
+let id = 0;
+
+export const createMinion = (position) => {
+  const { spriteContainer } = appService;
+  const sprite = Sprite.from("/assets/skele.png");
+  sprite.width = 40;
+  sprite.height = 60;
+  sprite.anchor.set(0.5);
+  sprite.position.set(position.x, position.y);
+  spriteContainer.addChild(sprite);
+  sprite.vx = 0;
+  sprite.vy = 0;
+
+  minions.push({
+    id: id++,
+    sprite,
+    target: 'cursor',
+  });
+}
+
+export const FollowCursor = (spriteCount) => {
+  const { app } = appService;
+
   // register mousemove event
   const move$ = fromEvent(container, 'mousemove');
   const result$ = move$.pipe(auditTime(200));
@@ -22,25 +46,10 @@ export const FollowCursor = (app, spriteURL, spriteCount) => {
   result$.subscribe(followMouse)
 
   // create and move sprites
-  let minions = [];
-  let id = 0;
   const maxSpeed = 3;
 
   for (let i = 0; i < spriteCount; i++) {
-    const sprite = Sprite.from(spriteURL);
-    sprite.width = 40;
-    sprite.height = 60;
-    sprite.anchor.set(0.5);
-    sprite.position.set(Math.random() * app.screen.width, Math.random() * app.screen.height);
-    app.stage.addChild(sprite);
-    sprite.vx = 0;
-    sprite.vy = 0;
-
-    minions.push({
-      id: id++,
-      sprite,
-      target: 'cursor',
-    });
+    createMinion({ x: Math.random() * app.screen.width, y: Math.random() * app.screen.height });
   }
 
   app.ticker.add((delta) => {

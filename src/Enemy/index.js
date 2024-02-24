@@ -3,11 +3,45 @@ import { interval } from "rxjs";
 import { drawHitboxRect } from "../Colliders/isIntersecting";
 import { followTarget } from "../Movement/followTarget";
 import { Health } from "../Health";
+import { appService } from "../app";
 
 export let enemies = [];
+export let bones = [];
+export let killCount = 0;
 let id = 0;
 
-export const createEnemy = (container, position = { x: 0, y: 0 }) => {
+const spawnBones = ({ x, y }, id) => {
+  const { spriteContainer } = appService;
+  const sprite = Sprite.from("assets/bones.png");
+  sprite.anchor.set(0.5);
+  sprite.width = 50;
+  sprite.height = 35;
+  sprite.position.set(x, y);
+
+  spriteContainer.addChild(sprite);
+
+  bones.push({ id, sprite });
+  setTimeout(() => { 
+    if (bones.filter(b => b.id === id)[0]) {
+      removeBones({ id, sprite })
+    }
+  }, 60000);
+
+  return sprite;
+}
+
+export const removeBones = ({ id, sprite }) => {
+  if (!sprite) return;
+  try {
+    sprite.destroy();
+    bones = [...bones.filter(b => b.id !== id)];
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+export const createEnemy = (position = { x: 0, y: 0 }) => {
+  const { spriteContainer, UIContainer } = appService;
   const sprite = Sprite.from("assets/guard.png");
   sprite.anchor.set(0.5);
   sprite.width = 50;
@@ -15,10 +49,10 @@ export const createEnemy = (container, position = { x: 0, y: 0 }) => {
   sprite.position.set(position.x, position.y);
   sprite.vx = 0;
   sprite.vy = 0;
-  container.addChild(sprite);
+  spriteContainer.addChild(sprite);
   // const hitbox = drawHitboxRect(sprite, 50);
   const health = Health({ maxHP: 100, sprite });
-  sprite.parent.addChild(health.healthBar.container);
+  UIContainer.addChild(health.healthBar.container);
 
   const enemy = {
     id: id++,
@@ -32,7 +66,9 @@ export const createEnemy = (container, position = { x: 0, y: 0 }) => {
   enemies.push(enemy)
 
   health.subscribeToDeath(() => {
+    spawnBones(sprite, enemy.id);
     removeEnemy(enemy.id);
+    killCount++;
   })
 
   return enemy;
@@ -68,23 +104,33 @@ export const damageEnemy = (id, damage) => {
 */
 
 // continuously spawns enemies
-export const Spawner = (app, container, rate = 5000, player) => {
-  if (enemies.length > 0) return;
+export const Spawner = (rate = 5000, player) => {
+  const { app, gameTicks$ } = appService;
   const timer$ = interval(rate);
 
+  let difficultyScale = 1;
+
   timer$.subscribe(() => {
-    const enemy = createEnemy(container, {
-      x: Math.random() * app.screen.width,
-      y: Math.random() * app.screen.height,
-    })
+    difficultyScale += 0.05;
 
-    app.ticker.add((delta) => {
-      enemy.health.takeDamage(enemy.attackers * 0.1);
-      if (!getEnemyById(enemy.id)) return;
+    for (let i = 0; i < Math.floor(difficultyScale); i++) {
+      const enemy = createEnemy({
+        x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
+        y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,
+      })
 
-      const inRange = followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 0.05, maxSpeed: 1.5 / Math.max(1, enemy.attackers), separation: 2, cohesion: 1 });
-      // TODO: develop proper damaging system
-      if (inRange) player.health.takeDamage(0.5);
-    })
+
+      gameTicks$.subscribe(() => {
+        enemy.health.takeDamage(enemy.attackers * 1);
+      })
+
+      app.ticker.add((delta) => {
+        if (!getEnemyById(enemy.id)) return;
+
+        const inRange = followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 0.05, maxSpeed: 1.3 / Math.max(1, enemy.attackers), separation: 2, cohesion: 1 });
+        // TODO: develop proper damaging system
+        if (inRange) player.health.takeDamage(0.5);
+      })
+    }
   })
 }

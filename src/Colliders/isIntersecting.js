@@ -24,6 +24,12 @@ export const drawHitboxRect = (sprite, range) => {
   return hitBox;
 }
 
+export const distanceBetweenPoints = (p1, p2) => {
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
 /** Circular (WIP) */
 const isIntersectingCircle = (a, b) => {
   // Get bounds of both objects

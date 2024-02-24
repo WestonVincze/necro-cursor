@@ -1,10 +1,37 @@
 import { Graphics, Sprite } from "pixi.js";
 import { distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } from "rxjs";
 import { Health } from "../Health";
-import { isIntersectingRect } from "../Colliders/isIntersecting";
+import { distanceBetweenPoints, isIntersectingRect } from "../Colliders/isIntersecting";
+import { appService } from "../app";
+import { bones, removeBones, killCount } from "../Enemy";
+import { createMinion } from "../Minions/followCursor";
+import { minions } from "../Minions/followCursor";
+
+const drawSummoningCircle = ({ x, y, maxRadius }) => {
+  const { UIContainer } = appService;
+  const circle = new Graphics();
+  circle.lineStyle({ width: 2, color: 0xffaaff})
+
+  let radius = 10;
+  circle.drawCircle(x, y, radius);
+
+  UIContainer.addChild(circle)
+
+  const growCircle = ({ x, y }) => {
+    if (radius >= maxRadius) return radius;
+    circle.clear();
+    circle.lineStyle({ width: 2, color: 0xffaaff})
+    radius += 0.5;
+    circle.drawCircle(x, y, radius);
+
+    return radius;
+  }
+
+  return { circle, growCircle };
+}
 
 const initializePlayer = (app) => {
-  // initialize player
+  const { spriteContainer, UIContainer } = appService;
   const sprite = Sprite.from("assets/necro.png");
   sprite.width = 50;
   sprite.height = 114;
@@ -12,12 +39,12 @@ const initializePlayer = (app) => {
   sprite.position.set(app.screen.width / 2, app.screen.height / 2);
   sprite.vx = 0;
   sprite.vy = 0;
-  app.stage.addChild(sprite);
-  console.log(sprite);
+  spriteContainer.addChild(sprite);
   const health = Health({ maxHP: 100, sprite })
-  sprite.parent.addChild(health.healthBar.container);
+  UIContainer.addChild(health.healthBar.container);
+
   health.subscribeToDeath(() => {
-    alert("GAME OVER KID");
+    alert(`GET FUCKED IDIOT.\n\nYou had ${minions.length} skeletons under your control.\n\nYou murdered ${killCount} guards. Nice.`);
     window.location.reload();
   })
 
@@ -25,26 +52,55 @@ const initializePlayer = (app) => {
     sprite,
     health,
     attackers: [],
+    summoningCircle: null,
+    summonRange: 0,
   }
   
   return player;
 }
 
-export const Player = (app) => {
+export const Player = () => {
+  const { app, gameTicks$ } = appService;
   const player = initializePlayer(app);
   const sprite = player.sprite;
 
   // state
   let [ moveX, moveY ] = [0, 0]
-  const updateMoveInput = ({ x, y }) => {
-    moveX = x;
-    moveY = y;
+  // TODO: implement a state machine to manage player state
+  const handleInput = ({ x, y, summoning }) => {
+    if (summoning) {
+      if (player.summoningCircle === null) {
+        player.summoningCircle = drawSummoningCircle({ x: player.sprite.x, y: player.sprite.y, maxRadius: 150 });
+      }
+      moveX = 0;
+      moveY = 0;
+    } else {
+      if (player.summoningCircle !== null) {
+        bones.map(b => {
+          if (distanceBetweenPoints(b.sprite, sprite) <= player.summonRange) {
+            createMinion(b.sprite);
+            removeBones(b);
+          }
+        }); 
+
+        player.summoningCircle.circle.destroy();
+        player.summoningCircle = null;
+      }
+      moveX = x;
+      moveY = y;
+    }
   }
 
-  moveInput$.subscribe((e) => updateMoveInput(e))
+  playerInput$.subscribe((e) => handleInput(e))
+
+  gameTicks$.subscribe(() => {
+  })
 
   // apply x and y state to move player
   app.ticker.add((delta) => {
+    if (player.summoningCircle) {
+      player.summonRange = player.summoningCircle.growCircle(player.sprite);
+    }
     if (moveX === 0) {
       sprite.vx += -sprite.vx * 0.1 * delta;
     } else {
@@ -77,7 +133,7 @@ export const Player = (app) => {
 }
 
 // player input and observables
-const inputs = ['w', 'a', 's', 'd'];
+const inputs = ['w', 'a', 's', 'd', ' '];
 
 const keyDown$ = fromEvent(document, 'keydown').pipe(
   filter(e => inputs.includes(e.key.toLowerCase())),
@@ -105,8 +161,9 @@ const keys$ = merge(keyDown$, keyUp$).pipe(
 )
 
 // converting input to x/y values
-const moveInput$ = keys$.pipe(
+const playerInput$ = keys$.pipe(
   map(keys => ({
+    summoning: keys[' '],
     x: (keys['d'] ? 1 : 0) + (keys['a'] ? -1 : 0),
     y: (keys['s'] ? 1 : 0) + (keys['w'] ? -1 : 0),
   })),

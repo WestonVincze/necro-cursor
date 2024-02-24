@@ -1,39 +1,63 @@
 import { Application, Container } from "pixi.js";
 import { FollowCursor } from "./Minions/followCursor";
 import { Player } from "./Player";
-import { Spawner, enemies } from "./Enemy";
+import { Spawner } from "./Enemy";
 import { getURLParam } from "./helpers";
+import { interval } from "rxjs";
 
 // Setup PixiJS APP
 export const appService = {
   app: null,
-  initialize(app) {
+  spriteContainer: null,
+  UIContainer: null,
+  gameTicks$: null,
+  initialize() {
+    const container = document.querySelector('#container');
+    const app = new Application({ background: '#aeaeae', resizeTo: container});
+    container.appendChild(app.view);
+
+    const UIContainer = new Container();
+    const spriteContainer = new Container();
+    spriteContainer.sortableChildren = true;
+
+    app.stage.addChild(spriteContainer);
+    app.stage.addChild(UIContainer);
+    const gameTicks$ = interval(200);
+
     this.app = app;
+    this.UIContainer = UIContainer;
+    this.spriteContainer = spriteContainer;
+    this.gameTicks$ = gameTicks$;
   },
+  /** do we need getters? */
   getApp() {
     return this.app;
+  },
+  getSpriteContainer() {
+    return this.spriteContainer;
+  },
+  getUIContainer() {
+    return this.UIContainer;
+  },
+  getGameTicks$() {
+    return this.gameTicks$;
   }
 }
 
-const container = document.querySelector('#container');
-const app = new Application({ background: '#aeaeae', resizeTo: container});
-container.appendChild(app.view);
+appService.initialize();
+const { gameTicks$, spriteContainer } = appService;
 
-appService.initialize(app);
-
-const skeletons = getURLParam("skeletons", 69);
+const skeletons = getURLParam("skeletons", 5);
 const spawnRate = getURLParam("spawnRate", 2500);
 
-console.log("Change the skeleton count by adding ?skeletons=0 to the url, where 0 is the number of skeletons you want");
-console.log("Change the spawn rate of guards by adding ?spawnRate=0 to the url, where 0 is the rate at which guards spawn in miliseconds")
-console.log("If you want to add both, separate with an & instead of ? like this: ?skeletons=0&spawnRate=0")
+FollowCursor(skeletons);
 
-FollowCursor(app, "/assets/skele.png", skeletons);
+const player = Player();
 
-const enemyContainer = new Container();
-app.stage.addChild(enemyContainer);
+Spawner(spawnRate, player);
 
-const player = Player(app);
+const alignEnemies = () => {
+  spriteContainer.children.map(c => c.zIndex = c.y)
+}
 
-Spawner(app, enemyContainer, spawnRate, player);
-  
+gameTicks$.subscribe(() => alignEnemies())
