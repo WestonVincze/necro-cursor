@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Necro Cursor</title>
   <style>
+    :root {
+      --font-light: #eee;
+      --border-radius: 15px;
+      --primary: #442244;
+      --primary-light: #663366;
+    }
     * {
       padding: 0;
       margin: 0;
@@ -13,25 +19,66 @@
     body {
       background-color: #555;
       font-family: monospace;
-    }
-    h1 {
-      text-align: center;
-      margin: 15px;
-      color: violet;
+      font-size: 20px;
     }
     #container {
       width: calc(100svw - 10px);
       max-width: 1400px;
       height: 95svh;
       margin: 2.5svh auto;
+      position: relative;
     }
     #container canvas {
       filter: drop-shadow(0 0 40px #333);
-      border-radius: 15px;
+      border-radius: var(--border-radius);
+    }
+    #overlay.show {
+      display: block;
+    }
+    #overlay {
+      display: none;
+      z-index: 2;
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      padding: 30px;
+      border-radius: var(--border-radius);
+      background-color: #333333dd;
+      text-align: center;
+      color: var(--font-light);
+    }
+    #overlay > * {
+      margin-bottom: 15px;
+    }
+    button {
+      outline: none;
+      border: 2px solid #ffffffcc;
+      filter: drop-shadow(0 0 40px #333);
+      padding: 15px 10px;
+      border-radius: var(--border-radius);
+      color: var(--font-light);
+      background-color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: bold;
+      transition: all 200ms ease-in-out;
+    }
+    button:hover {
+      cursor: pointer;
+      background-color: var(--primary-light);
+    }
+    img {
+      filter: drop-shadow(0 0 40px #333);
+    }
+    h1 {
+      color: #AA4444;
     }
   </style>
 </head>
 <body>
-  <div id="container"></div>
+  <div id="container">
+    <div id="overlay"></div>
+  </div>
 </body>
 </html>

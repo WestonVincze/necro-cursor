@@ -6,6 +6,7 @@ import { appService } from "../app";
 import { bones, removeBones, killCount } from "../Enemy";
 import { createMinion } from "../Minions/followCursor";
 import { minions } from "../Minions/followCursor";
+import { GameOverScreen } from "../Views/GameOver";
 
 const drawSummoningCircle = ({ x, y, maxRadius }) => {
   const { UIContainer } = appService;
@@ -30,8 +31,8 @@ const drawSummoningCircle = ({ x, y, maxRadius }) => {
   return { circle, growCircle };
 }
 
-const initializePlayer = (app) => {
-  const { spriteContainer, UIContainer } = appService;
+const initializePlayer = () => {
+  const { app, spriteContainer, UIContainer } = appService;
   const sprite = Sprite.from("assets/necro.png");
   sprite.width = 50;
   sprite.height = 114;
@@ -44,8 +45,8 @@ const initializePlayer = (app) => {
   UIContainer.addChild(health.healthBar.container);
 
   health.subscribeToDeath(() => {
-    alert(`GET FUCKED IDIOT.\n\nYou had ${minions.length} skeletons under your control.\n\nYou murdered ${killCount} guards. Nice.`);
-    window.location.reload();
+    GameOverScreen({ killCount, armySize: minions.length })
+    app.ticker.stop();
   })
 
   const player = {
@@ -61,7 +62,7 @@ const initializePlayer = (app) => {
 
 export const Player = () => {
   const { app, gameTicks$ } = appService;
-  const player = initializePlayer(app);
+  const player = initializePlayer();
   const sprite = player.sprite;
 
   // state

@@ -41,7 +41,7 @@ export const appService = {
   },
   getGameTicks$() {
     return this.gameTicks$;
-  }
+  },
 }
 
 appService.initialize();
@@ -61,3 +61,24 @@ const alignEnemies = () => {
 }
 
 gameTicks$.subscribe(() => alignEnemies())
+
+/**
+ * GAME MANAGER
+ * 
+ * Game State?
+ * > Menu
+ *   - Play Game
+ *   - HighScores
+ * > Options
+ *   - initial state form
+ * > Character Select
+ *   - selecting character avatar
+ * > Playing
+ *   - game is active
+ * > Paused
+ *   - pause menu shown
+ * > Death Screen
+ *   - YOU DIED message + stats
+ *   - save stats in localstorage
+ */
+
