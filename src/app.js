@@ -7,6 +7,7 @@ import { interval } from "rxjs";
 
 // Setup PixiJS APP
 export const appService = {
+  /** @type {Application} */
   app: null,
   spriteContainer: null,
   UIContainer: null,
