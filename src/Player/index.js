@@ -6,7 +6,8 @@ import { appService } from "../app";
 import { bones, removeBones, killCount } from "../Enemy";
 import { createMinion } from "../Minions/followCursor";
 import { minions } from "../Minions/followCursor";
-import { GameOverScreen } from "../Views/GameOver";
+import { GameOver } from "../Views/GameOver";
+import { normalizeForce } from "../helpers";
 
 const drawSummoningCircle = ({ x, y, maxRadius }) => {
   const { UIContainer } = appService;
@@ -41,11 +42,11 @@ const initializePlayer = () => {
   sprite.vx = 0;
   sprite.vy = 0;
   spriteContainer.addChild(sprite);
-  const health = Health({ maxHP: 100, sprite })
+  const health = Health({ maxHP: 100, sprite });
   UIContainer.addChild(health.healthBar.container);
 
   health.subscribeToDeath(() => {
-    GameOverScreen({ killCount, armySize: minions.length })
+    GameOver({ killCount, armySize: minions.length });
     app.ticker.stop();
   })
 
@@ -99,30 +100,32 @@ export const Player = () => {
 
   // apply x and y state to move player
   app.ticker.add((delta) => {
+    const { x, y } = normalizeForce({ x: moveX, y: moveY });
+
     if (player.summoningCircle) {
       player.summonRange = player.summoningCircle.growCircle(player.sprite);
     }
-    if (moveX === 0) {
-      sprite.vx += -sprite.vx * 0.1 * delta;
+    if (x === 0) {
+      sprite.vx += -sprite.vx * 0.05 * delta;
     } else {
-      sprite.vx += moveX * 0.3 * delta;
+      sprite.vx += x * 0.3 * delta;
     }
 
-    if (moveY === 0) {
-      sprite.vy += -sprite.vy * 0.1 * delta;
+    if (y === 0) {
+      sprite.vy += -sprite.vy * 0.05 * delta;
     } else {
-      sprite.vy += moveY * 0.3 * delta;
+      sprite.vy += y * 0.3 * delta;
     }
 
     // limit max speed
     const magnitude = (sprite.vx * sprite.vx + sprite.vy * sprite.vy);
-    if (magnitude > 3) {
-      const scale = 3 / magnitude
+    if (magnitude > 5) {
+      const scale = 5 / magnitude
       sprite.vx *= scale;
       sprite.vy *= scale;
     }
 
-    const position = { x: sprite.x += sprite.vx, y: sprite.y += sprite.vy }
+    const position = { x: sprite.x += sprite.vx * delta, y: sprite.y += sprite.vy * delta }
 
     position.x = Math.min(Math.max(position.x, sprite.width / 2), app.screen.width - sprite.width / 2);
     position.y = Math.min(Math.max(position.y, sprite.height / 2), app.screen.height - sprite.height / 2);

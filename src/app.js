@@ -4,6 +4,7 @@ import { Player } from "./Player";
 import { Spawner } from "./Enemy";
 import { getURLParam } from "./helpers";
 import { interval } from "rxjs";
+import { GameStart } from "./Views/GameStart";
 
 // Setup PixiJS APP
 export const appService = {
@@ -53,15 +54,19 @@ const spawnRate = getURLParam("spawnRate", 2500);
 
 FollowCursor(skeletons);
 
-const player = Player();
-
-Spawner(spawnRate, player);
-
-const alignEnemies = () => {
-  spriteContainer.children.map(c => c.zIndex = c.y)
+const alignSprites = () => {
+  spriteContainer.children.map(c => c.zIndex = c.y);
 }
 
-gameTicks$.subscribe(() => alignEnemies())
+gameTicks$.subscribe(() => alignSprites());
+
+const initializeGame = () => {
+  const player = Player();
+  Spawner(spawnRate, player);
+}
+
+GameStart({ onStartGame: initializeGame });
+
 
 /**
  * GAME MANAGER

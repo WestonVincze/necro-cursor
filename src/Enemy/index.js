@@ -25,7 +25,7 @@ const spawnBones = ({ x, y }, id) => {
     if (bones.filter(b => b.id === id)[0]) {
       removeBones({ id, sprite })
     }
-  }, 60000);
+  }, 30000);
 
   return sprite;
 }

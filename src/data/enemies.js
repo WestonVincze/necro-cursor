@@ -1,3 +1,13 @@
+// @ts-check
+
+/**
+ * @typedef {Object} Enemy
+ * @prop {string} url
+ * @prop {number} width
+ * @prop {number} height
+ */
+
+/** @type {Object.<string, Enemy>} */
 const enemies = {
   guard: {
     url: "/guard.png",
@@ -8,5 +18,5 @@ const enemies = {
     url: "/paladin.png",
     width: 60,
     height: 110,
-  }
+  },
 }

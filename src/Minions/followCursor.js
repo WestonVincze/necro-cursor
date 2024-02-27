@@ -9,13 +9,13 @@ import { appService } from '../app';
 export let minions = [];
 let id = 0;
 
-export const createMinion = (position) => {
+export const createMinion = ({ x, y }) => {
   const { spriteContainer } = appService;
   const sprite = Sprite.from("/assets/skele.png");
   sprite.width = 40;
   sprite.height = 60;
   sprite.anchor.set(0.5);
-  sprite.position.set(position.x, position.y);
+  sprite.position.set(x, y);
   spriteContainer.addChild(sprite);
   sprite.vx = 0;
   sprite.vy = 0;

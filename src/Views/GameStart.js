@@ -1,0 +1,67 @@
+import { HighscoreData } from "../../api/HighscoreData"
+
+const Controls = () => `
+  <h2>Controls</h2>
+
+  <h3>Skeletons</h3>
+  <p>Use your cursor to command the skeletons.</p>
+
+  <h3>Movement</h3>
+  <p>WASD to move the necromancer.</p>
+
+  <h3>Summoning Skeletons</h3>
+  <p>Hold spacebar to create a summoning circle that transforms bones into new skeletons.</p>
+`
+
+const Highscores = (stats) => `
+  <h2>Your Best 5 Runs</h2>
+  ${stats.map(s => `<p>Guards Killed: ${s.killCount}, Skeletons Summoned: ${s.armySize}</p>`).join("\n")}
+`
+
+const GameStartScreen = () => `
+<h1>NECRO CURSOR</h1>
+
+<div id="content"></div>
+
+<button id="start_button">Start Game</button>
+<button id="toggle_content">View Highscores</button>
+`
+
+export const GameStart = ({ onStartGame }) => {
+  const { getHighscores } = HighscoreData();
+  const overlay = document.querySelector('#overlay');
+  overlay.classList.add("show");
+  overlay.innerHTML = GameStartScreen();
+
+  const handleStartGame = () => {
+    onStartGame?.();
+    overlay.classList.remove('show');
+  }
+
+  const startButton = document.querySelector('#start_button');
+  startButton.addEventListener('click', handleStartGame);
+
+  const content = document.querySelector('#content');
+  content.innerHTML = Controls();
+
+  const toggleContentButton = document.querySelector('#toggle_content');
+
+  const toggleContent = () => {
+    switch (toggleContentButton.innerHTML) {
+      case "View Highscores":
+        const stats = getHighscores();
+        content.innerHTML = Highscores(stats);
+        toggleContentButton.innerHTML = "View Controls";
+        break;
+      case "View Controls":
+        content.innerHTML = Controls();
+        toggleContentButton.innerHTML = "View Highscores";
+        break;
+      default:
+        console.error("Something went wrong with toggleContent...")
+        break;
+    }
+  }
+
+  toggleContentButton.addEventListener('click', toggleContent);
+}

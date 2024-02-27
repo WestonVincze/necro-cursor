@@ -1,5 +1,7 @@
+import { HighscoreData } from "../../api/HighscoreData";
+
 // TODO: implement CSS modules for views
-const GameOver = ({ killCount, armySize, stats }) => `
+const GameOverScreen = ({ killCount, armySize, stats }) => `
   <img src="/assets/bones.png" alt="pile of bones" />
   <h1 class="red">GET FUCKED, NERD.</h1>
   <h2>You did okay, though...</h2>
@@ -13,26 +15,10 @@ const GameOver = ({ killCount, armySize, stats }) => `
 
   <button onclick="window.location.reload()">Play Again?</button>
 `
-export const GameOverScreen = ({ killCount, armySize }) => {
-  const stats = saveData({ killCount, armySize });
+export const GameOver = ({ killCount, armySize }) => {
+  const { saveHighscore } = HighscoreData();
+  const stats = saveHighscore({ killCount, armySize });
   const overlay = document.querySelector('#overlay');
   overlay.classList.add("show");
-  overlay.innerHTML = GameOver({ killCount, armySize, stats });
-}
-
-const saveData = ({ killCount, armySize }) => {
-  const oldStats = localStorage.getItem("PlayerStats");
-  const stats = oldStats ? JSON.parse(oldStats) : [];
-
-  stats.push({ killCount, armySize });
-  stats.sort((a, b) => b.killCount - a.killCount)
-
-  console.log(stats);
-  if (stats.length >= 5) {
-    stats.pop();
-  }
-
-  localStorage.setItem("PlayerStats", JSON.stringify(stats));
-
-  return stats;
+  overlay.innerHTML = GameOverScreen({ killCount, armySize, stats });
 }
