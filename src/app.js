@@ -49,8 +49,8 @@ export const appService = {
 appService.initialize();
 const { gameTicks$, spriteContainer } = appService;
 
-const skeletons = getURLParam("skeletons", 5);
-const spawnRate = getURLParam("spawnRate", 2500);
+const skeletons = getURLParam("skeletons", 3);
+const spawnRate = getURLParam("spawnRate", 4000);
 
 FollowCursor(skeletons);
 
