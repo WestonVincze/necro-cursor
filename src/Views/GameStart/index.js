@@ -1,4 +1,5 @@
-import { HighscoreData } from "../../api/HighscoreData"
+import { HighscoreData } from "../../../api/HighscoreData";
+import styles from "./index.module.css";
 
 const Controls = () => `
   <h2>Controls</h2>
@@ -20,8 +21,9 @@ const Highscores = (stats) => `
 
 const GameStartScreen = () => `
 <h1>NECRO CURSOR</h1>
+<img class="${styles.hero}" src="/assets/necro.png" alt="necromancer image" />
 
-<div id="content"></div>
+<div id="content" class="${styles.content}"></div>
 
 <button id="start_button">Start Game</button>
 <button id="toggle_content">View Highscores</button>

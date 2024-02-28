@@ -1,0 +1,19 @@
+.content {
+  margin: 0 auto;
+  width: 50%;
+}
+
+.hero {
+  width: 100px;
+}
+
+@media screen and (max-width: 900px) {
+  .content {
+    width: 100%;
+    font-size: 15px;
+  }
+
+  .hero {
+    width: 35px;
+  }
+}

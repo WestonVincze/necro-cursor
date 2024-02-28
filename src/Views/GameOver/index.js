@@ -1,6 +1,5 @@
-import { HighscoreData } from "../../api/HighscoreData";
+import { HighscoreData } from "../../../api/HighscoreData";
 
-// TODO: implement CSS modules for views
 const GameOverScreen = ({ killCount, armySize, stats }) => `
   <img src="/assets/bones.png" alt="pile of bones" />
   <h1 class="red">GET FUCKED, NERD.</h1>

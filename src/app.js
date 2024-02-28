@@ -1,3 +1,4 @@
+import "./style.css"
 import { Application, Container } from "pixi.js";
 import { FollowCursor } from "./Minions/followCursor";
 import { Player } from "./Player";
