@@ -1,44 +1,73 @@
-/**
- * Swarm logic
- * (WIP)
- */
-
 import { Health } from "../Health";
-
-const { Sprite } = require("pixi.js");
+import { Sprite } from "pixi.js";
+import { appService } from "../app";
+import { spawnBones } from "../Drops";
 
 /**
  * @typedef Swarm
- * @prop {string}
+ * @prop {string} TODO
  */
 
 export const Swarm = () => {
-  const units = [];
-  const spriteData = {};
-  const unitData = {};
-  const id = 0;
+  let id = 0;
+  const units = []
 
-  const createUnit = (container, position = { x: 0, y: 0 }) => {
-    const sprite = Sprite.from(spriteData.url);
-    sprite.width = spriteData.width;
-    sprite.height = spriteData.height;
-    sprite.position.set(position.x, position.y)
+  const createUnit = (unitData, position = { x: 0, y: 0 }) => {
+    const { spriteContainer, UIContainer } = appService;
+    const sprite = Sprite.from(unitData.url);
+    sprite.width = unitData.width;
+    sprite.height = unitData.height;
+    sprite.position.set(position.x, position.y);
     sprite.anchor.set(0.5);
     sprite.vx = 0;
     sprite.vy = 0;
+    spriteContainer.addChild(sprite);
 
-    const health = Health({ maxHP: unitData.maxHP, sprite })
+    const health = Health({ maxHP: unitData.maxHP, sprite });
+    UIContainer.addChild(health.healthBar.container);
 
     const unit = {
       id: id++,
       sprite,
       health,
-      maxAttackers: 0,
+      maxAttackers: unitData.maxAttackers,
       attackers: 0,
     }
 
     units.push(unit);
+
+    health.subscribeToDeath(() => {
+      spawnBones(sprite, unit.id);
+      removeUnit(unit.id);
+    })
+
+    return unit;
   }
 
+  const removeUnit = (id) => {
+    let unit = getUnitById(id);
+    unit.sprite.destroy();
+    const i = units.findIndex(u => u.id === id)
+    units.splice(i, 1);
+    // units = [...units.filter(u => u.id !== id)];
+  }
 
+  const addAttacker = (id) => {
+    const unit = getUnitById(id);
+    if (unit.attackers + 1 > unit.maxAttackers) return false;
+    unit.attackers++;
+    return true;
+  }
+
+  const getUnitById = (id) => {
+    return units.find(unit => unit.id === id);
+  }
+
+  return {
+    units,
+    createUnit,
+    removeUnit,
+    addAttacker,
+    getUnitById,
+  }
 }

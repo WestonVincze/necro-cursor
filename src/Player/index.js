@@ -3,7 +3,8 @@ import { distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } 
 import { Health } from "../Health";
 import { distanceBetweenPoints, isIntersectingRect } from "../Colliders/isIntersecting";
 import { appService } from "../app";
-import { bones, removeBones, killCount } from "../Enemy";
+import { killCount } from "../Enemy";
+import { bones, removeBones } from "../Drops";
 import { createMinion } from "../Minions/followCursor";
 import { minions } from "../Minions/followCursor";
 import { GameOver } from "../Views/GameOver";
