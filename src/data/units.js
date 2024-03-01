@@ -7,7 +7,8 @@
  * @prop {number} width
  * @prop {number} height
  * @prop {number} maxHP
- * @prop {number} maxAttackers
+ * @prop {boolean} [hideHP]
+ * @prop {number} [maxAttackers]
  */
 
 /** @type {Object.<string, Unit>} */
@@ -28,4 +29,16 @@ export const enemyData = {
     maxHP: 200,
     maxAttackers: 10,
   },
+}
+
+/** @type {Object.<string, Unit>} */
+export const minionData = {
+  skeleton: {
+    type: "skeleton",
+    url: "/assets/skele.png",
+    width: 40,
+    height: 60,
+    maxHP: 1,
+    hideHP: true,
+  }
 }
