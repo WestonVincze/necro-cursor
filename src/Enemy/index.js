@@ -1,10 +1,8 @@
 import { interval } from "rxjs";
-import { drawHitboxRect } from "../Colliders/isIntersecting";
 import { followTarget } from "../Movement/followTarget";
 import { appService } from "../app";
 import { Swarm } from "../Swarm";
 import { enemyData } from "../data/units";
-
 
 const {
   units: enemies,

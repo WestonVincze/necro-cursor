@@ -9,29 +9,7 @@ import { createMinion } from "../Minions/followCursor";
 import { minions } from "../Minions/followCursor";
 import { GameOver } from "../Views/GameOver";
 import { normalizeForce } from "../helpers";
-
-const drawSummoningCircle = ({ x, y, maxRadius }) => {
-  const { UIContainer } = appService;
-  const circle = new Graphics();
-  circle.lineStyle({ width: 2, color: 0xffaaff})
-
-  let radius = 10;
-  circle.drawCircle(x, y, radius);
-
-  UIContainer.addChild(circle)
-
-  const growCircle = ({ x, y }) => {
-    if (radius >= maxRadius) return radius;
-    circle.clear();
-    circle.lineStyle({ width: 2, color: 0xffaaff})
-    radius += 0.5;
-    circle.drawCircle(x, y, radius);
-
-    return radius;
-  }
-
-  return { circle, growCircle };
-}
+import { RadialSpell } from "../Spells";
 
 const initializePlayer = () => {
   const { app, spriteContainer } = appService;
@@ -60,7 +38,6 @@ const initializePlayer = () => {
     health,
     attackers: [],
     summoningCircle: null,
-    summonRange: 0,
   }
   
   return player;
@@ -76,22 +53,27 @@ export const Player = () => {
   // TODO: implement a state machine to manage player state
   const handleInput = ({ x, y, summoning }) => {
     if (summoning) {
-      if (player.summoningCircle === null) {
-        player.summoningCircle = drawSummoningCircle({ x: player.sprite.x, y: player.sprite.y, maxRadius: 150 });
+      if (!player.summoningCircle?.casting) {
+        player.summoningCircle = RadialSpell({
+          position: sprite,
+          maxRadius: 150,
+          onComplete: (radius) => { 
+            bones.map(b => {
+              if (distanceBetweenPoints(b.sprite, sprite) <= radius) {
+                createMinion(b.sprite);
+                removeBones(b);
+              }
+            })
+            player.summoningCircle = null
+          },
+          color: 0xffaaff
+        })
       }
       moveX = 0;
       moveY = 0;
     } else {
       if (player.summoningCircle !== null) {
-        bones.map(b => {
-          if (distanceBetweenPoints(b.sprite, sprite) <= player.summonRange) {
-            createMinion(b.sprite);
-            removeBones(b);
-          }
-        }); 
-
-        player.summoningCircle.circle.destroy();
-        player.summoningCircle = null;
+        player.summoningCircle.stopCast();
       }
       moveX = x;
       moveY = y;
@@ -104,9 +86,6 @@ export const Player = () => {
   app.ticker.add((delta) => {
     const { x, y } = normalizeForce({ x: moveX, y: moveY });
 
-    if (player.summoningCircle) {
-      player.summonRange = player.summoningCircle.growCircle(player.sprite);
-    }
     if (x === 0) {
       sprite.vx += -sprite.vx * 0.05 * delta;
     } else {

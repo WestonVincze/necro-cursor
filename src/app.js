@@ -1,5 +1,5 @@
 import "./style.css"
-import { Application, Container } from "pixi.js";
+import { Application, Container, Sprite } from "pixi.js";
 import { FollowCursor } from "./Minions/followCursor";
 import { Player } from "./Player";
 import { Spawner } from "./Enemy";
@@ -48,6 +48,34 @@ export const appService = {
 }
 
 appService.initialize();
+/*
+
+const bones = Sprite.from("/assets/bones.png")
+const bones2 = Sprite.from("/assets/bones.png")
+const container = new Container()
+
+bones.anchor.set(0.5)
+bones.height = 50
+bones.width = 50
+bones.position.set(appService.app.screen.width / 2, appService.app.screen.height / 2)
+
+bones2.anchor.set(0.5)
+bones2.height = 100
+bones2.width = 100
+bones2.position.set(appService.app.screen.width / 2, appService.app.screen.height / 3)
+
+container.addChild(bones)
+container.addChild(bones2)
+appService.app.stage.addChild(container)
+
+appService.app.ticker.maxFPS = 20
+appService.app.ticker.add(() => {
+  console.log(container.x)
+  console.log(bones.x)
+  container.x -= 5
+})
+*/
+
 const { gameTicks$, spriteContainer } = appService;
 
 const skeletons = getURLParam("skeletons", 3);
