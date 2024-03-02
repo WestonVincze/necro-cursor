@@ -1,12 +1,15 @@
 import { Container, Graphics } from "pixi.js";
 import { Subject } from "rxjs";
-import { appService } from "../app";
 
-export const Health = ({ maxHP, sprite }) => {
+export const Health = ({ maxHP, container }) => {
   let hp = maxHP;
   const onDeath = new Subject();
-  let healthBar = HealthBar({ maxHP, hp, sprite })
-  appService.getApp().ticker.add(() => healthBar?.updatePosition());
+  // create onTakeDamage Subject to manage UI updates and other events?
+  let healthBar = null;
+
+  if (maxHP > 1 && container) {
+    healthBar = HealthBar({ maxHP, hp, container })
+  }
 
   const takeDamage = (damage) => {
     hp -= damage;
@@ -29,8 +32,10 @@ export const Health = ({ maxHP, sprite }) => {
   }
 
   // TODO: improve garbage collection
+  /*
   onDeath.subscribe(() => healthBar.container.destroy());
   onDeath.subscribe(() => healthBar = null)
+  */
 
   return {
     takeDamage,
@@ -41,40 +46,37 @@ export const Health = ({ maxHP, sprite }) => {
   }
 }
 
-const HealthBar = ({ maxHP, hp, sprite }) => {
-  const container = new Container();
-  container.opacity = 0.5
-  const width = sprite._width;
+const HealthBar = ({ maxHP, hp, container }) => {
+  const hpContainer = new Container();
+  const rect = container.getBounds();
   const height = 5;
-
-  const updatePosition = () => {
-    container.position.x = sprite.x - (sprite._width / 2);
-    container.position.y = sprite.y - (sprite._height / 2) - 5;
-  }
+  const xOffset = -rect.width / 2;
+  const yOffset = (-rect.height / 2) - 10;
 
   // look into creating a reference object and cloning it with .clone()
   const bg = new Graphics();
   bg.beginFill(0xff5555);
-  bg.drawRect(0, 0, width, height);
+  bg.drawRect(xOffset, yOffset, rect.width, height);
   bg.endFill();
-  container.addChild(bg);
+  hpContainer.addChild(bg);
 
   const healthBar = new Graphics();
   healthBar.beginFill(0x55ff55);
-  healthBar.drawRect(0, 0, width * (hp / maxHP), height);
+  healthBar.drawRect(xOffset, yOffset, rect.width * (hp / maxHP), height);
   healthBar.endFill();
-  container.addChild(healthBar);
+  hpContainer.addChild(healthBar);
 
   const updateHealth = (newHP) => {
     healthBar.clear();
     healthBar.beginFill(0x55ff55);
-    healthBar.drawRect(0, 0, width * (newHP / maxHP), height);
+    healthBar.drawRect(xOffset, yOffset, rect.width * (newHP / maxHP), height);
     healthBar.endFill();
   }
 
+  container.addChild(hpContainer)
+
   return {
     container,
-    updateHealth,
-    updatePosition
+    updateHealth
   }
 }

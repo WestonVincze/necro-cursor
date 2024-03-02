@@ -1,4 +1,4 @@
-import { Graphics, Sprite } from "pixi.js";
+import { Container, Graphics, Sprite } from "pixi.js";
 import { distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } from "rxjs";
 import { Health } from "../Health";
 import { distanceBetweenPoints, isIntersectingRect } from "../Colliders/isIntersecting";
@@ -34,17 +34,21 @@ const drawSummoningCircle = ({ x, y, maxRadius }) => {
 }
 
 const initializePlayer = () => {
-  const { app, spriteContainer, UIContainer } = appService;
+  const { app, spriteContainer } = appService;
   const sprite = Sprite.from("assets/necro.png");
   sprite.width = 50;
   sprite.height = 114;
-  sprite.anchor.set(0.5);
-  sprite.position.set(app.screen.width / 2, app.screen.height / 2);
-  sprite.vx = 0;
-  sprite.vy = 0;
-  spriteContainer.addChild(sprite);
-  const health = Health({ maxHP: 100, sprite });
-  UIContainer.addChild(health.healthBar.container);
+  sprite.anchor.set(0.5)
+
+  const container = new Container();
+  container.position.set(app.screen.width / 2, app.screen.height / 2);
+  container.vx = 0;
+  container.vy = 0;
+
+  container.addChild(sprite);
+  spriteContainer.addChild(container);
+
+  const health = Health({ maxHP: 100, container});
 
   health.subscribeToDeath(() => {
     GameOver({ killCount, armySize: minions.length });
@@ -52,7 +56,7 @@ const initializePlayer = () => {
   })
 
   const player = {
-    sprite,
+    sprite: container,
     health,
     attackers: [],
     summoningCircle: null,
@@ -63,7 +67,7 @@ const initializePlayer = () => {
 }
 
 export const Player = () => {
-  const { app, gameTicks$ } = appService;
+  const { app } = appService;
   const player = initializePlayer();
   const sprite = player.sprite;
 
@@ -95,9 +99,6 @@ export const Player = () => {
   }
 
   playerInput$.subscribe((e) => handleInput(e))
-
-  gameTicks$.subscribe(() => {
-  })
 
   // apply x and y state to move player
   app.ticker.add((delta) => {

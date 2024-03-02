@@ -1,5 +1,5 @@
 import { Health } from "../Health";
-import { Sprite } from "pixi.js";
+import { Container, Sprite } from "pixi.js";
 import { appService } from "../app";
 import { spawnBones } from "../Drops";
 
@@ -13,22 +13,25 @@ export const Swarm = () => {
   const units = []
 
   const createUnit = (unitData, position = { x: 0, y: 0 }) => {
-    const { spriteContainer, UIContainer } = appService;
+    const { spriteContainer } = appService;
     const sprite = Sprite.from(unitData.url);
     sprite.width = unitData.width;
     sprite.height = unitData.height;
-    sprite.position.set(position.x, position.y);
     sprite.anchor.set(0.5);
-    sprite.vx = 0;
-    sprite.vy = 0;
-    spriteContainer.addChild(sprite);
 
-    const health = Health({ maxHP: unitData.maxHP, sprite });
-    UIContainer.addChild(health.healthBar.container);
+    const container = new Container();
+    container.position.set(position.x, position.y);
+    container.vx = 0;
+    container.vy = 0;
+
+    container.addChild(sprite);
+    spriteContainer.addChild(container);
+
+    const health = Health({ maxHP: unitData.maxHP, container });
 
     const unit = {
       id: id++,
-      sprite,
+      sprite: container,
       health,
       maxAttackers: unitData.maxAttackers,
       attackers: 0,
@@ -37,7 +40,7 @@ export const Swarm = () => {
     units.push(unit);
 
     health.subscribeToDeath(() => {
-      spawnBones(sprite, unit.id);
+      spawnBones(container, unit.id);
       removeUnit(unit.id);
     })
 
