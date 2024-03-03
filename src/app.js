@@ -2,17 +2,20 @@ import "./style.css"
 import { Application, Container, Sprite } from "pixi.js";
 import { FollowCursor } from "./Minions/followCursor";
 import { Player } from "./Player";
-import { Spawner } from "./Enemy";
+import { Spawner } from "./Enemies";
 import { getURLParam } from "./helpers";
-import { interval } from "rxjs";
+import { filter, from, interval } from "rxjs";
 import { GameStart } from "./Views/GameStart";
 
 // Setup PixiJS APP
 export const appService = {
   /** @type {Application} */
   app: null,
+  /** @type {Container} */
   spriteContainer: null,
+  /** @type {Container} */
   UIContainer: null,
+  /** @type {interval} */
   gameTicks$: null,
   initialize() {
     const container = document.querySelector('#container');
@@ -27,10 +30,20 @@ export const appService = {
     app.stage.addChild(UIContainer);
     const gameTicks$ = interval(200);
 
+    window.addEventListener('blur', () => this.pause());
+    window.addEventListener('focus', () => this.resume());
+
     this.app = app;
     this.UIContainer = UIContainer;
     this.spriteContainer = spriteContainer;
-    this.gameTicks$ = gameTicks$;
+    this.gameTicks$ = gameTicks$.pipe(filter(() => this.app.ticker.started));
+  },
+  pause() {
+    this.app.ticker.stop();
+  },
+  resume() {
+    // when we add "pausing" we'll want to make sure we don't auto resume when we refocus on a deliberately paused game
+    this.app.ticker.start();
   },
   /** do we need getters? */
   getApp() {
@@ -48,33 +61,6 @@ export const appService = {
 }
 
 appService.initialize();
-/*
-
-const bones = Sprite.from("/assets/bones.png")
-const bones2 = Sprite.from("/assets/bones.png")
-const container = new Container()
-
-bones.anchor.set(0.5)
-bones.height = 50
-bones.width = 50
-bones.position.set(appService.app.screen.width / 2, appService.app.screen.height / 2)
-
-bones2.anchor.set(0.5)
-bones2.height = 100
-bones2.width = 100
-bones2.position.set(appService.app.screen.width / 2, appService.app.screen.height / 3)
-
-container.addChild(bones)
-container.addChild(bones2)
-appService.app.stage.addChild(container)
-
-appService.app.ticker.maxFPS = 20
-appService.app.ticker.add(() => {
-  console.log(container.x)
-  console.log(bones.x)
-  container.x -= 5
-})
-*/
 
 const { gameTicks$, spriteContainer } = appService;
 
@@ -83,11 +69,18 @@ const spawnRate = getURLParam("spawnRate", 4000);
 
 FollowCursor(skeletons);
 
+/*
+const showGameTicks = (v) => {
+  console.log(v);
+}
+gameTicks$.subscribe(showGameTicks)
+*/
+
 const alignSprites = () => {
   spriteContainer.children.map(c => c.zIndex = c.y);
 }
 
-gameTicks$.subscribe(() => alignSprites());
+gameTicks$.subscribe(alignSprites);
 
 const initializeGame = () => {
   const player = Player();

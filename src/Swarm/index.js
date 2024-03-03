@@ -31,6 +31,7 @@ export const Swarm = () => {
 
     const unit = {
       id: id++,
+      type: unitData.type,
       sprite: container,
       health,
       maxAttackers: unitData.maxAttackers,

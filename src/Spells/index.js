@@ -1,5 +1,5 @@
 import { appService } from "../app";
-import { Graphics } from "pixi.js";
+import { Graphics, Ticker } from "pixi.js";
 
 export const RadialSpell = ({
   container,
@@ -10,7 +10,6 @@ export const RadialSpell = ({
   onComplete,
   color
 }) => {
-  const { app } = appService;
   if (!container) container = appService.UIContainer;
 
   let casting = true;
@@ -19,9 +18,11 @@ export const RadialSpell = ({
   circle.lineStyle({ width: 2, color })
 
   let radius = startRadius;
+  const getRadius = () => radius;
   circle.drawCircle(position.x, position.y, radius);
 
   const stopCast = () => {
+    ticker.destroy();
     casting = false;
     circle.destroy();
     onComplete?.(radius);
@@ -39,11 +40,11 @@ export const RadialSpell = ({
     return radius;
   }
 
-  app.ticker.add(() => {
-    if (!casting) return;
-
+  const ticker = new Ticker();
+  ticker.add(() => {
     radius = growCircle(position);
   })
+  ticker.start();
 
-  return { casting, stopCast, radius };
+  return { casting, stopCast, getRadius };
 }
