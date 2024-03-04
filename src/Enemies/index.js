@@ -41,7 +41,7 @@ export const Spawner = (rate = 5000, player) => {
                 minions.map(minion => {
                   if (distanceBetweenPoints(minion.sprite, enemy.sprite) <= radius) {
                     minion.health.takeDamage(10);
-                    enemy.attackers = Math.min(0, enemy.attackers - 1);
+                    enemy.attackers = Math.max(0, enemy.attackers - 1);
                   }
                 })
               }
