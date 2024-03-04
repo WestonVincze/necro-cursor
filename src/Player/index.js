@@ -3,13 +3,14 @@ import { distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } 
 import { Health } from "../Health";
 import { distanceBetweenPoints, isIntersectingRect } from "../Colliders/isIntersecting";
 import { appService } from "../app";
-import { killCount } from "../Enemy";
+import { killCount } from "../Enemies";
 import { bones, removeBones } from "../Drops";
-import { createMinion } from "../Minions/followCursor";
-import { minions } from "../Minions/followCursor";
+import { createMinion, minions } from "../Minions";
 import { GameOver } from "../Views/GameOver";
 import { normalizeForce } from "../helpers";
 import { RadialSpell } from "../Spells";
+
+let summons = 0;
 
 const initializePlayer = () => {
   const { app, spriteContainer } = appService;
@@ -29,7 +30,7 @@ const initializePlayer = () => {
   const health = Health({ maxHP: 100, container});
 
   health.subscribeToDeath(() => {
-    GameOver({ killCount, armySize: minions.length });
+    GameOver({ killCount, armySize: summons });
     app.ticker.stop();
   })
 
@@ -60,6 +61,7 @@ export const Player = () => {
           onComplete: (radius) => { 
             bones.map(b => {
               if (distanceBetweenPoints(b.sprite, sprite) <= radius) {
+                summons++;
                 createMinion(b.sprite);
                 removeBones(b);
               }

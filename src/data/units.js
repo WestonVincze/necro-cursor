@@ -26,7 +26,7 @@ export const enemyData = {
     url: "/assets/paladin.png",
     width: 60,
     height: 110,
-    maxHP: 200,
+    maxHP: 150,
     maxAttackers: 10,
   },
 }

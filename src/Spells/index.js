@@ -8,7 +8,7 @@ export const RadialSpell = ({
   startRadius = 10,
   maxRadius = 50,
   onComplete,
-  color
+  color,
 }) => {
   if (!container) container = appService.UIContainer;
 

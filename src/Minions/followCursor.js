@@ -1,15 +1,15 @@
 import { auditTime, fromEvent } from 'rxjs'
 import { Sprite } from "pixi.js"
-import { addAttacker, enemies, getEnemyById } from '../Enemy';
+import { addAttacker, enemies, getEnemyById } from '../Enemies';
 import { isIntersectingRect } from '../Colliders/isIntersecting';
 import { normalizeForce } from '../helpers';
 import { appService } from '../app';
 
-// TODO: refactor and utilize the new followTarget script
-export let minions = [];
+/** DEPRECIATED */
+let minions = [];
 let id = 0;
 
-export const createMinion = ({ x, y }) => {
+const createMinion = ({ x, y }) => {
   const { spriteContainer } = appService;
   const sprite = Sprite.from("/assets/skele.png");
   sprite.width = 40;

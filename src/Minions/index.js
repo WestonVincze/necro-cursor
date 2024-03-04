@@ -1,26 +1,68 @@
-import { Sprite } from "pixi.js";
+import { Swarm } from "../Swarm";
+import { minionData } from "../data/units";
+import { appService } from "../app";
+import { followTarget } from "../Movement/followTarget";
+import { auditTime, fromEvent } from 'rxjs'
+import { enemies, addAttacker } from "../Enemies";
+import { isIntersectingRect } from "../Colliders/isIntersecting";
 
-const initializeMinions = (app, spriteURL) => {
-  // create container
-  // attach container to stage
-  for (let i = 0; i < spriteCount; i++) {
-    const sprite = Sprite.from(spriteURL);
-    sprite.width = 40;
-    sprite.height = 60;
-    sprite.anchor.set(0.5);
-    sprite.position.set(Math.random() * app.screen.width, Math.random() * app.screen.height);
-    app.stage.addChild(sprite);
-    sprite.vx = 0;
-    sprite.vy = 0;
+const {
+  units: minions,
+  createUnit,
+  getUnitById: getMinionById,
+  removeUnit: removeMinion,
+} = Swarm();
 
-    minions.push({
-      id: id++,
-      sprite,
-      target: 'cursor',
-    });
+export { minions, getMinionById, removeMinion }
+
+// TODO: Fix performance issues (might be related to high number of containers being used)
+export const createMinion = (position) => {
+  createUnit(minionData.skeleton, position, { target: 'cursor' });
+}
+
+export const initializeMinions = (spriteCount) => {
+  // register mousemove event
+  const move$ = fromEvent(container, 'mousemove');
+  const result$ = move$.pipe(auditTime(200));
+
+  let targetX = 0;
+  let targetY = 0;
+
+  const followMouse = (e) => {
+    const rect = container.getBoundingClientRect();
+    targetX = e.clientX - rect.left;
+    targetY = e.clientY - rect.top;
   }
 
-}
-const addMinion = () => {
+  result$.subscribe(followMouse);
 
+  const { app, gameTicks$ } = appService;
+  for (let i = 0; i < spriteCount; i++) {
+    createMinion({ x: Math.random() * app.screen.width, y: Math.random() * app.screen.height });
+  }
+
+  gameTicks$.subscribe(() => {
+    minions.forEach(minion => {
+      // only check minions that are not busy
+      if (minion.target === 'cursor') {
+        enemies.some(enemy => {
+          if (isIntersectingRect(minion.sprite, enemy.sprite, 100) && addAttacker(enemy.id)) {
+            minion.target = enemy.sprite;
+            enemy.health.subscribeToDeath(() => minion.target = "cursor");
+            return true;
+          }
+          return false;
+        });
+      }
+    })
+
+  })
+
+  app.ticker.add((delta) => {
+    minions.forEach(minion => {
+      const target = minion.target === 'cursor' ? { x: targetX, y: targetY } : minion.target;
+
+      followTarget(minion.sprite, minions, target, delta, { followForce: 0.01, separation: 2 })
+    })
+  })
 }

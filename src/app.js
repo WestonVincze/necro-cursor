@@ -1,11 +1,11 @@
 import "./style.css"
 import { Application, Container, Sprite } from "pixi.js";
-import { FollowCursor } from "./Minions/followCursor";
 import { Player } from "./Player";
 import { Spawner } from "./Enemies";
 import { getURLParam } from "./helpers";
 import { filter, from, interval } from "rxjs";
 import { GameStart } from "./Views/GameStart";
+import { initializeMinions } from "./Minions";
 
 // Setup PixiJS APP
 export const appService = {
@@ -65,9 +65,9 @@ appService.initialize();
 const { gameTicks$, spriteContainer } = appService;
 
 const skeletons = getURLParam("skeletons", 3);
-const spawnRate = getURLParam("spawnRate", 4000);
+const spawnRate = getURLParam("spawnRate", 5000);
 
-FollowCursor(skeletons);
+initializeMinions(skeletons);
 
 /*
 const showGameTicks = (v) => {

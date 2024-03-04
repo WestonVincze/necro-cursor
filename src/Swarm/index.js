@@ -3,16 +3,11 @@ import { Container, Sprite } from "pixi.js";
 import { appService } from "../app";
 import { spawnBones } from "../Drops";
 
-/**
- * @typedef Swarm
- * @prop {string} TODO
- */
-
 export const Swarm = () => {
   let id = 0;
   const units = []
 
-  const createUnit = (unitData, position = { x: 0, y: 0 }) => {
+  const createUnit = (unitData, position = { x: 0, y: 0 }, options) => {
     const { spriteContainer } = appService;
     const sprite = Sprite.from(unitData.url);
     sprite.width = unitData.width;
@@ -30,12 +25,13 @@ export const Swarm = () => {
     const health = Health({ maxHP: unitData.maxHP, container });
 
     const unit = {
-      id: id++,
+      id: `${unitData.type}-${id++}`,
       type: unitData.type,
       sprite: container,
       health,
       maxAttackers: unitData.maxAttackers,
       attackers: 0,
+      ...options
     }
 
     units.push(unit);
@@ -53,7 +49,6 @@ export const Swarm = () => {
     unit.sprite.destroy();
     const i = units.findIndex(u => u.id === id)
     units.splice(i, 1);
-    // units = [...units.filter(u => u.id !== id)];
   }
 
   const addAttacker = (id) => {
