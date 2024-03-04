@@ -27,7 +27,7 @@ export const Spawner = (rate = 5000, player) => {
   app.ticker.add((delta) => {
     enemies.forEach(enemy => {
       if (enemy.type === "paladin") {
-        if (enemy.attackers > 0 && !enemy?.holyNova) {
+        if (Math.random() > 0.99 && !enemy?.holyNova) {
           enemy.holyNova = RadialSpell({
             position: enemy.sprite,
             growth: 0.1,
@@ -41,7 +41,7 @@ export const Spawner = (rate = 5000, player) => {
                 minions.map(minion => {
                   if (distanceBetweenPoints(minion.sprite, enemy.sprite) <= radius) {
                     minion.health.takeDamage(10);
-                    enemy.attackers -= 1;
+                    enemy.attackers = Math.min(0, enemy.attackers - 1);
                   }
                 })
               }

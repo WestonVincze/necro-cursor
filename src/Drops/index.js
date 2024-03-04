@@ -19,18 +19,25 @@ export const spawnBones = ({ x, y }, id) => {
 
   bones.push({ id, sprite });
 
-  // TODO: add UI indicator for timeout
-  setTimeout(() => { 
+  // TODO: manage garbage collection
+  setTimeout(() => {
+    setInterval(() => {
+      sprite.alpha = sprite.alpha === 1 ? 0.5 : 1; 
+    }, 300); 
+  }, 5000)
+
+  const timeoutID = setTimeout(() => { 
     if (bones.filter(b => b.id === id)[0]) {
-      removeBones({ id, sprite })
+      removeBones({ id, sprite, timeoutID })
     }
-  }, 30000);
+  }, 15000);
 
   return sprite;
 }
 
-export const removeBones = ({ id, sprite }) => {
+export const removeBones = ({ id, sprite, timeoutID }) => {
   if (!sprite) return;
+  clearTimeout(timeoutID);
   try {
     sprite.destroy();
     bones = [...bones.filter(b => b.id !== id)];
