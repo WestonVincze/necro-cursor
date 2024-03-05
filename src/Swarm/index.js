@@ -2,13 +2,15 @@ import { Health } from "../Health";
 import { Container, Sprite } from "pixi.js";
 import { appService } from "../app";
 import { spawnBones } from "../Drops";
+import { Emitter } from "@pixi/particle-emitter";
+import { explode } from "../VFX/deathFX";
 
 export const Swarm = () => {
   let id = 0;
   const units = []
 
   const createUnit = (unitData, position = { x: 0, y: 0 }, options) => {
-    const { spriteContainer } = appService;
+    const { spriteContainer, particleContainer } = appService;
     const sprite = Sprite.from(unitData.url);
     sprite.width = unitData.width;
     sprite.height = unitData.height;
@@ -42,6 +44,8 @@ export const Swarm = () => {
     units.push(unit);
 
     health.subscribeToDeath(() => {
+      const emitter = new Emitter(particleContainer, explode({ x: container.x, y: container.y }));
+      emitter.playOnceAndDestroy();
       spawnBones(container, unit.id);
       removeUnit(unit.id);
     })

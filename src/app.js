@@ -1,9 +1,9 @@
 import "./style.css"
-import { Application, Container, Sprite } from "pixi.js";
+import { Application, Container, ParticleContainer } from "pixi.js";
 import { Player } from "./Player";
 import { Spawner } from "./Enemies";
 import { getURLParam } from "./helpers";
-import { filter, from, interval } from "rxjs";
+import { filter, interval } from "rxjs";
 import { GameStart } from "./Views/GameStart";
 import { initializeMinions } from "./Minions";
 
@@ -15,6 +15,8 @@ export const appService = {
   spriteContainer: null,
   /** @type {Container} */
   UIContainer: null,
+  /** @type {ParticleContainer} */
+  particleContainer: null,
   /** @type {interval} */
   gameTicks$: null,
   initialize() {
@@ -22,20 +24,23 @@ export const appService = {
     const app = new Application({ background: '#aeaeae', resizeTo: container});
     container.appendChild(app.view);
 
-    const UIContainer = new Container();
     const spriteContainer = new Container();
+    const UIContainer = new Container();
+    const particleContainer = new ParticleContainer();
     spriteContainer.sortableChildren = true;
 
     app.stage.addChild(spriteContainer);
     app.stage.addChild(UIContainer);
+    app.stage.addChild(particleContainer);
     const gameTicks$ = interval(200);
 
     window.addEventListener('blur', () => this.pause());
     window.addEventListener('focus', () => this.resume());
 
     this.app = app;
-    this.UIContainer = UIContainer;
     this.spriteContainer = spriteContainer;
+    this.UIContainer = UIContainer;
+    this.particleContainer = particleContainer;
     this.gameTicks$ = gameTicks$.pipe(filter(() => this.app.ticker.started));
   },
   pause() {

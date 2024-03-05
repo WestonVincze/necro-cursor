@@ -32,7 +32,7 @@ export const Spawner = (rate = 5000, player) => {
             position: enemy.sprite,
             growth: 0.1,
             maxRadius: 100,
-            color: 0xFFFF55,
+            color: "FFFF55",
             onComplete: (radius) => {
               if (!enemy.sprite.destroyed) {
                 if (distanceBetweenPoints(player.sprite, enemy.sprite) <= radius) {

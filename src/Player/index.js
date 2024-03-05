@@ -68,7 +68,7 @@ export const Player = () => {
             })
             player.summoningCircle = null
           },
-          color: 0xffaaff
+          color: "FFAAFF"
         })
       }
       moveX = 0;
