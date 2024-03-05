@@ -1,11 +1,11 @@
-import { Container, Graphics, Sprite } from "pixi.js";
+import { Container, Sprite } from "pixi.js";
 import { distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } from "rxjs";
 import { Health } from "../Health";
-import { distanceBetweenPoints, isIntersectingRect } from "../Colliders/isIntersecting";
+import { distanceBetweenPoints } from "../Colliders/isIntersecting";
 import { appService } from "../app";
 import { killCount } from "../Enemies";
 import { bones, removeBones } from "../Drops";
-import { createMinion, minions } from "../Minions";
+import { createMinion } from "../Minions";
 import { GameOver } from "../Views/GameOver";
 import { normalizeForce } from "../helpers";
 import { RadialSpell } from "../Spells";

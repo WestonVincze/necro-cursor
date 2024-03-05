@@ -14,12 +14,17 @@ export const Swarm = () => {
     sprite.height = unitData.height;
     sprite.anchor.set(0.5);
 
-    const container = new Container();
+    let container;
+    if (unitData.hideUI) {
+      container = sprite;
+    } else {
+      container = new Container();
+      container.addChild(sprite);
+    }
+
     container.position.set(position.x, position.y);
     container.vx = 0;
     container.vy = 0;
-
-    container.addChild(sprite);
     spriteContainer.addChild(container);
 
     const health = Health({ maxHP: unitData.maxHP, container });

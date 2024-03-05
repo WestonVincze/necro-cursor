@@ -7,7 +7,7 @@
  * @prop {number} width
  * @prop {number} height
  * @prop {number} maxHP
- * @prop {boolean} [hideHP]
+ * @prop {boolean} [hideUI]
  * @prop {number} [maxAttackers]
  */
 
@@ -39,6 +39,6 @@ export const minionData = {
     width: 40,
     height: 60,
     maxHP: 1,
-    hideHP: true,
+    hideUI: false,
   }
 }
