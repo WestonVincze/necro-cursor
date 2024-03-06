@@ -71,8 +71,7 @@ export const Spawner = (rate = 5000, player) => {
 
     for (let i = 0; i < Math.floor(difficultyScale); i++) {
       const enemy = createEnemy(
-        // Math.random() > Math.min(0.5, (0.05 * difficultyScale)) ? enemyData.guard : enemyData.paladin,
-        enemyData.paladin,
+        Math.random() > Math.min(0.5, (0.05 * difficultyScale)) ? enemyData.guard : enemyData.paladin,
         {
           x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
           y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,
