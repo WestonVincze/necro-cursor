@@ -23,6 +23,7 @@ export const Health = ({ maxHP, container }) => {
 
   const heal = (amount) => {
     hp = Math.min(hp + amount, maxHP);
+    healthBar?.updateHealth(hp);
   }
 
   const getHP = () => hp;

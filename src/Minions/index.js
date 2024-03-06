@@ -55,7 +55,6 @@ export const initializeMinions = (spriteCount) => {
         });
       }
     })
-
   })
 
   app.ticker.add((delta) => {

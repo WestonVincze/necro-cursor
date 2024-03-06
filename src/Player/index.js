@@ -1,5 +1,5 @@
 import { Container, Sprite } from "pixi.js";
-import { distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } from "rxjs";
+import { BehaviorSubject, Observable, distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } from "rxjs";
 import { Health } from "../Health";
 import { distanceBetweenPoints } from "../Colliders/isIntersecting";
 import { appService } from "../app";
@@ -9,6 +9,46 @@ import { createMinion } from "../Minions";
 import { GameOver } from "../Views/GameOver";
 import { normalizeForce } from "../helpers";
 import { RadialSpell } from "../Spells";
+
+const FRICTION = 0.05;
+
+const initialLevel = 0;
+const initialExperience = 0;
+const experienceToNextLevel = 100;
+const experienceThresholds = [100, 225, 375, 525, 700]
+
+const playerLevelSubject = new BehaviorSubject({
+  level: initialLevel,
+  experience: initialExperience,
+})
+
+const experience$ = new Observable((observer) => {
+  playerLevelSubject
+    .pipe(
+      scan((acc, curr) => {
+        const newExperience = acc.experience + curr.experience;
+        const levelUp = newExperience >= experienceToNextLevel;
+        const level = levelUp ? acc.level + 1 : acc.level;
+        const experience = levelUp
+          ? newExperience - experienceToNextLevel
+          : newExperience;
+        return { level, experience };
+      }, { level: initialLevel, experience: initialExperience }),
+      filter(({ level }) => observer.next(level))
+    )
+    .subscribe((player) => {
+      observer.next(player.level)
+    })
+})
+
+const addExperience = (experience) => {
+  playerLevelSubject.next({ experience });
+}
+
+experience$.subscribe((level) => {
+  console.log(`Congratulations! You've reached level ${level}!`);
+});
+
 
 let summons = 0;
 
@@ -27,7 +67,7 @@ const initializePlayer = () => {
   container.addChild(sprite);
   spriteContainer.addChild(container);
 
-  const health = Health({ maxHP: 100, container});
+  const health = Health({ maxHP: 150, container });
 
   health.subscribeToDeath(() => {
     GameOver({ killCount, armySize: summons });
@@ -36,18 +76,43 @@ const initializePlayer = () => {
 
   const player = {
     sprite: container,
-    health,
     attackers: [],
     summoningCircle: null,
+    health,
   }
   
   return player;
 }
 
 export const Player = () => {
-  const { app } = appService;
+  const { app, gameTicks$ } = appService;
   const player = initializePlayer();
   const sprite = player.sprite;
+
+  const stats = {
+    moveSpeed: 0.3,
+    maxSpeed: 5,
+    summonSpeed: 0.5,
+    summonRadius: 150,
+    HPregeneration: 1,
+    maxHP: 150,
+  }
+
+  player.setStat = (stat, value) => {
+    if (stats.hasOwnProperty(stat)) {
+      stats[stat] = value;
+    } else {
+      console.error(`Invalid stat: ${stat}`);
+    }
+  }
+
+  player.getStat = (stat) => stats[stat];
+
+  gameTicks$.subscribe(() => {
+    addExperience(50)
+    console.log(player.health.getHP())
+    player.health.heal(stats.HPregeneration)
+  })
 
   // state
   let [ moveX, moveY ] = [0, 0]
@@ -57,7 +122,8 @@ export const Player = () => {
       if (!player.summoningCircle?.casting) {
         player.summoningCircle = RadialSpell({
           position: sprite,
-          maxRadius: 150,
+          maxRadius: stats.summonRadius,
+          growth: stats.summonSpeed,
           onComplete: (radius) => { 
             bones.map(b => {
               if (distanceBetweenPoints(b.sprite, sprite) <= radius) {
@@ -89,21 +155,21 @@ export const Player = () => {
     const { x, y } = normalizeForce({ x: moveX, y: moveY });
 
     if (x === 0) {
-      sprite.vx += -sprite.vx * 0.05 * delta;
+      sprite.vx += -sprite.vx * FRICTION * delta;
     } else {
-      sprite.vx += x * 0.3 * delta;
+      sprite.vx += x * stats.moveSpeed * delta;
     }
 
     if (y === 0) {
-      sprite.vy += -sprite.vy * 0.05 * delta;
+      sprite.vy += -sprite.vy * FRICTION * delta;
     } else {
-      sprite.vy += y * 0.3 * delta;
+      sprite.vy += y * stats.moveSpeed * delta;
     }
 
     // limit max speed
     const magnitude = (sprite.vx * sprite.vx + sprite.vy * sprite.vy);
-    if (magnitude > 5) {
-      const scale = 5 / magnitude
+    if (magnitude > stats.maxSpeed) {
+      const scale = stats.maxSpeed / magnitude
       sprite.vx *= scale;
       sprite.vy *= scale;
     }
