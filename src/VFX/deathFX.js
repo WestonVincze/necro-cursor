@@ -71,7 +71,7 @@ export const explode = ({ x, y, color }) => ({
           "list": [
             {
               "time": 0,
-              "value": "#fb1010"
+              "value": "#fb5555"
             },
             {
               "time": 0.4,

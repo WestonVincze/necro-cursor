@@ -18,18 +18,23 @@ export const RadialSpell = ({
 
   const circle = new Graphics();
   circle.lineStyle({ width: 2, color })
+  const ticker = new Ticker();
 
   let radius = startRadius;
   const getRadius = () => radius;
   circle.drawCircle(position.x, position.y, radius);
 
-  const stopCast = () => {
+  const resolveSpell = () => {
+    onComplete?.(radius);
     emitter = new Emitter(particleContainer, explosion({ x: position.x, y: position.y, color, speed: radius * 4 })); 
     emitter.playOnceAndDestroy();
+    cancelSpell();
+  }
+
+  const cancelSpell = () => {
     ticker.destroy();
     casting = false;
     circle.destroy();
-    onComplete?.(radius);
   }
 
   UIContainer.addChild(circle);
@@ -49,11 +54,10 @@ export const RadialSpell = ({
     return radius;
   }
 
-  const ticker = new Ticker();
   ticker.add(() => {
     radius = growCircle(position);
   })
   ticker.start();
 
-  return { casting, stopCast, getRadius };
+  return { casting, resolveSpell, cancelSpell, getRadius };
 }

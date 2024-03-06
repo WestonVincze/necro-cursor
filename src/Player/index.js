@@ -75,7 +75,7 @@ export const Player = () => {
       moveY = 0;
     } else {
       if (player.summoningCircle !== null) {
-        player.summoningCircle.stopCast();
+        player.summoningCircle.resolveSpell();
       }
       moveX = x;
       moveY = y;

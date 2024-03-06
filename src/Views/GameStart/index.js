@@ -1,4 +1,4 @@
-import { HighscoreData } from "../../../api/HighscoreData";
+import { HighscoreData } from "/api/HighscoreData";
 import styles from "./index.module.css";
 
 const Controls = () => `
