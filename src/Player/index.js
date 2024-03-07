@@ -1,5 +1,5 @@
 import { Container, Sprite } from "pixi.js";
-import { BehaviorSubject, Observable, distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } from "rxjs";
+import { BehaviorSubject, Observable, Subject, distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } from "rxjs";
 import { Health } from "../Health";
 import { distanceBetweenPoints } from "../Colliders/isIntersecting";
 import { appService } from "../app";
@@ -15,40 +15,55 @@ const FRICTION = 0.05;
 const initialLevel = 0;
 const initialExperience = 0;
 const experienceToNextLevel = 100;
-const experienceThresholds = [100, 225, 375, 525, 700]
+
+const experienceTable = {
+  1: 100,
+  2: 210,
+  3: 350,
+  4: 600,
+  5: 1000,
+  6: 1500,
+  7: 2500,
+  8: 4000,
+  9: 6500,
+  10: 10000
+}
 
 const playerLevelSubject = new BehaviorSubject({
   level: initialLevel,
   experience: initialExperience,
 })
 
-const experience$ = new Observable((observer) => {
-  playerLevelSubject
-    .pipe(
-      scan((acc, curr) => {
-        const newExperience = acc.experience + curr.experience;
-        const levelUp = newExperience >= experienceToNextLevel;
-        const level = levelUp ? acc.level + 1 : acc.level;
-        const experience = levelUp
-          ? newExperience - experienceToNextLevel
-          : newExperience;
-        return { level, experience };
-      }, { level: initialLevel, experience: initialExperience }),
-      filter(({ level }) => observer.next(level))
-    )
-    .subscribe((player) => {
-      observer.next(player.level)
-    })
-})
-
-const addExperience = (experience) => {
+export const addExperience = (experience) => {
   playerLevelSubject.next({ experience });
 }
 
-experience$.subscribe((level) => {
-  console.log(`Congratulations! You've reached level ${level}!`);
-});
+export const onLevelUp = new Subject();
 
+playerLevelSubject
+  .pipe(
+    scan((acc, curr) => {
+      const newExperience = acc.experience + curr.experience;
+      const levelUp = newExperience >= experienceTable[acc.level + 1]
+      const level = levelUp ? acc.level + 1 : acc.level;
+      const experience = levelUp
+        ? newExperience - experienceToNextLevel
+        : newExperience;
+      if (levelUp) {
+        onLevelUp.next(level)
+      }
+      return { level, experience };
+    }, { level: initialLevel, experience: initialExperience }),
+  )
+  .subscribe()
+
+onLevelUp.subscribe((level) => {
+  console.log(`Congratulations! You've reached level ${level}!`);
+  // pause game
+  // show options to player
+  // apply result
+  // resume game
+});
 
 let summons = 0;
 
@@ -108,9 +123,10 @@ export const Player = () => {
 
   player.getStat = (stat) => stats[stat];
 
+  onLevelUp.subscribe(() => player.setStat("summonSpeed", player.getStat("summonSpeed") + 0.5))
+
   gameTicks$.subscribe(() => {
-    addExperience(50)
-    console.log(player.health.getHP())
+    addExperience(10)
     player.health.heal(stats.HPregeneration)
   })
 
