@@ -9,13 +9,14 @@ import { createMinion } from "../Minions";
 import { GameOver } from "../Views/GameOver";
 import { normalizeForce } from "../helpers";
 import { RadialSpell } from "../Spells";
+import { LevelUp } from "../Views/LevelUp";
 
 const FRICTION = 0.05;
 
 const initialLevel = 0;
 const initialExperience = 0;
-const experienceToNextLevel = 100;
 
+/*
 const experienceTable = {
   1: 100,
   2: 210,
@@ -27,6 +28,20 @@ const experienceTable = {
   8: 4000,
   9: 6500,
   10: 10000
+}
+*/
+
+const experienceTable = {
+  1: 50,
+  2: 110,
+  3: 180,
+  4: 260,
+  5: 350,
+  6: 450,
+  7: 560,
+  8: 680,
+  9: 800,
+  10: 1000
 }
 
 const playerLevelSubject = new BehaviorSubject({
@@ -47,7 +62,7 @@ playerLevelSubject
       const levelUp = newExperience >= experienceTable[acc.level + 1]
       const level = levelUp ? acc.level + 1 : acc.level;
       const experience = levelUp
-        ? newExperience - experienceToNextLevel
+        ? newExperience - experienceTable[level] 
         : newExperience;
       if (levelUp) {
         onLevelUp.next(level)
@@ -56,14 +71,6 @@ playerLevelSubject
     }, { level: initialLevel, experience: initialExperience }),
   )
   .subscribe()
-
-onLevelUp.subscribe((level) => {
-  console.log(`Congratulations! You've reached level ${level}!`);
-  // pause game
-  // show options to player
-  // apply result
-  // resume game
-});
 
 let summons = 0;
 
@@ -109,9 +116,11 @@ export const Player = () => {
     maxSpeed: 5,
     summonSpeed: 0.5,
     summonRadius: 150,
-    HPregeneration: 1,
+    HPregeneration: 0.5,
     maxHP: 150,
   }
+
+  player.getStat = (stat) => stats[stat];
 
   player.setStat = (stat, value) => {
     if (stats.hasOwnProperty(stat)) {
@@ -121,12 +130,48 @@ export const Player = () => {
     }
   }
 
-  player.getStat = (stat) => stats[stat];
-
-  onLevelUp.subscribe(() => player.setStat("summonSpeed", player.getStat("summonSpeed") + 0.5))
+  onLevelUp.subscribe((level) => {
+    console.log(`Congratulations! You've reached level ${level}!`);
+    appService.pause();
+    /**
+     * TODO: randomly provide options for leveling up
+     */
+    LevelUp({
+      level,
+      options: [
+        {
+          name: "SPEED",
+          description: "Increases movement speed.",
+          onSelect: () => {
+            console.log("speed");
+            stats.moveSpeed += 0.05;
+            stats.maxSpeed += 0.75;
+            appService.resume();
+          }
+        },
+        {
+          name: "SUMMON SPEED",
+          description: "Increases how quickly the summon circle grows.",
+          onSelect: () => {
+            console.log("summonSpeed");
+            stats.summonSpeed += 0.5;
+            appService.resume();
+          }
+        },
+        {
+          name: "HPRegeneration",
+          description: "Health Regeneration",
+          onSelect: () => {
+            console.log("REGEN");
+            stats.HPregeneration += 0.75; 
+            app.ticker.start();
+          }
+        }
+      ]
+    })
+  });
 
   gameTicks$.subscribe(() => {
-    addExperience(10)
     player.health.heal(stats.HPregeneration)
   })
 

@@ -6,6 +6,7 @@ import { enemyData } from "../data/units";
 import { RadialSpell } from "../Spells";
 import { distanceBetweenPoints } from "../Colliders/isIntersecting";
 import { minions } from "../Minions";
+import { addExperience } from "../Player";
 
 const {
   units: enemies,
@@ -80,6 +81,8 @@ export const Spawner = (rate = 5000, player) => {
 
       enemy.health.subscribeToDeath(() => {
         killCount++;
+        addExperience(enemyData[enemy.type].exp);
+
         if (enemy.type === "paladin" && enemy.holyNova) {
           enemy.holyNova.cancelSpell();
         }
