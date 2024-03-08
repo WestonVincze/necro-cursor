@@ -7,7 +7,7 @@ import { killCount } from "../Enemies";
 import { bones, removeBones } from "../Drops";
 import { createMinion } from "../Minions";
 import { GameOver } from "../Views/GameOver";
-import { normalizeForce } from "../helpers";
+import { getRandomElements, normalizeForce } from "../helpers";
 import { RadialSpell } from "../Spells";
 import { LevelUp } from "../Views/LevelUp";
 
@@ -15,21 +15,6 @@ const FRICTION = 0.05;
 
 const initialLevel = 0;
 const initialExperience = 0;
-
-/*
-const experienceTable = {
-  1: 100,
-  2: 210,
-  3: 350,
-  4: 600,
-  5: 1000,
-  6: 1500,
-  7: 2500,
-  8: 4000,
-  9: 6500,
-  10: 10000
-}
-*/
 
 const experienceTable = {
   1: 50,
@@ -93,7 +78,7 @@ const initializePlayer = () => {
 
   health.subscribeToDeath(() => {
     GameOver({ killCount, armySize: summons });
-    app.ticker.stop();
+    appService.pause();
   })
 
   const player = {
@@ -115,9 +100,9 @@ export const Player = () => {
     moveSpeed: 0.3,
     maxSpeed: 5,
     summonSpeed: 0.5,
-    summonRadius: 150,
+    summonRadius: 50,
     HPregeneration: 0.5,
-    maxHP: 150,
+    maxHP: 100,
   }
 
   player.getStat = (stat) => stats[stat];
@@ -130,44 +115,72 @@ export const Player = () => {
     }
   }
 
+  player.addToStat = (stat, value) => {
+    if (stats.hasOwnProperty(stat)) {
+      stats[stat] += value;
+    } else {
+      console.error(`Invalid stat: ${stat}`);
+    }
+  }
+
+  const levelUpOptions = [
+    {
+      name: "Move Speed",
+      description: "Increases movement speed.",
+      onSelect: () => {
+        console.log("MOVE SPEED");
+        stats.moveSpeed += 0.05;
+        stats.maxSpeed += 0.75;
+        appService.resume();
+      }
+    },
+    {
+      name: "Casting Speed",
+      description: "Increases how quickly the summon circle grows.",
+      onSelect: () => {
+        console.log("CAST SPEED");
+        stats.summonSpeed += 0.5;
+        appService.resume();
+      }
+    },
+    {
+      name: "Health Regeneration",
+      description: "How fast health regenerates over time.",
+      onSelect: () => {
+        console.log("REGEN");
+        stats.HPregeneration += 0.75; 
+        appService.resume();
+      }
+    },
+    /*
+    {
+      name: "Max Health",
+      description: "The maximum amount of health available.",
+      onSelect: () => {
+        console.log("MAX HP");
+        stats.maxHP += 15; 
+        appService.resume();
+      }
+    },
+    */
+    {
+      name: "Spell Size",
+      description: "How much area the skeleton summoning circle covers.",
+      onSelect: () => {
+        console.log("SPELL SIZE");
+        stats.summonRadius += 15; 
+        appService.resume();
+      }
+    }
+  ]
+  console.log(getRandomElements(levelUpOptions, 3));
+
   onLevelUp.subscribe((level) => {
     console.log(`Congratulations! You've reached level ${level}!`);
     appService.pause();
-    /**
-     * TODO: randomly provide options for leveling up
-     */
     LevelUp({
       level,
-      options: [
-        {
-          name: "SPEED",
-          description: "Increases movement speed.",
-          onSelect: () => {
-            console.log("speed");
-            stats.moveSpeed += 0.05;
-            stats.maxSpeed += 0.75;
-            appService.resume();
-          }
-        },
-        {
-          name: "SUMMON SPEED",
-          description: "Increases how quickly the summon circle grows.",
-          onSelect: () => {
-            console.log("summonSpeed");
-            stats.summonSpeed += 0.5;
-            appService.resume();
-          }
-        },
-        {
-          name: "HPRegeneration",
-          description: "Health Regeneration",
-          onSelect: () => {
-            console.log("REGEN");
-            stats.HPregeneration += 0.75; 
-            app.ticker.start();
-          }
-        }
-      ]
+      options: getRandomElements(levelUpOptions, 3),
     })
   });
 
