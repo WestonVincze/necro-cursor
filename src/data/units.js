@@ -7,6 +7,7 @@
  * @prop {number} width
  * @prop {number} height
  * @prop {number} maxHP
+ * @prop {number} [exp]
  * @prop {boolean} [hideUI]
  * @prop {number} [maxAttackers]
  */
@@ -20,6 +21,7 @@ export const enemyData = {
     height: 110,
     maxHP: 100,
     maxAttackers: 10,
+    exp: 10,
   },
   paladin: {
     type: "paladin",
@@ -28,6 +30,7 @@ export const enemyData = {
     height: 110,
     maxHP: 150,
     maxAttackers: 10,
+    exp: 15,
   },
 }
 
