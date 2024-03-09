@@ -19,7 +19,7 @@ const Highscores = (stats) => `
   ${stats.map(s => `<p>Guards Killed: ${s.killCount}, Skeletons Summoned: ${s.armySize}</p>`).join("\n")}
 `
 
-const GameStartScreen = () => `
+const MainMenuScreen = () => `
 <h1>NECRO CURSOR</h1>
 <img class="${styles.hero}" src="/assets/necro.png" alt="necromancer image" />
 
@@ -29,7 +29,7 @@ const GameStartScreen = () => `
 <button id="toggle_content">View Highscores</button>
 `
 
-export const GameStart = ({ onStartGame }) => {
+export const MainMenu = ({ onStartGame }) => {
   const { getHighscores } = HighscoreData();
   const overlay = document.querySelector('#overlay');
   overlay.classList.add("show");

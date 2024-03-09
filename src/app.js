@@ -4,7 +4,7 @@ import { Player } from "./Player";
 import { Spawner } from "./Enemies";
 import { getURLParam } from "./helpers";
 import { filter, interval } from "rxjs";
-import { GameStart } from "./Views/GameStart";
+import { MainMenu } from "./Views/MainMenu";
 import { initializeMinions } from "./Minions";
 import { activeKeys$ } from "./Inputs";
 
@@ -20,6 +20,7 @@ export const appService = {
   particleContainer: null,
   /** @type {interval} */
   gameTicks$: null,
+  paused: false,
   initialize() {
     const container = document.querySelector('#container');
     const app = new Application({ background: '#aeaeae', resizeTo: container});
@@ -35,8 +36,8 @@ export const appService = {
     app.stage.addChild(particleContainer);
     const gameTicks$ = interval(200);
 
-    window.addEventListener('blur', () => this.pause());
-    window.addEventListener('focus', () => this.resume());
+    window.addEventListener('blur', () => this.softPause());
+    window.addEventListener('focus', () => this.softResume());
 
     activeKeys$.subscribe(keys => {
       if (keys['escape']) {
@@ -54,11 +55,19 @@ export const appService = {
     this.particleContainer = particleContainer;
     this.gameTicks$ = gameTicks$.pipe(filter(() => this.app.ticker.started));
   },
+  softPause() {
+    if (this.paused) return;
+    this.app.ticker.stop();
+  },
+  softResume() {
+    if (this.paused) return;
+    this.app.ticker.start();
+  },
   pause() {
+    this.paused = true;
     this.app.ticker.stop();
   },
   resume() {
-    // when we add "pausing" we'll want to make sure we don't auto resume when we refocus on a deliberately paused game
     this.app.ticker.start();
   },
   /** do we need getters? */
@@ -115,7 +124,7 @@ const initializeGame = () => {
   Spawner(spawnRate, player);
 }
 
-GameStart({ onStartGame: initializeGame });
+MainMenu({ onStartGame: initializeGame });
 
 
 /**

@@ -10,6 +10,7 @@
  * @prop {number} [exp]
  * @prop {boolean} [hideUI]
  * @prop {number} [maxAttackers]
+ * @prop {function} [behvaior] - defines the "brain"
  */
 
 /** @type {Object.<string, Unit>} */
@@ -32,6 +33,8 @@ export const enemyData = {
     maxAttackers: 10,
     exp: 15,
   },
+  // doppelsoldner (montante AoE attacks)
+  // archer (piercing shot)
 }
 
 /** @type {Object.<string, Unit>} */
@@ -42,6 +45,6 @@ export const minionData = {
     width: 40,
     height: 60,
     maxHP: 1,
-    hideUI: false,
+    hideUI: true,
   }
 }
