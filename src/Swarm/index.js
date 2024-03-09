@@ -5,6 +5,11 @@ import { spawnBones } from "../Drops";
 import { Emitter } from "@pixi/particle-emitter";
 import { explode } from "../VFX/deathFX";
 
+/**
+ * Let's add some object pooling to reduce the workload of creating and destroying units
+ * make it optional, and set multiple pools for types of minions
+ */
+
 export const Swarm = () => {
   let id = 0;
   const units = []
