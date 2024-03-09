@@ -6,6 +6,7 @@ import { getURLParam } from "./helpers";
 import { filter, interval } from "rxjs";
 import { GameStart } from "./Views/GameStart";
 import { initializeMinions } from "./Minions";
+import { activeKeys$ } from "./Inputs";
 
 // Setup PixiJS APP
 export const appService = {
@@ -37,6 +38,16 @@ export const appService = {
     window.addEventListener('blur', () => this.pause());
     window.addEventListener('focus', () => this.resume());
 
+    activeKeys$.subscribe(keys => {
+      if (keys['escape']) {
+        this.app.ticker.started ? this.pause() : this.resume();
+      }
+
+      if (keys['`']) {
+        toggleDebug();
+      }
+    });
+
     this.app = app;
     this.spriteContainer = spriteContainer;
     this.UIContainer = UIContainer;
@@ -67,7 +78,7 @@ export const appService = {
 
 appService.initialize();
 
-const { gameTicks$, spriteContainer } = appService;
+const { app, gameTicks$, spriteContainer } = appService;
 
 const skeletons = getURLParam("skeletons", 3);
 const spawnRate = getURLParam("spawnRate", 5000);
@@ -80,6 +91,18 @@ const showGameTicks = (v) => {
 }
 gameTicks$.subscribe(showGameTicks)
 */
+
+let debugSubscription = null;
+const toggleDebug = () => {
+  const debug = document.getElementById('debug');
+  const showFPS = () => debug.innerHTML = app.ticker.FPS;
+  if (debug.innerHTML === "") {
+    debugSubscription = gameTicks$.subscribe(showFPS);
+  } else {
+    debugSubscription.unsubscribe();
+    debug.innerHTML = "";
+  }
+}
 
 const alignSprites = () => {
   spriteContainer.children.map(c => c.zIndex = c.y);

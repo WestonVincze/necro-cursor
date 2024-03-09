@@ -92,6 +92,7 @@ export const calculateFollowForce = ({ targetX, targetY }, sprite, speed) => {
   return normalizeForce(followForce);
 }
 
+// raycast at 4 points and if an overlap is detected apply separation force?
 const calculateSeparationForce = (sprite, flock, separationRadius = 1, maxOverlapRatio) => {
   const separationForce = { x: 0, y: 0 };
 

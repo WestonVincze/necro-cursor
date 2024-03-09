@@ -1,5 +1,5 @@
 import { Container, Sprite } from "pixi.js";
-import { BehaviorSubject, Observable, Subject, distinctUntilChanged, filter, fromEvent, map, merge, scan, startWith } from "rxjs";
+import { BehaviorSubject, Subject, map, scan, startWith } from "rxjs";
 import { Health } from "../Health";
 import { distanceBetweenPoints } from "../Colliders/isIntersecting";
 import { appService } from "../app";
@@ -10,6 +10,7 @@ import { GameOver } from "../Views/GameOver";
 import { getRandomElements, normalizeForce } from "../helpers";
 import { RadialSpell } from "../Spells";
 import { LevelUp } from "../Views/LevelUp";
+import { activeKeys$ } from "../Inputs";
 
 const FRICTION = 0.05;
 
@@ -259,36 +260,8 @@ export const Player = () => {
   return player;
 }
 
-// player input and observables
-const inputs = ['w', 'a', 's', 'd', ' '];
-
-const keyDown$ = fromEvent(document, 'keydown').pipe(
-  filter(e => inputs.includes(e.key.toLowerCase())),
-  map(e => ({
-    key: e.key.toLowerCase(),
-    isDown: true,
-  }))
-)
-
-const keyUp$ = fromEvent(document, 'keyup').pipe(
-  filter(e => inputs.includes(e.key.toLowerCase())),
-  map(e => ({
-    key: e.key.toLowerCase(),
-    isDown: false,
-  }))
-)
-
-// tracking whether or not key is currently pressed
-const keys$ = merge(keyDown$, keyUp$).pipe(
-  distinctUntilChanged((prev, curr)=> prev.key === curr.key && prev.isDown === curr.isDown),
-  scan((acc, curr) => {
-    acc[curr.key] = curr.isDown;
-    return acc;
-  }, {}),
-)
-
 // converting input to x/y values
-const playerInput$ = keys$.pipe(
+const playerInput$ = activeKeys$.pipe(
   map(keys => ({
     summoning: keys[' '],
     x: (keys['d'] ? 1 : 0) + (keys['a'] ? -1 : 0),

@@ -7,7 +7,7 @@ import { explode } from "../VFX/deathFX";
 
 export const Swarm = () => {
   let id = 0;
-  const units = []
+  const units = [];
 
   const createUnit = (unitData, position = { x: 0, y: 0 }, options) => {
     const { spriteContainer, particleContainer } = appService;

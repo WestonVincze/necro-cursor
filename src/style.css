@@ -49,6 +49,11 @@ body {
 #overlay > * {
   margin-bottom: 15px;
 }
+#debug {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
 
 button {
   outline: none;

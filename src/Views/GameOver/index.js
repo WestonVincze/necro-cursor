@@ -1,18 +1,22 @@
-import { HighscoreData } from "../../../api/HighscoreData";
+import styles from "./index.module.css"
+import { HighscoreData } from "/api/HighscoreData";
 
+// TODO: make BG red
 const GameOverScreen = ({ killCount, armySize, stats }) => `
-  <img src="/assets/bones.png" alt="pile of bones" />
-  <h1 class="red">GET FUCKED, NERD.</h1>
-  <h2>You did okay, though...</h2>
-  <p>You killed ${killCount} guards.</p>
-  <p>You summoned ${armySize} skeletons.</p>
+  <div class="${styles.gameOver}">
+    <img src="/assets/bones.png" alt="pile of bones" />
+    <h1 class="red">GET FUCKED, NERD.</h1>
+    <h2>You did okay, though...</h2>
+    <p>You killed ${killCount} guards.</p>
+    <p>You summoned ${armySize} skeletons.</p>
 
-  <hr />
+    <hr />
 
-  <h2>Your Best 5 Runs</h2>
-  ${stats.map(s => `<p>Killed: ${s.killCount}, Summoned: ${s.armySize}</p>`).join("\n")}
+    <h2>Your Best 5 Runs</h2>
+    ${stats.map(s => `<p>Killed: ${s.killCount}, Summoned: ${s.armySize}</p>`).join("\n")}
 
-  <button onclick="window.location.reload()">Play Again?</button>
+    <button onclick="window.location.reload()">Play Again?</button>
+  </div>
 `
 export const GameOver = ({ killCount, armySize }) => {
   const { saveHighscore } = HighscoreData();

@@ -1,0 +1,10 @@
+.gameOver { 
+  width: 100%;
+  height: 100%;
+  background-color: #AA555555;
+  padding: 20px;
+}
+
+.gameOver > button {
+  margin-top: 20px;
+}
