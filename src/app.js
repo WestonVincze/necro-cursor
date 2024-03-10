@@ -7,6 +7,7 @@ import { filter, interval } from "rxjs";
 import { MainMenu } from "./Views/MainMenu";
 import { initializeMinions } from "./Minions";
 import { activeKeys$ } from "./Inputs";
+import { UI } from "./UI";
 
 // Setup PixiJS APP
 export const appService = {
@@ -85,7 +86,9 @@ export const appService = {
   },
 }
 
+// TODO: revisit this import/export pattern....
 appService.initialize();
+export const { setKillCountUI, setMinionCountUI, setHealthBarUI, setExpBarUI } = UI();
 
 const { app, gameTicks$, spriteContainer } = appService;
 

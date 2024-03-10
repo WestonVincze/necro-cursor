@@ -33,7 +33,7 @@ export const MainMenu = ({ onStartGame }) => {
   const { getHighscores } = HighscoreData();
   const overlay = document.querySelector('#overlay');
   overlay.classList.add("show");
-  overlay.innerHTML = GameStartScreen();
+  overlay.innerHTML = MainMenuScreen();
 
   const handleStartGame = () => {
     onStartGame?.();

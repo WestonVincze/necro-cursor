@@ -4,6 +4,7 @@ import { Subject } from "rxjs";
 export const Health = ({ maxHP, container }) => {
   let hp = maxHP;
   const onDeath = new Subject();
+  const onHealthChange = new Subject();
   // create onTakeDamage Subject to manage UI updates and other events?
   let healthBar = null;
 
@@ -14,22 +15,29 @@ export const Health = ({ maxHP, container }) => {
   const takeDamage = (damage) => {
     hp -= damage;
     healthBar?.updateHealth(hp);
+    onHealthChange.next();
     if (hp <= 0) {
       hp = 0;
       onDeath.next();
       onDeath.complete();
+      onHealthChange.complete();
     }
   }
 
   const heal = (amount) => {
     hp = Math.min(hp + amount, maxHP);
     healthBar?.updateHealth(hp);
+    onHealthChange.next();
   }
 
   const getHP = () => hp;
 
   const subscribeToDeath = (fn) => {
     return onDeath.subscribe(fn);
+  }
+
+  const subscribeToHealthChange = (fn) => {
+    return onHealthChange.subscribe(fn);
   }
 
   // TODO: improve garbage collection
@@ -43,6 +51,7 @@ export const Health = ({ maxHP, container }) => {
     heal,
     getHP,
     subscribeToDeath,
+    subscribeToHealthChange,
     healthBar,
   }
 }

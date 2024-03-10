@@ -1,6 +1,6 @@
 import { Swarm } from "../Swarm";
 import { minionData } from "../data/units";
-import { appService } from "../app";
+import { appService, setMinionCountUI } from "../app";
 import { followTarget } from "../Movement/followTarget";
 import { auditTime, fromEvent } from 'rxjs'
 import { enemies, addAttacker } from "../Enemies";
@@ -17,7 +17,10 @@ export { minions, getMinionById, removeMinion }
 
 // TODO: Fix performance issues (might be related to high number of containers being used)
 export const createMinion = (position) => {
-  createUnit(minionData.skeleton, position, { target: 'cursor' });
+  const minion = createUnit(minionData.skeleton, position, { target: 'cursor' });
+  setMinionCountUI(minions.length);
+  minion.health.subscribeToDeath(() => setMinionCountUI(minions.length));
+
 }
 
 export const initializeMinions = (spriteCount) => {

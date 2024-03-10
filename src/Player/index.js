@@ -2,7 +2,7 @@ import { Container, Sprite } from "pixi.js";
 import { BehaviorSubject, Subject, map, scan, startWith } from "rxjs";
 import { Health } from "../Health";
 import { distanceBetweenPoints } from "../Colliders/isIntersecting";
-import { appService } from "../app";
+import { appService, setExpBarUI, setHealthBarUI } from "../app";
 import { killCount } from "../Enemies";
 import { bones, removeBones } from "../Drops";
 import { createMinion } from "../Minions";
@@ -13,6 +13,8 @@ import { LevelUp } from "../Views/LevelUp";
 import { activeKeys$ } from "../Inputs";
 
 const FRICTION = 0.05;
+
+let summons = 0;
 
 const initialLevel = 0;
 const initialExperience = 0;
@@ -30,42 +32,21 @@ const experienceTable = {
   10: 1000
 }
 
-const playerLevelSubject = new BehaviorSubject({
-  level: initialLevel,
-  experience: initialExperience,
-})
+const getLevelPercentage = (level, experience) => {
+  const nextLevel = Math.min(Object.keys(experienceTable).length, level + 1);
 
-export const addExperience = (experience) => {
-  playerLevelSubject.next({ experience });
+  const progress = experience / experienceTable[nextLevel];
+
+  return progress >= 1 ? 100 : Math.floor(progress * 100);
 }
 
-export const onLevelUp = new Subject();
-
-playerLevelSubject
-  .pipe(
-    scan((acc, curr) => {
-      const newExperience = acc.experience + curr.experience;
-      const levelUp = newExperience >= experienceTable[acc.level + 1]
-      const level = levelUp ? acc.level + 1 : acc.level;
-      const experience = levelUp
-        ? newExperience - experienceTable[level] 
-        : newExperience;
-      if (levelUp) {
-        onLevelUp.next(level)
-      }
-      return { level, experience };
-    }, { level: initialLevel, experience: initialExperience }),
-  )
-  .subscribe()
-
-let summons = 0;
 
 const initializePlayer = () => {
   const { app, spriteContainer } = appService;
   const sprite = Sprite.from("assets/necro.png");
   sprite.width = 50;
   sprite.height = 114;
-  sprite.anchor.set(0.5)
+  sprite.anchor.set(0.5);
 
   const container = new Container();
   container.position.set(app.screen.width / 2, app.screen.height / 2);
@@ -82,11 +63,51 @@ const initializePlayer = () => {
     appService.pause();
   })
 
+  health.subscribeToHealthChange(() => {
+    const healthPercent = (player.health.getHP() / 150) * 100;
+    setHealthBarUI(healthPercent);
+  })
+
+  const playerLevelSubject = new BehaviorSubject({
+    level: initialLevel,
+    experience: initialExperience,
+  })
+
+  const onLevelUp = new Subject();
+
+  playerLevelSubject
+    .pipe(
+      scan((acc, curr) => {
+        const newExperience = acc.experience + curr.experience;
+        const levelUp = getLevelPercentage(acc.level, newExperience) === 100;
+        const level = levelUp ? acc.level + 1 : acc.level;
+        const experience = levelUp
+          ? newExperience - experienceTable[level] 
+          : newExperience;
+        if (levelUp) {
+          onLevelUp.next(level)
+        }
+        return { level, experience };
+      }, { level: initialLevel, experience: initialExperience }),
+    )
+    .subscribe(({ level, experience }) => {
+      const percentage = getLevelPercentage(level, experience);
+      if (!setExpBarUI) return;
+      setExpBarUI(percentage);
+    });
+
+  const addExperience = (experience) => {
+    playerLevelSubject.next({ experience });
+  }
+
+
   const player = {
     sprite: container,
     attackers: [],
     summoningCircle: null,
     health,
+    addExperience,
+    onLevelUp,
   }
   
   return player;
@@ -176,7 +197,7 @@ export const Player = () => {
   ]
   console.log(getRandomElements(levelUpOptions, 3));
 
-  onLevelUp.subscribe((level) => {
+  player.onLevelUp.subscribe((level) => {
     console.log(`Congratulations! You've reached level ${level}!`);
     appService.pause();
     LevelUp({

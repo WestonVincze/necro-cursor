@@ -1,0 +1,52 @@
+.UI {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  padding: 25px;
+}
+
+.topBar, .bottomBar {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.bottomBar {
+  align-items: center;
+  flex-direction: column;
+}
+
+.barContainer {
+  position: relative;
+  background-color: #fefefe55;
+  border-radius: 25px;
+  height: 20px;
+  width: 200px;
+  max-width: 100%;
+}
+
+.expBar, .healthBar {
+  border-radius: 25px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+}
+
+.expBar {
+  background-color: #5555ff;
+  width: var(--exp-percent);
+  transition: width 0.5s ease-in-out;
+}
+
+.healthBar {
+  content: var(--hp-percent);
+  background-color: #ff5555;
+  width: var(--hp-percent);
+  transition: width 0.05s ease-in-out;
+}
