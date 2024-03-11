@@ -76,7 +76,6 @@ const initializePlayer = () => {
   })
 
   health.subscribeToHealthChange(() => {
-    console.log(_stats.maxHP)
     const healthPercent = (player.health.getHP() / _stats.maxHP) * 100;
     setHealthBarUI(healthPercent);
   })
@@ -112,7 +111,6 @@ const initializePlayer = () => {
   const addExperience = (experience) => {
     playerLevelSubject.next({ experience });
   }
-
 
   const getStat = (stat) => _stats[stat];
 
@@ -229,7 +227,7 @@ export const Player = () => {
           growth: player._stats.summonSpeed,
           onComplete: (radius) => { 
             bones.map(b => {
-              if (distanceBetweenPoints(b.sprite, sprite) <= radius) {
+              if (distanceBetweenPoints(b.sprite, sprite) <= radius + 25) {
                 summons++;
                 createMinion(b.sprite);
                 removeBones(b);
