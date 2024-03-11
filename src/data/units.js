@@ -10,7 +10,7 @@
  * @prop {number} [exp]
  * @prop {boolean} [hideUI]
  * @prop {number} [maxAttackers]
- * @prop {function} [behvaior] - defines the "brain"
+ * @prop {function} [behavior] - defines the "brain"
  */
 
 /** @type {Object.<string, Unit>} */
