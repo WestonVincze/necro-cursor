@@ -3,12 +3,15 @@
  */
 
 import { Sprite } from "pixi.js";
-import { appService } from "../../app";
+import { appService } from "/src/app";
+import { take, takeUntil } from "rxjs";
 
 export let bones = [];
+const despawnTickCount = 75;
+const flashTickCount = 50;
 
 export const spawnBones = ({ x, y }, id) => {
-  const { spriteContainer } = appService;
+  const { gameTicks$, spriteContainer } = appService;
   const sprite = Sprite.from("assets/bones.png");
   sprite.anchor.set(0.5);
   sprite.width = 50;
@@ -19,25 +22,25 @@ export const spawnBones = ({ x, y }, id) => {
 
   bones.push({ id, sprite });
 
-  // TODO: manage garbage collection
-  setTimeout(() => {
-    setInterval(() => {
-      sprite.alpha = sprite.alpha === 1 ? 0.5 : 1; 
-    }, 300); 
-  }, 5000)
-
-  const timeoutID = setTimeout(() => { 
-    if (bones.filter(b => b.id === id)[0]) {
-      removeBones({ id, sprite, timeoutID })
-    }
-  }, 15000);
+  gameTicks$
+    .pipe(
+      take(despawnTickCount)
+    )
+    .subscribe(
+      t => {
+        if (t < flashTickCount) return;
+        sprite.alpha = sprite.alpha === 1 ? 0.5 : 1; 
+      },
+      null,
+      () => removeBones({id, sprite})
+    )
 
   return sprite;
 }
 
-export const removeBones = ({ id, sprite, timeoutID }) => {
-  if (!sprite) return;
-  clearTimeout(timeoutID);
+export const removeBones = ({ id, sprite }) => {
+  if (sprite.destroyed) return;
+
   try {
     sprite.destroy();
     bones = [...bones.filter(b => b.id !== id)];
