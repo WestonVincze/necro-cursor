@@ -1,16 +1,17 @@
 import { Container, Sprite } from "pixi.js";
 import { BehaviorSubject, Subject, map, scan, startWith } from "rxjs";
-import { Health } from "../Health";
-import { distanceBetweenPoints } from "../Colliders/isIntersecting";
-import { appService, setExpBarUI, setHealthBarUI } from "../app";
-import { killCount } from "../Enemies";
-import { bones, removeBones } from "../Drops";
-import { createMinion } from "../Minions";
-import { GameOver } from "../Views/GameOver";
-import { getRandomElements, normalizeForce } from "../helpers";
-import { RadialSpell } from "../Spells";
-import { LevelUp } from "../Views/LevelUp";
-import { activeKeys$ } from "../Inputs";
+
+import { Health } from "/src/components/Health";
+import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
+import { appService, setExpBarUI, setHealthBarUI } from "/src/app";
+import { killCount } from "/src/components/Enemies";
+import { bones, removeBones } from "/src/components/Drops";
+import { createMinion } from "/src/components/Minions";
+import { GameOver } from "/src/Views/GameOver";
+import { getRandomElements, normalizeForce } from "/src/helpers";
+import { RadialSpell } from "/src/components/Spells";
+import { LevelUp } from "/src/Views/LevelUp";
+import { activeKeys$ } from "/src/components/Inputs";
 
 const FRICTION = 0.05;
 

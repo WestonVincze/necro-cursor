@@ -1,7 +1,7 @@
 import { Graphics, Ticker } from "pixi.js";
 import { Emitter } from "@pixi/particle-emitter";
-import { appService } from "../app";
-import { explosion } from "../VFX/spellFX";
+import { appService } from "/src/app";
+import { explosion } from "/src/VFX/spellFX";
 
 export const RadialSpell = ({
   position = { x: 0, y: 0 },

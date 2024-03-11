@@ -1,4 +1,4 @@
-import { normalizeForce } from '../helpers';
+import { normalizeForce } from '../../helpers';
 
 /**
  * @param {Object} options 

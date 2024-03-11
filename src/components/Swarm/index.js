@@ -1,9 +1,9 @@
-import { Health } from "../Health";
+import { Health } from "/src/components/Health";
 import { Container, Sprite } from "pixi.js";
-import { appService } from "../app";
-import { spawnBones } from "../Drops";
+import { appService } from "/src/app";
+import { spawnBones } from "/src/components/Drops";
 import { Emitter } from "@pixi/particle-emitter";
-import { explode } from "../VFX/deathFX";
+import { explode } from "/src/VFX/deathFX";
 
 /**
  * Let's add some object pooling to reduce the workload of creating and destroying units

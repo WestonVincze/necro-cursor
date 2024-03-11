@@ -1,12 +1,12 @@
 import "./style.css"
 import { Application, Container, ParticleContainer } from "pixi.js";
-import { Player } from "./Player";
-import { Spawner } from "./Enemies";
+import { Player } from "./components/Player";
+import { Spawner } from "./components/Enemies";
 import { getURLParam } from "./helpers";
 import { filter, interval } from "rxjs";
 import { MainMenu } from "./Views/MainMenu";
-import { initializeMinions } from "./Minions";
-import { activeKeys$ } from "./Inputs";
+import { initializeMinions } from "./components/Minions";
+import { activeKeys$ } from "./components/Inputs";
 import { UI } from "./UI";
 
 // Setup PixiJS APP

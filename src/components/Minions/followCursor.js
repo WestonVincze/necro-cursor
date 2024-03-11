@@ -1,7 +1,7 @@
 import { auditTime, fromEvent } from 'rxjs'
 import { Sprite } from "pixi.js"
 import { addAttacker, enemies, getEnemyById } from '../Enemies';
-import { isIntersectingRect } from '../Colliders/isIntersecting';
+import { isIntersectingRect } from '../components/Colliders/isIntersecting';
 import { normalizeForce } from '../helpers';
 import { appService } from '../app';
 
@@ -34,7 +34,7 @@ export const FollowCursor = (spriteCount) => {
   const move$ = fromEvent(container, 'mousemove');
   const result$ = move$.pipe(auditTime(200));
 
-  let targetX = 0
+  let targetX = 0;
   let targetY = 0;
 
   const followMouse = (e) => {

@@ -1,11 +1,11 @@
 import { interval } from "rxjs";
-import { followTarget } from "../Movement/followTarget";
-import { appService, setKillCountUI } from "../app";
-import { Swarm } from "../Swarm";
-import { enemyData } from "../data/units";
-import { RadialSpell } from "../Spells";
-import { distanceBetweenPoints } from "../Colliders/isIntersecting";
-import { minions } from "../Minions";
+import { followTarget } from "/src/components/Movement/followTarget";
+import { appService, setKillCountUI } from "/src/app";
+import { Swarm } from "/src/components/Swarm";
+import { enemyData } from "/src/data/units";
+import { RadialSpell } from "/src/components/Spells";
+import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
+import { minions } from "/src/components/Minions";
 
 const {
   units: enemies,

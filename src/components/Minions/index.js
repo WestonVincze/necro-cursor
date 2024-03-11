@@ -1,10 +1,10 @@
-import { Swarm } from "../Swarm";
-import { minionData } from "../data/units";
-import { appService, setMinionCountUI } from "../app";
-import { followTarget } from "../Movement/followTarget";
+import { Swarm } from "/src/components/Swarm";
+import { minionData } from "/src/data/units";
+import { appService, setMinionCountUI } from "/src/app";
+import { followTarget } from "/src/components/Movement/followTarget";
 import { auditTime, fromEvent } from 'rxjs'
-import { enemies, addAttacker } from "../Enemies";
-import { isIntersectingRect } from "../Colliders/isIntersecting";
+import { enemies, addAttacker } from "/src/components/Enemies";
+import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
 
 const {
   units: minions,

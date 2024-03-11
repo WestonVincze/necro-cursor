@@ -3,7 +3,7 @@
  */
 
 import { Sprite } from "pixi.js";
-import { appService } from "../app";
+import { appService } from "../../app";
 
 export let bones = [];
 
