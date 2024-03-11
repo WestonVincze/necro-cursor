@@ -72,6 +72,13 @@ export const Swarm = () => {
     return true;
   }
 
+  const removeAttacker = (id) => {
+    const unit = getUnitById(id);
+    if (unit.attackers === 0) return false;
+    unit.attackers--;
+    return true;
+  }
+
   const getUnitById = (id) => {
     return units.find(unit => unit.id === id);
   }
@@ -81,6 +88,7 @@ export const Swarm = () => {
     createUnit,
     removeUnit,
     addAttacker,
+    removeAttacker,
     getUnitById,
   }
 }

@@ -11,10 +11,11 @@ const {
   units: enemies,
   createUnit: createEnemy,
   getUnitById: getEnemyById,
-  addAttacker
+  addAttacker,
+  removeAttacker
 } = Swarm();
 
-export { enemies, getEnemyById, addAttacker }
+export { enemies, getEnemyById, addAttacker, removeAttacker }
 export let killCount = 0;
 
 // continuously spawns enemies

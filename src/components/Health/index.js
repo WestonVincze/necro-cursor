@@ -5,7 +5,6 @@ export const Health = ({ maxHP, container }) => {
   let hp = maxHP;
   const onDeath = new Subject();
   const onHealthChange = new Subject();
-  // create onTakeDamage Subject to manage UI updates and other events?
   let healthBar = null;
 
   if (maxHP > 1 && container) {
