@@ -15,6 +15,15 @@ import { activeKeys$ } from "/src/components/Inputs";
 
 const FRICTION = 0.05;
 
+const initialStats = {
+  moveSpeed: 0.3,
+  maxSpeed: 5,
+  summonSpeed: 0.5,
+  summonRadius: 50,
+  HPregeneration: 0.5,
+  maxHP: 100,
+}
+
 let summons = 0;
 
 const initialLevel = 0;
@@ -57,7 +66,9 @@ const initializePlayer = () => {
   container.addChild(sprite);
   spriteContainer.addChild(container);
 
-  const health = Health({ maxHP: 150, container });
+  const _stats = initialStats;
+
+  const health = Health({ maxHP: _stats.maxHP, container });
 
   health.subscribeToDeath(() => {
     GameOver({ killCount, armySize: summons });
@@ -65,7 +76,8 @@ const initializePlayer = () => {
   })
 
   health.subscribeToHealthChange(() => {
-    const healthPercent = (player.health.getHP() / 150) * 100;
+    console.log(_stats.maxHP)
+    const healthPercent = (player.health.getHP() / _stats.maxHP) * 100;
     setHealthBarUI(healthPercent);
   })
 
@@ -102,45 +114,19 @@ const initializePlayer = () => {
   }
 
 
-  const player = {
-    sprite: container,
-    attackers: [],
-    summoningCircle: null,
-    health,
-    addExperience,
-    onLevelUp,
-  }
-  
-  return player;
-}
+  const getStat = (stat) => _stats[stat];
 
-export const Player = () => {
-  const { app, gameTicks$ } = appService;
-  const player = initializePlayer();
-  const sprite = player.sprite;
-
-  const stats = {
-    moveSpeed: 0.3,
-    maxSpeed: 5,
-    summonSpeed: 0.5,
-    summonRadius: 50,
-    HPregeneration: 0.5,
-    maxHP: 100,
-  }
-
-  player.getStat = (stat) => stats[stat];
-
-  player.setStat = (stat, value) => {
-    if (stats.hasOwnProperty(stat)) {
-      stats[stat] = value;
+  const setStat = (stat, value) => {
+    if (_stats.hasOwnProperty(stat)) {
+      _stats[stat] = value;
     } else {
       console.error(`Invalid stat: ${stat}`);
     }
   }
 
-  player.addToStat = (stat, value) => {
-    if (stats.hasOwnProperty(stat)) {
-      stats[stat] += value;
+  const addToStat = (stat, value) => {
+    if (_stats.hasOwnProperty(stat)) {
+      _stats[stat] += value;
     } else {
       console.error(`Invalid stat: ${stat}`);
     }
@@ -152,8 +138,8 @@ export const Player = () => {
       description: "Increases movement speed.",
       onSelect: () => {
         console.log("MOVE SPEED");
-        stats.moveSpeed += 0.05;
-        stats.maxSpeed += 0.75;
+        _stats.moveSpeed += 0.05;
+        _stats.maxSpeed += 0.75;
         appService.resume();
       }
     },
@@ -162,7 +148,7 @@ export const Player = () => {
       description: "Increases how quickly the summon circle grows.",
       onSelect: () => {
         console.log("CAST SPEED");
-        stats.summonSpeed += 0.5;
+        _stats.summonSpeed += 0.5;
         appService.resume();
       }
     },
@@ -171,34 +157,32 @@ export const Player = () => {
       description: "How fast health regenerates over time.",
       onSelect: () => {
         console.log("REGEN");
-        stats.HPregeneration += 0.75; 
+        _stats.HPregeneration += 0.75; 
         appService.resume();
       }
     },
-    /*
     {
       name: "Max Health",
       description: "The maximum amount of health available.",
       onSelect: () => {
         console.log("MAX HP");
-        stats.maxHP += 15; 
+        _stats.maxHP += 15; 
+        health.setMaxHP(_stats.maxHP);
         appService.resume();
       }
     },
-    */
     {
       name: "Spell Size",
       description: "How much area the skeleton summoning circle covers.",
       onSelect: () => {
         console.log("SPELL SIZE");
-        stats.summonRadius += 15; 
+        _stats.summonRadius += 15; 
         appService.resume();
       }
     }
   ]
-  console.log(getRandomElements(levelUpOptions, 3));
 
-  player.onLevelUp.subscribe((level) => {
+  onLevelUp.subscribe((level) => {
     console.log(`Congratulations! You've reached level ${level}!`);
     appService.pause();
     LevelUp({
@@ -207,8 +191,30 @@ export const Player = () => {
     })
   });
 
+  const player = {
+    sprite: container,
+    attackers: [],
+    summoningCircle: null,
+    health,
+    addExperience,
+    onLevelUp,
+    _stats,
+    getStat,
+    setStat,
+    addToStat,
+  }
+  
+  return player;
+}
+
+export const Player = () => {
+  const { app, gameTicks$ } = appService;
+  const player = initializePlayer();
+  const sprite = player.sprite;
+
+
   gameTicks$.subscribe(() => {
-    player.health.heal(stats.HPregeneration)
+    player.health.heal(player._stats.HPregeneration)
   })
 
   // state
@@ -219,8 +225,8 @@ export const Player = () => {
       if (!player.summoningCircle?.casting) {
         player.summoningCircle = RadialSpell({
           position: sprite,
-          maxRadius: stats.summonRadius,
-          growth: stats.summonSpeed,
+          maxRadius: player._stats.summonRadius,
+          growth: player._stats.summonSpeed,
           onComplete: (radius) => { 
             bones.map(b => {
               if (distanceBetweenPoints(b.sprite, sprite) <= radius) {
@@ -254,19 +260,19 @@ export const Player = () => {
     if (x === 0) {
       sprite.vx += -sprite.vx * FRICTION * delta;
     } else {
-      sprite.vx += x * stats.moveSpeed * delta;
+      sprite.vx += x * player._stats.moveSpeed * delta;
     }
 
     if (y === 0) {
       sprite.vy += -sprite.vy * FRICTION * delta;
     } else {
-      sprite.vy += y * stats.moveSpeed * delta;
+      sprite.vy += y * player._stats.moveSpeed * delta;
     }
 
     // limit max speed
     const magnitude = (sprite.vx * sprite.vx + sprite.vy * sprite.vy);
-    if (magnitude > stats.maxSpeed) {
-      const scale = stats.maxSpeed / magnitude
+    if (magnitude > player._stats.maxSpeed) {
+      const scale = player._stats.maxSpeed / magnitude
       sprite.vx *= scale;
       sprite.vy *= scale;
     }

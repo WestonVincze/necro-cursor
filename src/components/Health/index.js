@@ -14,7 +14,7 @@ export const Health = ({ maxHP, container }) => {
 
   const takeDamage = (damage) => {
     hp -= damage;
-    healthBar?.updateHealth(hp);
+    healthBar?.updateHealth(hp, maxHP);
     onHealthChange.next();
     if (hp <= 0) {
       hp = 0;
@@ -26,11 +26,15 @@ export const Health = ({ maxHP, container }) => {
 
   const heal = (amount) => {
     hp = Math.min(hp + amount, maxHP);
-    healthBar?.updateHealth(hp);
+    healthBar?.updateHealth(hp, maxHP);
     onHealthChange.next();
   }
 
   const getHP = () => hp;
+  const setMaxHP = (newMaxHP) => { 
+    healthBar?.updateHealth(hp, newMaxHP);
+    maxHP = newMaxHP;
+  }
 
   const subscribeToDeath = (fn) => {
     return onDeath.subscribe(fn);
@@ -53,6 +57,7 @@ export const Health = ({ maxHP, container }) => {
     subscribeToDeath,
     subscribeToHealthChange,
     healthBar,
+    setMaxHP,
   }
 }
 
@@ -76,7 +81,7 @@ const HealthBar = ({ maxHP, hp, container }) => {
   healthBar.endFill();
   hpContainer.addChild(healthBar);
 
-  const updateHealth = (newHP) => {
+  const updateHealth = (newHP, maxHP) => {
     healthBar.clear();
     healthBar.beginFill(0x55ff55);
     healthBar.drawRect(xOffset, yOffset, rect.width * (newHP / maxHP), height);
