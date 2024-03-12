@@ -4,7 +4,7 @@
 
 import { Sprite } from "pixi.js";
 import { appService } from "/src/app";
-import { take, takeUntil } from "rxjs";
+import { take } from "rxjs";
 
 export let bones = [];
 const despawnTickCount = 75;

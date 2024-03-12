@@ -6,6 +6,7 @@ import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
 import { enemies, addAttacker, removeAttacker } from "/src/components/Enemies";
 import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
 import { keyDown$ } from "../Inputs";
+import { PlusFormationIterator, SpiralFormationIterator } from "./formations";
 
 const {
   units: minions,
@@ -37,38 +38,47 @@ export const initializeMinions = (spriteCount) => {
     targetY = e.clientY - rect.top;
   }
 
-  const controlTypes = [
-    "attack",
-    "follow",
+  // TODO: add different types of skeleton formations
+  // split "aggression" and "formation" into separate variables
+  const formationTypes = [
+    "cluttered",
+    "spiral",
+    "plus",
   ]
 
-  const selectedControlTypeSubject = new BehaviorSubject({
-    value: controlTypes[0],
+  const selectedFormationTypeSubject = new BehaviorSubject({
+    value: formationTypes[0],
     index: 0,
   });
 
-  const nextControlType = () => {
-    const { index } = selectedControlTypeSubject.getValue();
-    if (index === controlTypes.length - 1) return;
+  const aggressionSubject = new BehaviorSubject(true);
 
-    selectedControlTypeSubject.next({
-      value: controlTypes[index + 1],
+  const nextFormationType = () => {
+    const { index } = selectedFormationTypeSubject.getValue();
+    if (index === formationTypes.length - 1) return;
+
+    selectedFormationTypeSubject.next({
+      value: formationTypes[index + 1],
       index: index + 1,
     })
   }
 
+  const toggleAggression = () => {
+    aggressionSubject.next(!aggressionSubject.getValue());
+  }
+
   const prevControlType = () => {
-    const { index } = selectedControlTypeSubject.getValue();
+    const { index } = selectedFormationTypeSubject.getValue();
     if (index === 0) return;
 
-    selectedControlTypeSubject.next({
-      value: controlTypes[index - 1],
+    selectedFormationTypeSubject.next({
+      value: formationTypes[index - 1],
       index: index - 1,
     })
   }
 
-  selectedControlTypeSubject.subscribe(({ value }) => {
-    if (value === "follow") {
+  aggressionSubject.subscribe(aggressive => {
+    if (!aggressive) {
       minions.map(m => { 
         if (m.target === "cursor") return;
         removeAttacker(m.target.id);
@@ -79,7 +89,8 @@ export const initializeMinions = (spriteCount) => {
 
   keyDown$.subscribe((keyDown) => { 
     if (keyDown.key === 'q') prevControlType();
-    if (keyDown.key === 'e') nextControlType();
+    if (keyDown.key === 'e') nextFormationType();
+    if (keyDown.key === 'f') toggleAggression();
   })
 
   result$.subscribe(followMouse);
@@ -90,7 +101,8 @@ export const initializeMinions = (spriteCount) => {
   }
 
   gameTicks$.subscribe(() => {
-    if (selectedControlTypeSubject.getValue().value !== "attack") return;
+    if (!aggressionSubject.getValue()) return;
+
     minions.forEach(minion => {
       // only check minions that are not busy
       if (minion.target === 'cursor') {
@@ -107,9 +119,26 @@ export const initializeMinions = (spriteCount) => {
   })
 
   app.ticker.add((delta) => {
-    minions.forEach(minion => {
-      const target = minion.target === 'cursor' ? { x: targetX, y: targetY } : minion.target.sprite;
+    let formationIterator = null;
 
+    switch (selectedFormationTypeSubject.getValue().value) {
+      case "cluster":
+        formationIterator = null;
+        break;
+      case "spiral":
+        formationIterator = SpiralFormationIterator(50);
+        break;
+      case "plus":
+        formationIterator = PlusFormationIterator(15)
+        break;
+    }
+    let mod = { x: 0, y: 0 };
+    minions.forEach(minion => {
+      if (formationIterator) {
+        mod = formationIterator.nextValue();
+        console.log(mod);
+      }
+      const target = minion.target === 'cursor' ? { x: targetX + mod.x, y: targetY + mod.y } : minion.target.sprite;
       followTarget(minion.sprite, minions, target, delta, { followForce: 0.01, separation: 2 })
     })
   })
