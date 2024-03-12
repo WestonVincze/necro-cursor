@@ -4,7 +4,8 @@ import styles from "./index.module.css";
 const UIScreen = () => `
 <div class="${styles.topBar}">
   <span>Kills:<span id="killCount">0</span></span>
-  <!-- pause indicator? -->
+  <span>Aggression (F): <span id="aggression"></span></span>
+  <span>Formation (Q, E): <span id="formation"></span></span>
   <span>Minions:<span id="minionCount">0</span></span>
 </div>
 <div class="${styles.bottomBar}">
@@ -28,12 +29,16 @@ const initializeUI = () => {
   const minionCount = ui.querySelector("#minionCount");
   const healthBar = ui.querySelector("#healthBar");
   const expBar = ui.querySelector("#expBar");
+  const formation = ui.querySelector("#formation");
+  const aggression = ui.querySelector("#aggression");
 
   return {
     killCount,
     minionCount,
     healthBar,
-    expBar
+    expBar,
+    formation,
+    aggression,
   };
 }
 
@@ -50,6 +55,8 @@ export const UI = () => {
   const minionCountSubject = new BehaviorSubject(0);
   const healthBarSubject = new BehaviorSubject(100);
   const expBarSubject = new BehaviorSubject(0);
+  const formationSubject = new BehaviorSubject("cluster");
+  const aggressionSubject = new BehaviorSubject("attacking");
 
 
   // subscribe to events
@@ -65,6 +72,12 @@ export const UI = () => {
   healthBarSubject.subscribe((percent) => {
     healthBar.style.setProperty("--hp-percent", `${percent}%`)
   });
+  formationSubject.subscribe(value => {
+    formation.innerHTML = value;
+  })
+  aggressionSubject.subscribe(value => {
+    aggression.innerHTML = value;
+  })
 
   // exportable emitting functions
   const setKillCountUI = (kills) => {
@@ -79,11 +92,19 @@ export const UI = () => {
   const setExpBarUI = (exp) => {
     expBarSubject.next(exp);
   }
+  const setFormationUI = (formation) => {
+    formationSubject.next(formation);
+  }
+  const setAggressionUI = (aggression) => {
+    aggressionSubject.next(aggression ? "attacking" : "passive");
+  }
 
   return {
     setKillCountUI,
     setMinionCountUI,
     setHealthBarUI,
     setExpBarUI,
+    setFormationUI,
+    setAggressionUI,
   }
 }

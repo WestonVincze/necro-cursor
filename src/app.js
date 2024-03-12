@@ -88,7 +88,14 @@ export const appService = {
 
 // TODO: revisit this import/export pattern....
 appService.initialize();
-export const { setKillCountUI, setMinionCountUI, setHealthBarUI, setExpBarUI } = UI();
+export const {
+  setKillCountUI,
+  setMinionCountUI,
+  setHealthBarUI,
+  setExpBarUI,
+  setFormationUI,
+  setAggressionUI
+} = UI();
 
 const { app, gameTicks$, spriteContainer } = appService;
 

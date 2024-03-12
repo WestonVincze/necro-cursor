@@ -6,7 +6,8 @@ import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
 import { enemies, addAttacker, removeAttacker } from "/src/components/Enemies";
 import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
 import { keyDown$ } from "../Inputs";
-import { PlusFormationIterator, SpiralFormationIterator } from "./formations";
+import { CrossFormationIterator, SpiralFormationIterator } from "./formations";
+import { setAggressionUI, setFormationUI } from "../../app";
 
 const {
   units: minions,
@@ -38,12 +39,11 @@ export const initializeMinions = (spriteCount) => {
     targetY = e.clientY - rect.top;
   }
 
-  // TODO: add different types of skeleton formations
   // split "aggression" and "formation" into separate variables
   const formationTypes = [
     "cluttered",
     "spiral",
-    "plus",
+    "cross",
   ]
 
   const selectedFormationTypeSubject = new BehaviorSubject({
@@ -67,7 +67,7 @@ export const initializeMinions = (spriteCount) => {
     aggressionSubject.next(!aggressionSubject.getValue());
   }
 
-  const prevControlType = () => {
+  const prevFormationType = () => {
     const { index } = selectedFormationTypeSubject.getValue();
     if (index === 0) return;
 
@@ -77,8 +77,9 @@ export const initializeMinions = (spriteCount) => {
     })
   }
 
-  aggressionSubject.subscribe(aggressive => {
-    if (!aggressive) {
+  aggressionSubject.subscribe(aggression => {
+    setAggressionUI(aggression)
+    if (!aggression) {
       minions.map(m => { 
         if (m.target === "cursor") return;
         removeAttacker(m.target.id);
@@ -87,8 +88,10 @@ export const initializeMinions = (spriteCount) => {
     }
   })
 
+  selectedFormationTypeSubject.subscribe(formation => setFormationUI(formation.value));
+
   keyDown$.subscribe((keyDown) => { 
-    if (keyDown.key === 'q') prevControlType();
+    if (keyDown.key === 'q') prevFormationType();
     if (keyDown.key === 'e') nextFormationType();
     if (keyDown.key === 'f') toggleAggression();
   })
@@ -128,8 +131,8 @@ export const initializeMinions = (spriteCount) => {
       case "spiral":
         formationIterator = SpiralFormationIterator(50);
         break;
-      case "plus":
-        formationIterator = PlusFormationIterator(15)
+      case "cross":
+        formationIterator = CrossFormationIterator(15)
         break;
     }
     let mod = { x: 0, y: 0 };

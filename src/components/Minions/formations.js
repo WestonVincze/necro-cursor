@@ -28,7 +28,7 @@ export const SpiralFormationIterator = (spacing) => {
   return { nextValue };
 }
 
-export const PlusFormationIterator = (spacing) => {
+export const CrossFormationIterator = (spacing) => {
   let x = 0;
   let y = 0;
 
