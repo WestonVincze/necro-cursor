@@ -50,6 +50,36 @@ export const CrossFormationIterator = (spacing) => {
   return { nextValue }
 }
 
+const DiamondFormationIterator = () => {
+  /*
+
+      *
+    * * *
+  * * * * *
+    * * *
+      *
+
+   */
+
+}
+
+export const RandomFormationIterator = () => {
+  let x = 0;
+  let y = 0;
+  let distance = 200;
+
+
+  const nextValue = () => {
+    x = Math.random() * distance * (Math.random() > 0.5 ? -1 : 1);
+    y = Math.random() * distance * (Math.random() > 0.5 ? -1 : 1);
+
+    distance += 25;
+    return { x, y }
+  }
+
+  return { nextValue }
+}
+
 
 // u, r, d, l, u, r, d, l, u ...
 // 1, 1, 2, 2, 3, 3, 4, 4, 5 ...

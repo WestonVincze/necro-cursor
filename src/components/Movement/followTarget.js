@@ -19,7 +19,9 @@ export const followTarget = (sprite, swarm, target, delta, options) => {
     alignment: {x: 0, y: 0 },
   }
 
-  forces.follow = calculateFollowForce({ targetX: target.x, targetY: target.y }, sprite, options?.followForce || 0.001);
+  if (options?.followForce > 0) {
+    forces.follow = calculateFollowForce({ targetX: target.x, targetY: target.y }, sprite, options?.followForce || 0.001);
+  }
 
   if (options?.separation) {
     forces.separation = calculateSeparationForce(sprite, sprites, 50, 0.01);

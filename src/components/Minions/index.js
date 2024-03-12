@@ -6,7 +6,7 @@ import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
 import { enemies, addAttacker, removeAttacker } from "/src/components/Enemies";
 import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
 import { keyDown$ } from "../Inputs";
-import { CrossFormationIterator, SpiralFormationIterator } from "./formations";
+import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator } from "./formations";
 import { setAggressionUI, setFormationUI } from "../../app";
 
 const {
@@ -44,6 +44,7 @@ export const initializeMinions = (spriteCount) => {
     "cluttered",
     "spiral",
     "cross",
+    "random",
   ]
 
   const selectedFormationTypeSubject = new BehaviorSubject({
@@ -134,12 +135,14 @@ export const initializeMinions = (spriteCount) => {
       case "cross":
         formationIterator = CrossFormationIterator(15)
         break;
+      case "random":
+        formationIterator = RandomFormationIterator();
+        break;
     }
     let mod = { x: 0, y: 0 };
     minions.forEach(minion => {
       if (formationIterator) {
         mod = formationIterator.nextValue();
-        console.log(mod);
       }
       const target = minion.target === 'cursor' ? { x: targetX + mod.x, y: targetY + mod.y } : minion.target.sprite;
       followTarget(minion.sprite, minions, target, delta, { followForce: 0.01, separation: 2 })
