@@ -6,7 +6,7 @@ import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
 import { enemies, addAttacker, removeAttacker } from "/src/components/Enemies";
 import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
 import { keyDown$ } from "../Inputs";
-import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator } from "./formations";
+import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator, TriangleFormationIterator } from "./formations";
 import { setAggressionUI, setFormationUI } from "../../app";
 
 const {
@@ -121,6 +121,9 @@ export const initializeMinions = (spriteCount) => {
       }
     })
   })
+
+  TriangleFormationIterator(2)
+  TriangleFormationIterator(22)
 
   app.ticker.add((delta) => {
     let formationIterator = null;
