@@ -129,6 +129,7 @@ export const initializeMinions = (spriteCount) => {
   app.ticker.add((delta) => {
     let formationIterator = null;
 
+    const length = minions.filter(m => m.target === 'cursor').length || 0;
     switch (selectedFormationTypeSubject.getValue().value) {
       case "cluster":
         formationIterator = null;
@@ -137,45 +138,47 @@ export const initializeMinions = (spriteCount) => {
         formationIterator = SpiralFormationIterator(50);
         break;
       case "cross":
-        formationIterator = CrossFormationIterator(15)
+        formationIterator = CrossFormationIterator(25)
         break;
       case "random":
         formationIterator = RandomFormationIterator();
         break;
       case "triangleUp":
         formationIterator = TriangleFormationIterator({
-          length: minions.length,
+          length: length,
           spacing: 45,
           direction: "up"
         });
         break;
       case "triangleDown":
         formationIterator = TriangleFormationIterator({
-          length: minions.length,
+          length: length,
           spacing: 45,
           direction: "down"
         });
         break;
       case "triangleRight":
         formationIterator = TriangleFormationIterator({
-          length: minions.length,
+          length: length,
           spacing: 45,
           direction: "right"
         });
         break;
       case "triangleLeft":
         formationIterator = TriangleFormationIterator({
-          length: minions.length,
+          length: length,
           spacing: 45,
           direction: "left"
         });
         break;
     }
+
     let mod = { x: 0, y: 0 };
     minions.forEach(minion => {
-      if (formationIterator) {
+      if (formationIterator && minion.target === 'cursor') {
         mod = formationIterator.nextValue();
       }
+
       const target = minion.target === 'cursor' ? { x: targetX + mod.x, y: targetY + mod.y } : minion.target.sprite;
       followTarget(minion.sprite, minions, target, delta, { followForce: 0.01, separation: 2 })
     })

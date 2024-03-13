@@ -81,9 +81,7 @@ export const RandomFormationIterator = () => {
 }
 
 export const TriangleFormationIterator = ({ length, spacing = 1, direction = "up" }) => {
-  if (length <= 1) return { x: 0, y: 0 };
-
-  const rows = Math.ceil((-1 + Math.sqrt(1 + 8 * length)) / 2)
+  const rows = Math.ceil((-1 + Math.sqrt(1 + 8 * length)) / 2);
 
   /* gets the number of cols in the last row */
   const remainder = (rows - 1) * rows / 2;

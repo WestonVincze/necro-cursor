@@ -3,6 +3,7 @@
   height: 100%;
   background-color: #AA555555;
   padding: 20px;
+  border-radius: var(--border-radius);
 }
 
 .gameOver > button {
