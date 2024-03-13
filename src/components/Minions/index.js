@@ -6,7 +6,7 @@ import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
 import { enemies, addAttacker, removeAttacker } from "/src/components/Enemies";
 import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
 import { keyDown$ } from "../Inputs";
-import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator } from "./formations";
+import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator, TriangleFormationIterator } from "./formations";
 import { setAggressionUI, setFormationUI } from "../../app";
 
 const {
@@ -44,6 +44,10 @@ export const initializeMinions = (spriteCount) => {
     "cluttered",
     "spiral",
     "cross",
+    "triangleUp",
+    "triangleRight",
+    "triangleDown",
+    "triangleLeft",
     "random",
   ]
 
@@ -137,6 +141,34 @@ export const initializeMinions = (spriteCount) => {
         break;
       case "random":
         formationIterator = RandomFormationIterator();
+        break;
+      case "triangleUp":
+        formationIterator = TriangleFormationIterator({
+          length: minions.length,
+          spacing: 45,
+          direction: "up"
+        });
+        break;
+      case "triangleDown":
+        formationIterator = TriangleFormationIterator({
+          length: minions.length,
+          spacing: 45,
+          direction: "down"
+        });
+        break;
+      case "triangleRight":
+        formationIterator = TriangleFormationIterator({
+          length: minions.length,
+          spacing: 45,
+          direction: "right"
+        });
+        break;
+      case "triangleLeft":
+        formationIterator = TriangleFormationIterator({
+          length: minions.length,
+          spacing: 45,
+          direction: "left"
+        });
         break;
     }
     let mod = { x: 0, y: 0 };
