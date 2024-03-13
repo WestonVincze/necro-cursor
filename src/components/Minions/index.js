@@ -44,6 +44,10 @@ export const initializeMinions = (spriteCount) => {
     "cluttered",
     "spiral",
     "cross",
+    "triangleUp",
+    "triangleRight",
+    "triangleDown",
+    "triangleLeft",
     "random",
   ]
 
@@ -122,9 +126,6 @@ export const initializeMinions = (spriteCount) => {
     })
   })
 
-  TriangleFormationIterator(2)
-  TriangleFormationIterator(22)
-
   app.ticker.add((delta) => {
     let formationIterator = null;
 
@@ -140,6 +141,34 @@ export const initializeMinions = (spriteCount) => {
         break;
       case "random":
         formationIterator = RandomFormationIterator();
+        break;
+      case "triangleUp":
+        formationIterator = TriangleFormationIterator({
+          length: minions.length,
+          spacing: 45,
+          direction: "up"
+        });
+        break;
+      case "triangleDown":
+        formationIterator = TriangleFormationIterator({
+          length: minions.length,
+          spacing: 45,
+          direction: "down"
+        });
+        break;
+      case "triangleRight":
+        formationIterator = TriangleFormationIterator({
+          length: minions.length,
+          spacing: 45,
+          direction: "right"
+        });
+        break;
+      case "triangleLeft":
+        formationIterator = TriangleFormationIterator({
+          length: minions.length,
+          spacing: 45,
+          direction: "left"
+        });
         break;
     }
     let mod = { x: 0, y: 0 };

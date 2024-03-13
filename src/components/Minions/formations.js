@@ -80,17 +80,54 @@ export const RandomFormationIterator = () => {
   return { nextValue }
 }
 
-export const TriangleFormationIterator = (length) => {
+export const TriangleFormationIterator = ({ length, spacing = 1, direction = "up" }) => {
   if (length <= 1) return { x: 0, y: 0 };
-  // will need to know size to calculate rows
-  // rows = length 
-  // 1, 2, 3, 4, 5, 6
+
   const rows = Math.ceil((-1 + Math.sqrt(1 + 8 * length)) / 2)
-  console.log(rows)
 
   /* gets the number of cols in the last row */
   const remainder = (rows - 1) * rows / 2;
   const lastRowCount = length - remainder;
+
+  const values = [];
+
+  const getStartingPositionValue = (count) => (count - 1) / 2;
+
+  let x, y;
+  y = getStartingPositionValue(rows);
+  for (let i = 1; i <= rows; i++) {
+    const cols = i === rows ? lastRowCount : i;
+    x = getStartingPositionValue(cols);
+    for (let j = 1; j <= cols; j++) {
+      values.push({ x, y });
+      x -= 1;
+    }
+    y -= 1;
+  }
+
+  let iterator = 0;
+  const nextValue = () => {
+    let { x, y } = values[iterator];
+    x *= spacing;
+    y *= spacing;
+
+    iterator++;
+
+    switch (direction) {
+      case "up":
+        return { x, y: -y }
+      case "down":
+        return { x, y }
+      case "left":
+        return { x: -y, y: x }
+      case "right":
+        return { x: y, y: x }
+    }
+
+    // return { x: y * spacing, y: x * spacing }
+  }
+
+  return { nextValue }
   /**
    * length of 9
    * 4 rows
@@ -102,6 +139,13 @@ export const TriangleFormationIterator = (length) => {
    * row 2 -> col 1, col 2
    * row 3 -> col 1, col 2, col 3
    * row 4 -> col 1, col 2, col 3, col 4 (on last row, we'll need to confirm that it's actually "full" somehow)
+   * 
+   * row count = 1
+   * col count = 1
+   * 
+   * row count = 2
+   * col count = 1
+   * col count = 2
    * 
    * 
    * nextValue gives:
@@ -129,6 +173,13 @@ export const TriangleFormationIterator = (length) => {
   3 rows = row 1 = 1, row 2 = 0, row 3 = -1
   4 rows = row 1 = 1.5, row 2 = 0.5, row 3 = -0.5 row 4 = -1.5
   5 rows = row 1 = 2, row 2 = 1, row 3 = 0, row 4 = -1, row 5 = -2
+
+
+  y value of FIRST row = (row - 1) / 2
+  each subsequent row is 1 lower
+  
+
+  x value of 
   */
 
   // cols will also have offsets depending on their length...
@@ -145,10 +196,6 @@ export const TriangleFormationIterator = (length) => {
   length = cols
 
   */
-
-
-  console.log(rows)
-  console.log(lastRowCount)
   /* crude triangle print, lol */
   for (let i = 1; i <= rows; i++) {
     let stars = ""
