@@ -103,11 +103,12 @@ const calculateSeparationForce = (sprite, flock, separationRadius = 1, maxOverla
     if (otherSprite !== sprite) {
       const dx = otherSprite.x - sprite.x;
       const dy = otherSprite.y - sprite.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+      let distance = dx * dx + dy * dy;
 
       // check for collision
-      const minDistance = sprite.width / 2 + otherSprite.width / 2;
-      if (distance < minDistance) {
+      let minDistance = sprite.width / 2 + otherSprite.width / 2;
+      if (distance < minDistance ** 2) {
+        distance = Math.sqrt(distance);
         const overlapRatio = (minDistance - distance) / minDistance;
 
         if (overlapRatio > maxOverlapRatio && distance < separationRadius) {
@@ -132,9 +133,9 @@ const calculateCohesionForce = (sprite, flock, cohesionRadius) => {
     if (otherSprite !== sprite) {
       const dx = otherSprite.x - sprite.x;
       const dy = otherSprite.y - sprite.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+      let distance = dx * dx + dy * dy;
 
-      if (distance < cohesionRadius) {
+      if (distance < cohesionRadius ** 2) {
         neighbors.push(otherSprite);
       }
     }
@@ -167,9 +168,9 @@ const calculateAlignmentForce = (sprite, flock, alignmentRadius) => {
     if (otherSprite !== sprite) {
       const dx = otherSprite.x - sprite.x;
       const dy = otherSprite.y - sprite.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+      const distance = dx * dx + dy * dy;
 
-      if (distance < alignmentRadius) {
+      if (distance < alignmentRadius ** 2) {
         neighbors.push(otherSprite);
       }
     }
