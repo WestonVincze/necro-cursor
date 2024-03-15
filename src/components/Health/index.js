@@ -11,10 +11,10 @@ export const Health = ({ maxHP, container }) => {
     healthBar = HealthBar({ maxHP, hp, container })
   }
 
-  const takeDamage = (damage) => {
-    hp -= damage;
+  const takeDamage = (amount) => {
+    hp -= amount;
     healthBar?.updateHealth(hp, maxHP);
-    onHealthChange.next();
+    onHealthChange.next('damage', amount);
     if (hp <= 0) {
       hp = 0;
       onDeath.next();
@@ -24,9 +24,10 @@ export const Health = ({ maxHP, container }) => {
   }
 
   const heal = (amount) => {
+    if (hp === maxHP) return;
     hp = Math.min(hp + amount, maxHP);
     healthBar?.updateHealth(hp, maxHP);
-    onHealthChange.next();
+    onHealthChange.next('heal', amount);
   }
 
   const getHP = () => hp;

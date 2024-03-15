@@ -20,3 +20,55 @@
  * * onGameEnd => display stats
  * 
  */
+
+import { BehaviorSubject, combineLatest, distinctUntilChanged, map, scan } from "rxjs";
+
+const createSubjectIncrementFunction = (subject) => (amount = 1) => {
+  const currentValue = subject.getValue();
+  subject.next(currentValue + amount);
+}
+
+export const initializeGameState = () => {
+  // metadata
+  const gameVersion = "0.1";
+  let time = 0;
+
+  // run stats
+  const killCount = new BehaviorSubject({ guards: 0, paladins: 0 });
+  const damageTaken = new BehaviorSubject(0);
+  const reanimations = new BehaviorSubject(0);
+  const deanimations = new BehaviorSubject(0);
+  const bonesDespawned = new BehaviorSubject(0);
+
+  const minionCount = combineLatest([reanimations, deanimations]).pipe(
+    map(([reanimated, deanimated]) => reanimated - deanimated),
+    distinctUntilChanged()
+  )
+
+  const largestArmy = minionCount.pipe(
+    scan((largestCount, currentCount) => Math.max(largestCount, currentCount), 0),
+    distinctUntilChanged()
+  )
+
+  largestArmy.subscribe(count => console.log("largest army...: " + count))
+
+
+  const longestTimeNotHit = new BehaviorSubject(0);
+
+  const incrementKillCount = (enemyType) => {
+    // TODO: add enemyType validation from data types with a pluralized name property
+    const enemy = `${enemyType}s`;
+    const currentKills = killCount.getValue();
+    killCount.next({ ...currentKills, [enemy]: currentKills[enemy] + 1 });
+  }
+
+  return {
+    incrementKillCount,
+    incrementDamageTaken: createSubjectIncrementFunction(damageTaken),
+    incrementReanimations: createSubjectIncrementFunction(reanimations),
+    incrementDeanimations: createSubjectIncrementFunction(deanimations),
+    incrementBonesDespawned: createSubjectIncrementFunction(bonesDespawned),
+    minionCount,
+    largestArmy,
+  }
+}

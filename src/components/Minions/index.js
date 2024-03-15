@@ -7,7 +7,7 @@ import { enemies, addAttacker, removeAttacker } from "/src/components/Enemies";
 import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
 import { keyDown$ } from "../Inputs";
 import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator, TriangleFormationIterator } from "./formations";
-import { setAggressionUI, setFormationUI } from "../../app";
+import { gameState, setAggressionUI, setFormationUI } from "../../app";
 
 const {
   units: minions,
@@ -21,8 +21,12 @@ export { minions, getMinionById, removeMinion }
 // TODO: Fix performance issues (might be related to high number of containers being used)
 export const createMinion = (position) => {
   const minion = createUnit(minionData.skeleton, position, { target: 'cursor' });
+  gameState.incrementReanimations();
   setMinionCountUI(minions.length);
-  minion.health.subscribeToDeath(() => setMinionCountUI(minions.length));
+  minion.health.subscribeToDeath(() => { 
+    setMinionCountUI(minions.length)
+    gameState.incrementDeanimations();
+  });
 }
 
 export const initializeMinions = (spriteCount) => {

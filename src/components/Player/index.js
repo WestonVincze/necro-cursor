@@ -12,6 +12,7 @@ import { getRandomElements, normalizeForce } from "/src/helpers";
 import { RadialSpell } from "/src/components/Spells";
 import { LevelUp } from "/src/Views/LevelUp";
 import { activeKeys$ } from "/src/components/Inputs";
+import { gameState } from "../../app";
 
 const FRICTION = 0.05;
 
@@ -75,7 +76,10 @@ const initializePlayer = () => {
     appService.pause();
   })
 
-  health.subscribeToHealthChange(() => {
+  health.subscribeToHealthChange((type, amount) => {
+    if (type === "damage") {
+      gameState.incrementDamageTaken(amount);
+    }
     const healthPercent = (player.health.getHP() / _stats.maxHP) * 100;
     setHealthBarUI(healthPercent);
   })

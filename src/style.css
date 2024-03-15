@@ -54,6 +54,19 @@ body {
   top: 0;
 }
 
+.column-wrapper {
+  container-type: inline-size;
+}
+.columns {
+  display: grid;
+  gap: 2rem;
+}
+@container (width > calc(200px * 3)) {
+  .columns {
+    grid-template-columns: repeat(var(--column-count, 3), 1fr);
+  }
+}
+
 button {
   outline: none;
   border: 2px solid #ffffffcc;

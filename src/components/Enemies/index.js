@@ -6,6 +6,7 @@ import { enemyData } from "/src/data/units";
 import { RadialSpell } from "/src/components/Spells";
 import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
 import { minions } from "/src/components/Minions";
+import { gameState } from "../../app";
 
 const {
   units: enemies,
@@ -80,6 +81,7 @@ export const Spawner = (rate = 5000, player) => {
       )
 
       enemy.health.subscribeToDeath(() => {
+        gameState.incrementKillCount(enemy.type);
         killCount++;
         setKillCountUI(killCount);
         player.addExperience(enemyData[enemy.type].exp);

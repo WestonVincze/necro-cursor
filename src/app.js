@@ -8,6 +8,7 @@ import { MainMenu } from "./Views/MainMenu";
 import { initializeMinions } from "./components/Minions";
 import { activeKeys$ } from "./components/Inputs";
 import { UI } from "./UI";
+import { initializeGameState } from "./gameState";
 
 // Setup PixiJS APP
 export const appService = {
@@ -98,6 +99,9 @@ export const {
 } = UI();
 
 const { app, gameTicks$, spriteContainer } = appService;
+
+const gameState = initializeGameState();
+export { gameState };
 
 const skeletons = getURLParam("skeletons", 3);
 const spawnRate = getURLParam("spawnRate", 5000);
