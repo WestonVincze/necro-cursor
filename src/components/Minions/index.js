@@ -1,13 +1,12 @@
 import { Swarm } from "/src/components/Swarm";
 import { minionData } from "/src/data/units";
-import { appService, setMinionCountUI } from "/src/app";
+import { appService, gameState } from "/src/app";
 import { followTarget } from "/src/components/Movement/followTarget";
 import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
 import { enemies, addAttacker, removeAttacker } from "/src/components/Enemies";
 import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
 import { keyDown$ } from "../Inputs";
 import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator, TriangleFormationIterator } from "./formations";
-import { setAggressionUI, setFormationUI } from "../../app";
 
 const {
   units: minions,
@@ -21,8 +20,10 @@ export { minions, getMinionById, removeMinion }
 // TODO: Fix performance issues (might be related to high number of containers being used)
 export const createMinion = (position) => {
   const minion = createUnit(minionData.skeleton, position, { target: 'cursor' });
-  setMinionCountUI(minions.length);
-  minion.health.subscribeToDeath(() => setMinionCountUI(minions.length));
+  gameState.incrementReanimations();
+  minion.health.subscribeToDeath(() => { 
+    gameState.incrementDeanimations();
+  });
 }
 
 export const initializeMinions = (spriteCount) => {
@@ -39,7 +40,6 @@ export const initializeMinions = (spriteCount) => {
     targetY = e.clientY - rect.top;
   }
 
-  // split "aggression" and "formation" into separate variables
   const formationTypes = [
     "cluttered",
     "spiral",
@@ -83,7 +83,7 @@ export const initializeMinions = (spriteCount) => {
   }
 
   aggressionSubject.subscribe(aggression => {
-    setAggressionUI(aggression)
+    gameState.minionAggression.next(aggression);
     if (!aggression) {
       minions.map(m => { 
         if (m.target === "cursor") return;
@@ -93,7 +93,7 @@ export const initializeMinions = (spriteCount) => {
     }
   })
 
-  selectedFormationTypeSubject.subscribe(formation => setFormationUI(formation.value));
+  selectedFormationTypeSubject.subscribe(formation => gameState.minionFormation.next(formation.value));
 
   keyDown$.subscribe((keyDown) => { 
     if (keyDown.key === 'q') prevFormationType();

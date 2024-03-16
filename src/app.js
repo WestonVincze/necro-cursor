@@ -8,6 +8,7 @@ import { MainMenu } from "./Views/MainMenu";
 import { initializeMinions } from "./components/Minions";
 import { activeKeys$ } from "./components/Inputs";
 import { UI } from "./UI";
+import { initializeGameState } from "./gameState";
 
 // Setup PixiJS APP
 export const appService = {
@@ -88,16 +89,11 @@ export const appService = {
 
 // TODO: revisit this import/export pattern....
 appService.initialize();
-export const {
-  setKillCountUI,
-  setMinionCountUI,
-  setHealthBarUI,
-  setExpBarUI,
-  setFormationUI,
-  setAggressionUI
-} = UI();
 
 const { app, gameTicks$, spriteContainer } = appService;
+
+const gameState = initializeGameState();
+export { gameState };
 
 const skeletons = getURLParam("skeletons", 3);
 const spawnRate = getURLParam("spawnRate", 5000);
@@ -126,7 +122,6 @@ const toggleDebug = () => {
 const alignSprites = () => {
   spriteContainer.children.map(c => c.zIndex = c.y);
 }
-
 gameTicks$.subscribe(alignSprites);
 
 const initializeGame = () => {
@@ -134,7 +129,8 @@ const initializeGame = () => {
   Spawner(spawnRate, player);
 }
 
-MainMenu({ onStartGame: initializeGame });
+gameState.onSceneChange("playingGame", initializeGame);
+
 
 
 /**

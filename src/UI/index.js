@@ -1,4 +1,3 @@
-import { BehaviorSubject } from "rxjs";
 import styles from "./index.module.css";
 
 const UIScreen = () => `
@@ -25,86 +24,57 @@ const initializeUI = () => {
   ui.innerHTML = UIScreen();
   container.appendChild(ui);
 
-  const killCount = ui.querySelector("#killCount");
-  const minionCount = ui.querySelector("#minionCount");
-  const healthBar = ui.querySelector("#healthBar");
-  const expBar = ui.querySelector("#expBar");
-  const formation = ui.querySelector("#formation");
-  const aggression = ui.querySelector("#aggression");
+  const killCountUI = ui.querySelector("#killCount");
+  const minionCountUI = ui.querySelector("#minionCount");
+  const healthBarUI = ui.querySelector("#healthBar");
+  const expBarUI = ui.querySelector("#expBar");
+  const formationUI = ui.querySelector("#formation");
+  const aggressionUI = ui.querySelector("#aggression");
 
   return {
-    killCount,
-    minionCount,
-    healthBar,
-    expBar,
-    formation,
-    aggression,
+    killCountUI,
+    minionCountUI,
+    healthBarUI,
+    expBarUI,
+    formationUI,
+    aggressionUI,
   };
 }
 
-export const UI = () => {
+export const UI = ({
+  killCount,
+  minionCount,
+  playerHealthPercent,
+  playerExpPercent,
+  minionFormation,
+  minionAggression
+}) => {
   const {
-    killCount,
-    minionCount,
-    healthBar,
-    expBar,
+    killCountUI,
+    minionCountUI,
+    healthBarUI,
+    expBarUI,
+    formationUI,
+    aggressionUI,
   } = initializeUI();
 
-  // build behavior subjects
-  const killCountSubject = new BehaviorSubject(0);
-  const minionCountSubject = new BehaviorSubject(0);
-  const healthBarSubject = new BehaviorSubject(100);
-  const expBarSubject = new BehaviorSubject(0);
-  const formationSubject = new BehaviorSubject("cluster");
-  const aggressionSubject = new BehaviorSubject("attacking");
-
-
   // subscribe to events
-  killCountSubject.subscribe((kills) => {
-    killCount.innerHTML = kills;
+  killCount.subscribe((kills) => {
+    killCountUI.innerHTML = kills.total;
   });
-  minionCountSubject.subscribe((minions) => {
-    minionCount.innerHTML = minions;
+  minionCount.subscribe((minions) => {
+    minionCountUI.innerHTML = minions;
   });
-  expBarSubject.subscribe((percent) => {
-    expBar.style.setProperty("--exp-percent", `${percent}%`)
+  playerExpPercent.subscribe((percent) => {
+    expBarUI.style.setProperty("--exp-percent", `${percent}%`)
   });
-  healthBarSubject.subscribe((percent) => {
-    healthBar.style.setProperty("--hp-percent", `${percent}%`)
+  playerHealthPercent.subscribe((percent) => {
+    healthBarUI.style.setProperty("--hp-percent", `${percent}%`)
   });
-  formationSubject.subscribe(value => {
-    formation.innerHTML = value;
+  minionFormation.subscribe(value => {
+    formationUI.innerHTML = value;
   })
-  aggressionSubject.subscribe(value => {
-    aggression.innerHTML = value;
+  minionAggression.subscribe(aggression => {
+    aggressionUI.innerHTML = aggression ? "attacking" : "passive";
   })
-
-  // exportable emitting functions
-  const setKillCountUI = (kills) => {
-    killCountSubject.next(kills);
-  }
-  const setMinionCountUI = (minions) => {
-    minionCountSubject.next(minions);
-  }
-  const setHealthBarUI = (hp) => {
-    healthBarSubject.next(hp);
-  }
-  const setExpBarUI = (exp) => {
-    expBarSubject.next(exp);
-  }
-  const setFormationUI = (formation) => {
-    formationSubject.next(formation);
-  }
-  const setAggressionUI = (aggression) => {
-    aggressionSubject.next(aggression ? "attacking" : "passive");
-  }
-
-  return {
-    setKillCountUI,
-    setMinionCountUI,
-    setHealthBarUI,
-    setExpBarUI,
-    setFormationUI,
-    setAggressionUI,
-  }
 }

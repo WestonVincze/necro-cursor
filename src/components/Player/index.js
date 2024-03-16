@@ -3,11 +3,9 @@ import { BehaviorSubject, Subject, map, scan, startWith } from "rxjs";
 
 import { Health } from "/src/components/Health";
 import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
-import { appService, setExpBarUI, setHealthBarUI } from "/src/app";
-import { killCount } from "/src/components/Enemies";
+import { appService, gameState } from "/src/app";
 import { bones, removeBones } from "/src/components/Drops";
 import { createMinion } from "/src/components/Minions";
-import { GameOver } from "/src/Views/GameOver";
 import { getRandomElements, normalizeForce } from "/src/helpers";
 import { RadialSpell } from "/src/components/Spells";
 import { LevelUp } from "/src/Views/LevelUp";
@@ -23,8 +21,6 @@ const initialStats = {
   HPregeneration: 0.5,
   maxHP: 100,
 }
-
-let summons = 0;
 
 const initialLevel = 0;
 const initialExperience = 0;
@@ -71,13 +67,16 @@ const initializePlayer = () => {
   const health = Health({ maxHP: _stats.maxHP, container });
 
   health.subscribeToDeath(() => {
-    GameOver({ killCount, armySize: summons });
+    gameState.transitionToScene("gameOver");
     appService.pause();
   })
 
-  health.subscribeToHealthChange(() => {
+  health.subscribeToHealthChange((type, amount) => {
+    if (type === "damage") {
+      gameState.incrementDamageTaken(amount);
+    }
     const healthPercent = (player.health.getHP() / _stats.maxHP) * 100;
-    setHealthBarUI(healthPercent);
+    gameState.playerHealthPercent.next(healthPercent)
   })
 
   const playerLevelSubject = new BehaviorSubject({
@@ -104,8 +103,7 @@ const initializePlayer = () => {
     )
     .subscribe(({ level, experience }) => {
       const percentage = getLevelPercentage(level, experience);
-      if (!setExpBarUI) return;
-      setExpBarUI(percentage);
+      gameState.playerExpPercent.next(percentage)
     });
 
   const addExperience = (experience) => {
@@ -228,7 +226,6 @@ export const Player = () => {
           onComplete: (radius) => { 
             bones.map(b => {
               if (distanceBetweenPoints(b.sprite, sprite) <= radius + 25) {
-                summons++;
                 createMinion(b.sprite);
                 removeBones(b);
               }

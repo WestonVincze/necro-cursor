@@ -1,27 +1,41 @@
 import styles from "./index.module.css"
 import { HighscoreData } from "/api/HighscoreData";
 
-// TODO: make BG red
-const GameOverScreen = ({ killCount, armySize, stats }) => `
+const GameOverScreen = ({
+  killCount,
+  minionCount,
+  largestArmy,
+  damageTaken,
+  reanimations,
+  deanimations,
+  bonesDespawned,
+  highscores,
+}) => `
   <div class="${styles.gameOver}">
     <img src="/assets/bones.png" alt="pile of bones" />
     <h1 class="red">GET FUCKED, NERD.</h1>
     <h2>You did okay, though...</h2>
-    <p>You killed ${killCount} guards.</p>
-    <p>You summoned ${armySize} skeletons.</p>
-
+    <p>You killed ${killCount.guards} guards.</p>
+    <p>You killed ${killCount.paladins} paladins.</p>
+    <br />
+    <p>${reanimations} skeletons were reanimated.</p>
+    <p>${deanimations} skeletons were deanimated.</p>
+    <p>You died with ${minionCount} skeletons.</p>
+    <p>You managed to control ${largestArmy} skeletons at once!</p>
+    <br />
+    <p>${bonesDespawned} bone piles went to waste... ${bonesDespawned > 0 ? 'how sad.' : 'NICE!'}</p>
+    <p>You took a whopping ${damageTaken} damage!</p>
     <hr />
-
-    <h2>Your Best 5 Runs</h2>
-    ${stats.map(s => `<p>Killed: ${s.killCount}, Summoned: ${s.armySize}</p>`).join("\n")}
-
+    ${highscores}
     <button onclick="window.location.reload()">Play Again?</button>
   </div>
 `
-export const GameOver = ({ killCount, armySize }) => {
-  const { saveHighscore } = HighscoreData();
-  const stats = saveHighscore({ killCount, armySize });
+export const GameOver = (runStats) => {
+  const { saveHighscore, printHighscores } = HighscoreData();
+  saveHighscore(runStats);
+  const highscores = printHighscores(5, runStats.gameVersion);
+
   const overlay = document.querySelector('#overlay');
   overlay.classList.add("show");
-  overlay.innerHTML = GameOverScreen({ killCount, armySize, stats });
+  overlay.innerHTML = GameOverScreen({ ...runStats, highscores });
 }
