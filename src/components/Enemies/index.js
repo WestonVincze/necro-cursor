@@ -1,12 +1,11 @@
 import { interval } from "rxjs";
 import { followTarget } from "/src/components/Movement/followTarget";
-import { appService, setKillCountUI } from "/src/app";
+import { appService, gameState } from "/src/app";
 import { Swarm } from "/src/components/Swarm";
 import { enemyData } from "/src/data/units";
 import { RadialSpell } from "/src/components/Spells";
 import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
 import { minions } from "/src/components/Minions";
-import { gameState } from "../../app";
 
 const {
   units: enemies,
@@ -17,7 +16,6 @@ const {
 } = Swarm();
 
 export { enemies, getEnemyById, addAttacker, removeAttacker }
-export let killCount = 0;
 
 // continuously spawns enemies
 export const Spawner = (rate = 5000, player) => {
@@ -82,8 +80,6 @@ export const Spawner = (rate = 5000, player) => {
 
       enemy.health.subscribeToDeath(() => {
         gameState.incrementKillCount(enemy.type);
-        killCount++;
-        setKillCountUI(killCount);
         player.addExperience(enemyData[enemy.type].exp);
 
         if (enemy.type === "paladin" && enemy.holyNova) {

@@ -3,7 +3,7 @@
  */
 
 import { Sprite } from "pixi.js";
-import { appService } from "/src/app";
+import { appService, gameState } from "/src/app";
 import { take } from "rxjs";
 
 export let bones = [];
@@ -32,14 +32,16 @@ export const spawnBones = ({ x, y }, id) => {
         sprite.alpha = sprite.alpha === 1 ? 0.5 : 1; 
       },
       null,
-      () => removeBones({id, sprite})
+      () => removeBones({id, sprite, method: "despawn" })
     )
 
   return sprite;
 }
 
-export const removeBones = ({ id, sprite }) => {
+export const removeBones = ({ id, sprite, method }) => {
   if (sprite.destroyed) return;
+
+  method === "despawn" && gameState.incrementBonesDespawned();
 
   try {
     sprite.destroy();

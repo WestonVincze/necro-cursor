@@ -3,7 +3,6 @@
  * * The main purpose of this is to keep state (dependencies) in one location  * *
  * * Components should not import other components functions or state directly * *
  * 
- * 
  * contains subjects that the rest of the app can subscribe or push data to
  * 
  * Examples:
@@ -34,11 +33,21 @@ export const initializeGameState = () => {
   let time = 0;
 
   // run stats
-  const killCount = new BehaviorSubject({ guards: 0, paladins: 0 });
+  const killCount = new BehaviorSubject({ guards: 0, paladins: 0, total: 0 });
   const damageTaken = new BehaviorSubject(0);
   const reanimations = new BehaviorSubject(0);
   const deanimations = new BehaviorSubject(0);
   const bonesDespawned = new BehaviorSubject(0);
+
+  // player
+  const playerHealthPercent = new BehaviorSubject(100);
+  const playerExpPercent = new BehaviorSubject(0);
+
+  // enemies
+
+  // minions
+  const minionAggression = new BehaviorSubject();
+  const minionFormation = new BehaviorSubject();
 
   const minionCount = combineLatest([reanimations, deanimations]).pipe(
     map(([reanimated, deanimated]) => reanimated - deanimated),
@@ -59,16 +68,27 @@ export const initializeGameState = () => {
     // TODO: add enemyType validation from data types with a pluralized name property
     const enemy = `${enemyType}s`;
     const currentKills = killCount.getValue();
-    killCount.next({ ...currentKills, [enemy]: currentKills[enemy] + 1 });
+    killCount.next({ ...currentKills, [enemy]: currentKills[enemy] + 1, total: currentKills.total + 1 });
   }
+  const incrementDamageTaken = createSubjectIncrementFunction(damageTaken);
+  const incrementReanimations = createSubjectIncrementFunction(reanimations);
+  const incrementDeanimations = createSubjectIncrementFunction(deanimations);
+  const incrementBonesDespawned = createSubjectIncrementFunction(bonesDespawned);
+
+  bonesDespawned.subscribe((count) => console.log(count))
 
   return {
-    incrementKillCount,
-    incrementDamageTaken: createSubjectIncrementFunction(damageTaken),
-    incrementReanimations: createSubjectIncrementFunction(reanimations),
-    incrementDeanimations: createSubjectIncrementFunction(deanimations),
-    incrementBonesDespawned: createSubjectIncrementFunction(bonesDespawned),
+    killCount,
     minionCount,
+    minionAggression,
+    minionFormation,
     largestArmy,
+    playerHealthPercent,
+    playerExpPercent,
+    incrementKillCount,
+    incrementDamageTaken,
+    incrementReanimations,
+    incrementDeanimations,
+    incrementBonesDespawned,
   }
 }

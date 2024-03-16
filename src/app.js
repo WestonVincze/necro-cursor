@@ -89,18 +89,11 @@ export const appService = {
 
 // TODO: revisit this import/export pattern....
 appService.initialize();
-export const {
-  setKillCountUI,
-  setMinionCountUI,
-  setHealthBarUI,
-  setExpBarUI,
-  setFormationUI,
-  setAggressionUI
-} = UI();
 
 const { app, gameTicks$, spriteContainer } = appService;
 
 const gameState = initializeGameState();
+UI(gameState);
 export { gameState };
 
 const skeletons = getURLParam("skeletons", 3);
