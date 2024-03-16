@@ -66,8 +66,6 @@ export const initializeGameState = () => {
   const playerHealthPercent = new BehaviorSubject(100);
   const playerExpPercent = new BehaviorSubject(0);
 
-  // enemies
-
   // minions
   const minionAggression = new BehaviorSubject();
   const minionFormation = new BehaviorSubject();
@@ -82,8 +80,6 @@ export const initializeGameState = () => {
     distinctUntilChanged()
   ).subscribe(largestArmy);
 
-  largestArmy.subscribe(count => console.log("largest army...: " + count))
-
   const longestTimeNotHit = new BehaviorSubject(0);
 
   const incrementKillCount = (enemyType) => {
@@ -97,12 +93,13 @@ export const initializeGameState = () => {
   const incrementDeanimations = createSubjectIncrementFunction(deanimations);
   const incrementBonesDespawned = createSubjectIncrementFunction(bonesDespawned);
 
-  bonesDespawned.subscribe((count) => console.log(count))
-
   sceneState$.subscribe(scene => {
     switch (scene) {
       case SceneStates.MAIN_MENU:
-        MainMenu({ onStartGame: transitionToScene(SceneStates.PLAYING_GAME)});
+        MainMenu({
+          onStartGame: () => transitionToScene(SceneStates.PLAYING_GAME),
+          gameVersion,
+        });
         break;
       case SceneStates.PLAYING_GAME:
         UI({
@@ -116,6 +113,7 @@ export const initializeGameState = () => {
         break;
       case SceneStates.GAME_OVER:
         GameOver({
+          gameVersion,
           killCount: killCount.getValue(),
           minionCount: minionCount.getValue(),
           largestArmy: largestArmy.getValue(),

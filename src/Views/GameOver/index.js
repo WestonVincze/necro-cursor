@@ -23,18 +23,18 @@ const GameOverScreen = ({
     <p>You died with ${minionCount} skeletons.</p>
     <p>You managed to control ${largestArmy} skeletons at once!</p>
     <br />
-    <p>${bonesDespawned} bone piles went to waste... how sad.</p>
+    <p>${bonesDespawned} bone piles went to waste... ${bonesDespawned > 0 ? 'how sad.' : 'NICE!'}</p>
     <p>You took a whopping ${damageTaken} damage!</p>
     <hr />
-    <h2>Your Best 5 Runs</h2>
-    ${highscores.map(hs => `<p>Kills: ${hs.killCount}, Summoned: ${hs.armySize}</p>`).join("\n")}
-
+    ${highscores}
     <button onclick="window.location.reload()">Play Again?</button>
   </div>
 `
 export const GameOver = (runStats) => {
-  const { saveHighscore } = HighscoreData();
-  const highscores = saveHighscore({ killCount: runStats.killCount.total, armySize: runStats.reanimations });
+  const { saveHighscore, printHighscores } = HighscoreData();
+  saveHighscore(runStats);
+  const highscores = printHighscores(5, runStats.gameVersion);
+
   const overlay = document.querySelector('#overlay');
   overlay.classList.add("show");
   overlay.innerHTML = GameOverScreen({ ...runStats, highscores });

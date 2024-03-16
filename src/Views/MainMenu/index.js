@@ -29,8 +29,8 @@ const MainMenuScreen = () => `
 <button id="toggle_content">View Highscores</button>
 `
 
-export const MainMenu = ({ onStartGame }) => {
-  const { getHighscores } = HighscoreData();
+export const MainMenu = ({ onStartGame, gameVersion }) => {
+  const { printHighscores } = HighscoreData();
   const overlay = document.querySelector('#overlay');
   overlay.classList.add("show");
   overlay.innerHTML = MainMenuScreen();
@@ -51,8 +51,7 @@ export const MainMenu = ({ onStartGame }) => {
   const toggleContent = () => {
     switch (toggleContentButton.innerHTML) {
       case "View Highscores":
-        const stats = getHighscores();
-        content.innerHTML = Highscores(stats);
+        content.innerHTML = printHighscores(5, gameVersion);
         toggleContentButton.innerHTML = "View Controls";
         break;
       case "View Controls":

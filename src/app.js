@@ -93,7 +93,6 @@ appService.initialize();
 const { app, gameTicks$, spriteContainer } = appService;
 
 const gameState = initializeGameState();
-UI(gameState);
 export { gameState };
 
 const skeletons = getURLParam("skeletons", 3);
@@ -123,7 +122,6 @@ const toggleDebug = () => {
 const alignSprites = () => {
   spriteContainer.children.map(c => c.zIndex = c.y);
 }
-
 gameTicks$.subscribe(alignSprites);
 
 const initializeGame = () => {
