@@ -6,7 +6,6 @@ import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting"
 import { appService, gameState } from "/src/app";
 import { bones, removeBones } from "/src/components/Drops";
 import { createMinion } from "/src/components/Minions";
-import { GameOver } from "/src/Views/GameOver";
 import { getRandomElements, normalizeForce } from "/src/helpers";
 import { RadialSpell } from "/src/components/Spells";
 import { LevelUp } from "/src/Views/LevelUp";
@@ -68,7 +67,7 @@ const initializePlayer = () => {
   const health = Health({ maxHP: _stats.maxHP, container });
 
   health.subscribeToDeath(() => {
-    GameOver({ killCount, armySize: summons });
+    gameState.transitionToScene("gameOver");
     appService.pause();
   })
 

@@ -21,6 +21,15 @@
  */
 
 import { BehaviorSubject, combineLatest, distinctUntilChanged, map, scan } from "rxjs";
+import { MainMenu } from "./Views/MainMenu";
+import { UI } from "./UI";
+import { GameOver } from "./Views/GameOver";
+
+const SceneStates = {
+  MAIN_MENU: "mainMenu",
+  PLAYING_GAME: "playingGame",
+  GAME_OVER: "gameOver",
+}
 
 const createSubjectIncrementFunction = (subject) => (amount = 1) => {
   const currentValue = subject.getValue();
@@ -28,6 +37,18 @@ const createSubjectIncrementFunction = (subject) => (amount = 1) => {
 }
 
 export const initializeGameState = () => {
+  const sceneState$ = new BehaviorSubject(SceneStates.MAIN_MENU);
+
+  const transitionToScene = (nextScene) => {
+    sceneState$.next(nextScene);
+  }
+
+  const onSceneChange = (scene, callback) => {
+    sceneState$.subscribe(currentScene => {
+      if (scene === currentScene) callback();
+    })
+  }
+
   // metadata
   const gameVersion = "0.1";
   let time = 0;
@@ -38,6 +59,8 @@ export const initializeGameState = () => {
   const reanimations = new BehaviorSubject(0);
   const deanimations = new BehaviorSubject(0);
   const bonesDespawned = new BehaviorSubject(0);
+  const minionCount = new BehaviorSubject(0);
+  const largestArmy = new BehaviorSubject(0);
 
   // player
   const playerHealthPercent = new BehaviorSubject(100);
@@ -49,18 +72,17 @@ export const initializeGameState = () => {
   const minionAggression = new BehaviorSubject();
   const minionFormation = new BehaviorSubject();
 
-  const minionCount = combineLatest([reanimations, deanimations]).pipe(
+  combineLatest([reanimations, deanimations]).pipe(
     map(([reanimated, deanimated]) => reanimated - deanimated),
     distinctUntilChanged()
-  )
+  ).subscribe(minionCount);
 
-  const largestArmy = minionCount.pipe(
+  minionCount.pipe(
     scan((largestCount, currentCount) => Math.max(largestCount, currentCount), 0),
     distinctUntilChanged()
-  )
+  ).subscribe(largestArmy);
 
   largestArmy.subscribe(count => console.log("largest army...: " + count))
-
 
   const longestTimeNotHit = new BehaviorSubject(0);
 
@@ -77,7 +99,38 @@ export const initializeGameState = () => {
 
   bonesDespawned.subscribe((count) => console.log(count))
 
+  sceneState$.subscribe(scene => {
+    switch (scene) {
+      case SceneStates.MAIN_MENU:
+        MainMenu({ onStartGame: transitionToScene(SceneStates.PLAYING_GAME)});
+        break;
+      case SceneStates.PLAYING_GAME:
+        UI({
+          killCount,
+          minionCount,
+          playerHealthPercent,
+          playerExpPercent,
+          minionFormation,
+          minionAggression,
+        });
+        break;
+      case SceneStates.GAME_OVER:
+        GameOver({
+          killCount: killCount.getValue(),
+          minionCount: minionCount.getValue(),
+          largestArmy: largestArmy.getValue(),
+          damageTaken: damageTaken.getValue(),
+          reanimations: reanimations.getValue(),
+          deanimations: deanimations.getValue(),
+          bonesDespawned: bonesDespawned.getValue(),
+        })
+        break;
+    }
+  })
+
   return {
+    transitionToScene,
+    onSceneChange,
     killCount,
     minionCount,
     minionAggression,

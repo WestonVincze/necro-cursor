@@ -131,7 +131,8 @@ const initializeGame = () => {
   Spawner(spawnRate, player);
 }
 
-MainMenu({ onStartGame: initializeGame });
+gameState.onSceneChange("playingGame", initializeGame);
+
 
 
 /**
