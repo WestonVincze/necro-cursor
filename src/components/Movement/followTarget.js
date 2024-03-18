@@ -20,7 +20,7 @@ export const followTarget = (sprite, swarm, target, delta, options) => {
   }
 
   if (options?.followForce > 0) {
-    forces.follow = calculateFollowForce({ targetX: target.x, targetY: target.y }, sprite, options?.followForce || 0.001);
+    forces.follow = calculateFollowForce({ targetX: target.x, targetY: target.y }, sprite, options.followForce);
   }
 
   if (options?.separation) {
