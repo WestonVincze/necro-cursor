@@ -204,7 +204,7 @@ const initializePlayer = () => {
 }
 
 export const Player = () => {
-  const { app, gameTicks$ } = appService;
+  const { app, gameTicks$, physicsUpdate } = appService;
   const player = initializePlayer();
   const sprite = player.sprite;
 
@@ -249,7 +249,7 @@ export const Player = () => {
   playerInput$.subscribe((e) => handleInput(e))
 
   // apply x and y state to move player
-  app.ticker.add((delta) => {
+  physicsUpdate.subscribe((delta) => {
     const { x, y } = normalizeForce({ x: moveX, y: moveY });
 
     if (x === 0) {
