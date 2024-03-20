@@ -8,6 +8,7 @@ import { MainMenu } from "./Views/MainMenu";
 import { initializeMinions } from "./components/Minions";
 import { activeKeys$ } from "./components/Inputs";
 import { UI } from "./UI";
+import { PhysicsUpdate } from "./components/PhysicsUpdate";
 import { initializeGameState } from "./gameState";
 
 // Setup PixiJS APP
@@ -22,6 +23,7 @@ export const appService = {
   particleContainer: null,
   /** @type {interval} */
   gameTicks$: null,
+  physicsUpdate: null,
   paused: false,
   initialize() {
     const container = document.querySelector('#container');
@@ -36,6 +38,7 @@ export const appService = {
     app.stage.addChild(spriteContainer);
     app.stage.addChild(UIContainer);
     app.stage.addChild(particleContainer);
+    // app.ticker.maxFPS = 10;
     const gameTicks$ = interval(200);
 
     window.addEventListener('blur', () => this.softPause());
@@ -56,21 +59,27 @@ export const appService = {
     this.UIContainer = UIContainer;
     this.particleContainer = particleContainer;
     this.gameTicks$ = gameTicks$.pipe(filter(() => this.app.ticker.started));
+    this.physicsUpdate = PhysicsUpdate();
+    this.physicsUpdate.start();
   },
   softPause() {
     if (this.paused) return;
     this.app.ticker.stop();
+    this.physicsUpdate.pause();
   },
   softResume() {
     if (this.paused) return;
     this.app.ticker.start();
+    this.physicsUpdate.start();
   },
   pause() {
     this.paused = true;
     this.app.ticker.stop();
+    this.physicsUpdate.pause();
   },
   resume() {
     this.app.ticker.start();
+    this.physicsUpdate.start();
   },
   /** do we need getters? */
   getApp() {

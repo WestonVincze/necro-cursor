@@ -103,7 +103,7 @@ export const initializeMinions = (spriteCount) => {
 
   result$.subscribe(followMouse);
 
-  const { app, gameTicks$ } = appService;
+  const { app, gameTicks$, physicsUpdate } = appService;
   for (let i = 0; i < spriteCount; i++) {
     createMinion({ x: Math.random() * app.screen.width, y: Math.random() * app.screen.height });
   }
@@ -126,7 +126,7 @@ export const initializeMinions = (spriteCount) => {
     })
   })
 
-  app.ticker.add((delta) => {
+  physicsUpdate.subscribe((delta) => {
     let formationIterator = null;
 
     const length = minions.filter(m => m.target === 'cursor').length || 0;
@@ -180,7 +180,7 @@ export const initializeMinions = (spriteCount) => {
       }
 
       const target = minion.target === 'cursor' ? { x: targetX + mod.x, y: targetY + mod.y } : minion.target.sprite;
-      followTarget(minion.sprite, minions, target, delta, { followForce: 0.01, separation: 2 })
+      followTarget(minion.sprite, minions, target, delta, { followForce: 5, separation: 2 })
     })
   })
 }
