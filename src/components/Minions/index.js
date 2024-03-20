@@ -126,7 +126,6 @@ export const initializeMinions = (spriteCount) => {
     })
   })
 
-  // app.ticker.add((delta) => {
   physicsUpdate.subscribe((delta) => {
     let formationIterator = null;
 

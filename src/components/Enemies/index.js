@@ -50,14 +50,14 @@ export const Spawner = (rate = 5000, player) => {
           })
         }
 
-        const inRange = followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 0.02, maxSpeed: 0.5, separation: 2, cohesion: 1 });
+        const inRange = followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 0.01, maxSpeed: 0.5, separation: 2, cohesion: 1 });
 
         if (inRange) player.health.takeDamage(1);
 
         if (enemy.holyNova?.getRadius() >= 100) enemy.holyNova.resolveSpell();
 
       } else {
-        const inRange = followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 0.025, maxSpeed: 0.6 / Math.max(1, enemy.attackers), separation: 2, cohesion: 1 });
+        const inRange = followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 5, maxSpeed: 2 / Math.max(1, enemy.attackers), separation: 2, cohesion: 1 });
         // TODO: develop proper damaging system
         if (inRange) player.health.takeDamage(0.5);
       }
