@@ -4,10 +4,8 @@ import { Player } from "./components/Player";
 import { Spawner } from "./components/Enemies";
 import { getURLParam } from "./helpers";
 import { filter, interval } from "rxjs";
-import { MainMenu } from "./Views/MainMenu";
 import { initializeMinions } from "./components/Minions";
 import { activeKeys$ } from "./components/Inputs";
-import { UI } from "./UI";
 import { PhysicsUpdate } from "./components/PhysicsUpdate";
 import { initializeGameState } from "./gameState";
 
@@ -38,7 +36,6 @@ export const appService = {
     app.stage.addChild(spriteContainer);
     app.stage.addChild(UIContainer);
     app.stage.addChild(particleContainer);
-    // app.ticker.maxFPS = 10;
     const gameTicks$ = interval(200);
 
     window.addEventListener('blur', () => this.softPause());
@@ -96,7 +93,6 @@ export const appService = {
   },
 }
 
-// TODO: revisit this import/export pattern....
 appService.initialize();
 
 const { app, gameTicks$, spriteContainer } = appService;
@@ -109,17 +105,13 @@ const spawnRate = getURLParam("spawnRate", 5000);
 
 initializeMinions(skeletons);
 
-/*
-const showGameTicks = (v) => {
-  console.log(v);
-}
-gameTicks$.subscribe(showGameTicks)
-*/
-
 let debugSubscription = null;
 const toggleDebug = () => {
   const debug = document.getElementById('debug');
-  const showFPS = () => debug.innerHTML = app.ticker.FPS;
+  const showFPS = (tick) => {
+    console.log(tick);
+    debug.innerHTML = app.ticker.FPS;
+  }
   if (debug.innerHTML === "") {
     debugSubscription = gameTicks$.subscribe(showFPS);
   } else {
@@ -139,26 +131,3 @@ const initializeGame = () => {
 }
 
 gameState.onSceneChange("playingGame", initializeGame);
-
-
-
-/**
- * GAME MANAGER
- * 
- * Game State?
- * > Menu
- *   - Play Game
- *   - HighScores
- * > Options
- *   - initial state form
- * > Character Select
- *   - selecting character avatar
- * > Playing
- *   - game is active
- * > Paused
- *   - pause menu shown
- * > Death Screen
- *   - YOU DIED message + stats
- *   - save stats in localstorage
- */
-
