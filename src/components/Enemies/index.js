@@ -8,22 +8,36 @@ import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting"
 import { minions } from "/src/components/Minions";
 
 const {
-  units: enemies,
-  createUnit: createEnemy,
   getUnitById: getEnemyById,
+  units: enemies,
+  createUnit,
   addAttacker,
   removeAttacker
 } = Swarm();
 
 export { enemies, getEnemyById, addAttacker, removeAttacker }
 
-// continuously spawns enemies
-export const Spawner = (rate = 5000, player) => {
-  const { app, gameTicks$, physicsUpdate } = appService;
-  const timer$ = interval(rate);
+const createEnemy = (type, position, player) => {
+  const { gameTicks$ } = appService;
+  const enemy = createUnit(type, position);
 
-  let difficultyScale = 1;
+  enemy.health.subscribeToDeath(() => {
+    gameState.incrementKillCount(enemy.type);
+    player.addExperience(enemyData[enemy.type].exp);
 
+    if (enemy.type === "paladin" && enemy.holyNova) {
+      enemy.holyNova.cancelSpell();
+    }
+  })
+
+  // TODO: refactor into proper damage system
+  gameTicks$.subscribe(() => {
+    enemy.health.takeDamage(enemy.attackers * 1);
+  })
+}
+
+const Enemies = (player) => {
+  const { physicsUpdate } = appService;
   physicsUpdate.subscribe((delta) => {
     enemies.forEach(enemy => {
       if (enemy.type === "paladin") {
@@ -63,6 +77,20 @@ export const Spawner = (rate = 5000, player) => {
       }
     })
   })
+}
+
+export const ExplicitSpawner = (player) => {
+  // spawns enemies on demand only
+}
+
+// continuously spawns enemies
+export const TimedSpawner = (rate = 5000, player) => {
+  const { app } = appService;
+  const timer$ = interval(rate);
+
+  Enemies(player);
+
+  let difficultyScale = 1;
 
   timer$.subscribe(() => {
     if (!app.ticker.started) return
@@ -70,27 +98,14 @@ export const Spawner = (rate = 5000, player) => {
     console.log(difficultyScale * 0.05);
 
     for (let i = 0; i < Math.floor(difficultyScale); i++) {
-      const enemy = createEnemy(
+      createEnemy(
         Math.random() > Math.min(0.5, (0.05 * difficultyScale)) ? enemyData.guard : enemyData.paladin,
         {
           x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
           y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,
         },
+        player
       )
-
-      enemy.health.subscribeToDeath(() => {
-        gameState.incrementKillCount(enemy.type);
-        player.addExperience(enemyData[enemy.type].exp);
-
-        if (enemy.type === "paladin" && enemy.holyNova) {
-          enemy.holyNova.cancelSpell();
-        }
-      })
-
-      // TODO: refactor into proper damage system
-      gameTicks$.subscribe(() => {
-        enemy.health.takeDamage(enemy.attackers * 1);
-      })
     }
   })
 }

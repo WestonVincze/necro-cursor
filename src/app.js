@@ -1,7 +1,7 @@
 import "./style.css"
 import { Application, Container, ParticleContainer } from "pixi.js";
 import { Player } from "./components/Player";
-import { Spawner } from "./components/Enemies";
+import { TimedSpawner, ExplicitSpawner } from "./components/Enemies";
 import { getURLParam } from "./helpers";
 import { filter, interval } from "rxjs";
 import { initializeMinions } from "./components/Minions";
@@ -112,7 +112,7 @@ const toggleDebug = () => {
     console.log(tick);
     debug.innerHTML = app.ticker.FPS;
   }
-  if (debug.innerHTML === "") {
+  if (!gameState.debugMode) {
     debugSubscription = gameTicks$.subscribe(showFPS);
   } else {
     debugSubscription.unsubscribe();
@@ -127,7 +127,11 @@ gameTicks$.subscribe(alignSprites);
 
 const initializeGame = () => {
   const player = Player();
-  Spawner(spawnRate, player);
+  if (!gameState.debugMode) {
+    TimedSpawner(spawnRate, player);
+  } else {
+
+  }
 }
 
 gameState.onSceneChange("playingGame", initializeGame);

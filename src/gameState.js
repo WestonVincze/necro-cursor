@@ -52,6 +52,7 @@ export const initializeGameState = () => {
   // metadata
   const gameVersion = "0.1";
   let time = 0;
+  let debugMode = false;
 
   // run stats
   const killCount = new BehaviorSubject({ guards: 0, paladins: 0, total: 0 });
@@ -97,7 +98,9 @@ export const initializeGameState = () => {
     switch (scene) {
       case SceneStates.MAIN_MENU:
         MainMenu({
-          onStartGame: () => transitionToScene(SceneStates.PLAYING_GAME),
+          onStartGame: () => {
+            transitionToScene(SceneStates.PLAYING_GAME);
+          },
           gameVersion,
         });
         break;
@@ -141,5 +144,6 @@ export const initializeGameState = () => {
     incrementReanimations,
     incrementDeanimations,
     incrementBonesDespawned,
+    debugMode,
   }
 }
