@@ -107,7 +107,7 @@ initializeMinions(skeletons);
 
 let debugSubscription = null;
 const toggleDebug = () => {
-  const debug = document.getElementById('debug');
+  const debug = document.getElementById('FPS');
   const showFPS = (tick) => {
     console.log(tick);
     debug.innerHTML = app.ticker.FPS;
@@ -130,7 +130,7 @@ const initializeGame = () => {
   if (!gameState.debugMode) {
     TimedSpawner(spawnRate, player);
   } else {
-
+    ExplicitSpawner(player);
   }
 }
 
