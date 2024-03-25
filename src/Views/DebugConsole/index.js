@@ -1,3 +1,5 @@
+import styles from "index.module.css";
+
 const DebugConsoleScreen = () => `
   <div class=${styles.debugContainer}>
     <button id="spawn_guard">Spawn Guard</button>
