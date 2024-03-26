@@ -45,10 +45,6 @@ export const appService = {
       if (keys['escape']) {
         this.app.ticker.started ? this.pause() : this.resume();
       }
-
-      if (keys['`']) {
-        toggleDebug();
-      }
     });
 
     this.app = app;
