@@ -12,13 +12,15 @@
 
 import { DebugConsole } from "../../Views/DebugConsole";
 import { appService } from "../../app";
+import { activeKeys$ } from "../Inputs";
 
 export const DebugTools = () => {
   const { createButton, toggleConsole } = DebugConsole();
   // setup debug console
   let debugSubscription = null;
-  const { gameTicks$ } = appService;
+  const { app, gameTicks$ } = appService;
 
+  // setup toggle debug mode
   activeKeys$.subscribe(keys => {
     if (keys['`']) {
       toggleDebug();
@@ -40,15 +42,8 @@ export const DebugTools = () => {
     }
   }
 
-  // expose "addDebugBtn" function
-  const addDebugBtn = () => {
-    createButton()
-
-  }
-
   return {
     toggleDebug,
-    addDebugBtn,
+    createButton,
   }
-
 }
