@@ -97,7 +97,7 @@ const { app, gameTicks$, spriteContainer } = appService;
 const gameState = initializeGameState();
 export { gameState };
 
-const { createButton } = DebugTools();
+const { createButton } = DebugTools(gameState);
 
 createButton("test", "test", () => console.log('test'))
 

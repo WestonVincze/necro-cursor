@@ -14,7 +14,7 @@ import { DebugConsole } from "../../Views/DebugConsole";
 import { appService } from "../../app";
 import { activeKeys$ } from "../Inputs";
 
-export const DebugTools = () => {
+export const DebugTools = (gameState) => {
   const { createButton, toggleConsole } = DebugConsole();
   // setup debug console
   let debugSubscription = null;
