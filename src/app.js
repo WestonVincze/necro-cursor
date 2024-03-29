@@ -99,12 +99,10 @@ export { gameState };
 
 const { createButton } = DebugTools(gameState);
 
-createButton("test", "test", () => console.log('test'))
-
 const skeletons = getURLParam("skeletons", 3);
 const spawnRate = getURLParam("spawnRate", 5000);
 
-initializeMinions(skeletons);
+const { createMinion } = initializeMinions(skeletons);
 
 const alignSprites = () => {
   spriteContainer.children.map(c => c.zIndex = c.y);
@@ -116,7 +114,10 @@ const initializeGame = () => {
   if (!gameState.debugMode) {
     TimedSpawner(spawnRate, player);
   } else {
-    ExplicitSpawner(player);
+    const { spawnEnemy } = ExplicitSpawner(player);
+    createButton("spawn_paladin", "Spawn Paladin", () => spawnEnemy("paladin"));
+    createButton("spawn_guard", "Spawn Guard", () => spawnEnemy("guard"));
+    createButton("spawn_skeleton", "Spawn Skeleton", () => createMinion(player.sprite));
   }
 }
 

@@ -38,7 +38,6 @@ export const DebugTools = (gameState) => {
       debugSubscription = gameTicks$.subscribe(showFPS);
     } else {
       debugSubscription.unsubscribe();
-      FPS.innerHTML = "";
     }
     // TODO: this should probably be a subject...
     gameState.debugMode = !gameState.debugMode;

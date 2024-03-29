@@ -2,7 +2,7 @@ import styles from "./index.module.css";
 
 const DebugConsoleScreen = () => `
   <div class="${styles.debugContainer} ${styles.hide}">
-    FPS: <span id="FPS"></span>
+    <div class="${styles.FPSContainer}">FPS: <span id="FPS"></span></div>
     <div class="${styles.buttonContainer}"></div>
   </div>
 `;

@@ -80,7 +80,27 @@ const Enemies = (player) => {
 }
 
 export const ExplicitSpawner = (player) => {
+  const { app } = appService;
+  Enemies(player);
+
   // spawns enemies on demand only
+  const spawnEnemy = (type) => {
+    if (!enemyData[type]) {
+      console.error("invalid enemy type");
+      return;
+    }
+
+    createEnemy(
+      enemyData[type],
+      {
+        x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
+        y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,
+      },
+      player
+    )
+  }
+
+  return { spawnEnemy }
 }
 
 // continuously spawns enemies
