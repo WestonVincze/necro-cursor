@@ -183,4 +183,6 @@ export const initializeMinions = (spriteCount) => {
       followTarget(minion.sprite, minions, target, delta, { followForce: 5, separation: 2 })
     })
   })
+
+  return { createMinion }
 }

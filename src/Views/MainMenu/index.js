@@ -1,6 +1,7 @@
 import { HighscoreData } from "/api/HighscoreData";
 import styles from "./index.module.css";
 
+// TODO: create separate (and more detailed) "how to play" view
 const Controls = () => `
   <h2>Controls</h2>
 
@@ -12,11 +13,6 @@ const Controls = () => `
 
   <h3>Summoning Skeletons</h3>
   <p>Hold spacebar to create a summoning circle that transforms bones into new skeletons.</p>
-`
-
-const Highscores = (stats) => `
-  <h2>Your Best 5 Runs</h2>
-  ${stats.map(s => `<p>Guards Killed: ${s.killCount}, Skeletons Summoned: ${s.armySize}</p>`).join("\n")}
 `
 
 const MainMenuScreen = () => `

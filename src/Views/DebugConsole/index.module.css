@@ -1,0 +1,30 @@
+.debugContainer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 5;
+  background-color: #a5a5;
+  height: 100vh;
+  min-width: 10vw;
+  padding: 10px 20px;
+  padding-top: 60px;
+}
+
+.hide {
+  display: none;
+}
+
+.FPSContainer {
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.buttonContainer button {
+  font-size: medium;
+}

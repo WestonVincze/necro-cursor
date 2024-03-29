@@ -1,13 +1,14 @@
 import "./style.css"
 import { Application, Container, ParticleContainer } from "pixi.js";
 import { Player } from "./components/Player";
-import { Spawner } from "./components/Enemies";
+import { TimedSpawner, ExplicitSpawner } from "./components/Enemies";
 import { getURLParam } from "./helpers";
 import { filter, interval } from "rxjs";
 import { initializeMinions } from "./components/Minions";
 import { activeKeys$ } from "./components/Inputs";
 import { PhysicsUpdate } from "./components/PhysicsUpdate";
 import { initializeGameState } from "./gameState";
+import { DebugTools } from "./components/DebugTools";
 
 // Setup PixiJS APP
 export const appService = {
@@ -44,10 +45,6 @@ export const appService = {
     activeKeys$.subscribe(keys => {
       if (keys['escape']) {
         this.app.ticker.started ? this.pause() : this.resume();
-      }
-
-      if (keys['`']) {
-        toggleDebug();
       }
     });
 
@@ -95,30 +92,17 @@ export const appService = {
 
 appService.initialize();
 
-const { app, gameTicks$, spriteContainer } = appService;
+const { gameTicks$, spriteContainer } = appService;
 
 const gameState = initializeGameState();
 export { gameState };
 
+const { createButton } = DebugTools(gameState);
+
 const skeletons = getURLParam("skeletons", 3);
 const spawnRate = getURLParam("spawnRate", 5000);
 
-initializeMinions(skeletons);
-
-let debugSubscription = null;
-const toggleDebug = () => {
-  const debug = document.getElementById('debug');
-  const showFPS = (tick) => {
-    console.log(tick);
-    debug.innerHTML = app.ticker.FPS;
-  }
-  if (debug.innerHTML === "") {
-    debugSubscription = gameTicks$.subscribe(showFPS);
-  } else {
-    debugSubscription.unsubscribe();
-    debug.innerHTML = "";
-  }
-}
+const { createMinion } = initializeMinions(skeletons);
 
 const alignSprites = () => {
   spriteContainer.children.map(c => c.zIndex = c.y);
@@ -127,7 +111,14 @@ gameTicks$.subscribe(alignSprites);
 
 const initializeGame = () => {
   const player = Player();
-  Spawner(spawnRate, player);
+  if (!gameState.debugMode) {
+    TimedSpawner(spawnRate, player);
+  } else {
+    const { spawnEnemy } = ExplicitSpawner(player);
+    createButton("spawn_paladin", "Spawn Paladin", () => spawnEnemy("paladin"));
+    createButton("spawn_guard", "Spawn Guard", () => spawnEnemy("guard"));
+    createButton("spawn_skeleton", "Spawn Skeleton", () => createMinion(player.sprite));
+  }
 }
 
 gameState.onSceneChange("playingGame", initializeGame);
