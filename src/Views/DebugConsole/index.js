@@ -1,8 +1,9 @@
 import styles from "./index.module.css";
 
 const DebugConsoleScreen = () => `
-  <div class=${styles.debugContainer}>
-  <div id="FPS"></div>
+  <div class="${styles.debugContainer} ${styles.hide}">
+    FPS: <span id="FPS"></span>
+    <div class="${styles.buttonContainer}"></div>
   </div>
 `;
 
@@ -10,6 +11,8 @@ const DebugConsoleScreen = () => `
 export const DebugConsole = () => {
   const container = document.querySelector('#debugContainer');
   container.innerHTML = DebugConsoleScreen();
+  const debugContainer = container.querySelector(`.${styles.debugContainer}`);
+  const buttonContainer = debugContainer.querySelector(`.${styles.buttonContainer}`);
   let showConsole = false;
 
   const createButton = (id, text, action) => {
@@ -17,15 +20,16 @@ export const DebugConsole = () => {
     button.id = id;
     button.textContent = text;
     button.addEventListener('click', action);
-    container.append(button);
+    buttonContainer.append(button);
   }
 
   const toggleConsole = () => {
     if (showConsole) {
-      container.classList.remove('show');
+      debugContainer.classList.add(styles.hide);
     } else {
-      container.classList.add('show');
+      debugContainer.classList.remove(styles.hide);
     }
+    showConsole = !showConsole;
   }
 
   return {

@@ -29,17 +29,19 @@ export const DebugTools = (gameState) => {
 
   const toggleDebug = () => {
     toggleConsole();
-    const debug = document.getElementById('FPS');
+    const FPS = document.getElementById('FPS');
     const showFPS = (tick) => {
-      console.log(tick);
-      debug.innerHTML = app.ticker.FPS;
+      // console.log(tick);
+      FPS.innerHTML = Math.round(app.ticker.FPS);
     }
     if (!gameState.debugMode) {
       debugSubscription = gameTicks$.subscribe(showFPS);
     } else {
       debugSubscription.unsubscribe();
-      debug.innerHTML = "";
+      FPS.innerHTML = "";
     }
+    // TODO: this should probably be a subject...
+    gameState.debugMode = !gameState.debugMode;
   }
 
   return {

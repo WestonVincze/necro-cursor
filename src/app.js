@@ -92,7 +92,7 @@ export const appService = {
 
 appService.initialize();
 
-const { app, gameTicks$, spriteContainer } = appService;
+const { gameTicks$, spriteContainer } = appService;
 
 const gameState = initializeGameState();
 export { gameState };
@@ -105,21 +105,6 @@ const skeletons = getURLParam("skeletons", 3);
 const spawnRate = getURLParam("spawnRate", 5000);
 
 initializeMinions(skeletons);
-
-let debugSubscription = null;
-const toggleDebug = () => {
-  const debug = document.getElementById('FPS');
-  const showFPS = (tick) => {
-    console.log(tick);
-    debug.innerHTML = app.ticker.FPS;
-  }
-  if (!gameState.debugMode) {
-    debugSubscription = gameTicks$.subscribe(showFPS);
-  } else {
-    debugSubscription.unsubscribe();
-    debug.innerHTML = "";
-  }
-}
 
 const alignSprites = () => {
   spriteContainer.children.map(c => c.zIndex = c.y);
