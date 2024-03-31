@@ -118,6 +118,7 @@ const initializeGame = () => {
     createButton("spawn_paladin", "Spawn Paladin", () => spawnEnemy("paladin"));
     createButton("spawn_guard", "Spawn Guard", () => spawnEnemy("guard"));
     createButton("spawn_skeleton", "Spawn Skeleton", () => createMinion(player.sprite));
+    createButton("level_player", "Level Up", () => player.levelUp());
   }
 }
 

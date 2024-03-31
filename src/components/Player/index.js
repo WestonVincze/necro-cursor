@@ -14,6 +14,7 @@ import { activeKeys$ } from "/src/components/Inputs";
 const FRICTION = 0.05;
 
 const initialStats = {
+  level: 0,
   moveSpeed: 0.3,
   maxSpeed: 5,
   summonSpeed: 0.5,
@@ -103,11 +104,17 @@ const initializePlayer = () => {
     )
     .subscribe(({ level, experience }) => {
       const percentage = getLevelPercentage(level, experience);
-      gameState.playerExpPercent.next(percentage)
+      gameState.playerExpPercent.next(percentage);
+      _stats.level = level;
     });
 
   const addExperience = (experience) => {
     playerLevelSubject.next({ experience });
+  }
+
+  const levelUp = () => {
+    if (_stats.level >= experienceTable.length) return;
+    addExperience(experienceTable[_stats.level + 1]);
   }
 
   const getStat = (stat) => _stats[stat];
@@ -186,20 +193,21 @@ const initializePlayer = () => {
       options: getRandomElements(levelUpOptions, 3),
     })
   });
-
+  
   const player = {
     sprite: container,
     attackers: [],
     summoningCircle: null,
     health,
     addExperience,
+    levelUp,
     onLevelUp,
     _stats,
     getStat,
     setStat,
     addToStat,
   }
-  
+
   return player;
 }
 
