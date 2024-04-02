@@ -66,3 +66,22 @@ const drawHitboxCircle = (sprite, range) => {
 
 /** Notes */
 // would it be worth it to have a "collider" that simply checks if the distance between two points is within a threshhold?
+
+
+/**
+ * getLocalBounds has a "containsPoint" function... maybe we can use that to determine whether or not sprites overlap? 
+ * 
+ * below, we have a sprite and each star represents the sprites "colliders"
+ * 
+ * if a dot is "containedWithin" a potential target's sprite, then we know we are colliding
+ * 
+ *      * * *
+ *       [ ]
+ *      *[ ]*
+ *       [ ]
+ *      * * *
+ * 
+ * gotchas:
+ *  - we need to ensure that no sprite can fit between another sprites "colliders" (we can solve this by deciding on a smallest unit and ensuring the auto-generated "colliders" are never further apart than the defined value)
+ * 
+ */

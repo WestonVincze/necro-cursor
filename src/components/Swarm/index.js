@@ -21,7 +21,7 @@ export const Swarm = () => {
     sprite.height = unitData.height;
     sprite.anchor.set(0.5);
 
-    let container;
+    let container = null;
     if (unitData.hideUI) {
       container = sprite;
     } else {
