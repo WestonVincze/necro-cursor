@@ -1,17 +1,19 @@
 import { Container, Graphics } from "pixi.js";
 import { Subject } from "rxjs";
 
-export const Health = ({ maxHP, container }) => {
+export const Health = ({ maxHP, container, hideHealthBar = false }) => {
+  console.log('set up HP')
   let hp = maxHP;
   const onDeath = new Subject();
   const onHealthChange = new Subject();
   let healthBar = null;
 
-  if (maxHP > 1 && container) {
+  if (!hideHealthBar && container) {
     healthBar = HealthBar({ maxHP, hp, container })
   }
 
   const takeDamage = (amount) => {
+    console.log('taking damage');
     hp -= amount;
     healthBar?.updateHealth(hp, maxHP);
     onHealthChange.next('damage', amount);

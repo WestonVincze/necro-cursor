@@ -1,5 +1,4 @@
 import { Swarm } from "/src/components/Swarm";
-import { minionData } from "/src/data/units";
 import { appService, gameState } from "/src/app";
 import { followTarget } from "/src/components/Movement/followTarget";
 import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
@@ -10,7 +9,7 @@ import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterato
 
 const {
   units: minions,
-  createUnit,
+  addUnit,
   getUnitById: getMinionById,
   removeUnit: removeMinion,
 } = Swarm();
@@ -19,7 +18,7 @@ export { minions, getMinionById, removeMinion }
 
 // TODO: Fix performance issues (might be related to high number of containers being used)
 export const createMinion = (position) => {
-  const minion = createUnit(minionData.skeleton, position, { target: 'cursor' });
+  const minion = addUnit("skeleton", position, { followTarget: 'cursor' }); // TODO: change to followTarget?
   gameState.incrementReanimations();
   minion.health.subscribeToDeath(() => { 
     gameState.incrementDeanimations();
@@ -113,11 +112,11 @@ export const initializeMinions = (spriteCount) => {
 
     minions.forEach(minion => {
       // only check minions that are not busy
-      if (minion.target === 'cursor') {
+      if (minion.target === null) {
         enemies.some(enemy => {
           if (isIntersectingRect(minion.sprite, enemy.sprite, 100) && addAttacker(enemy.id)) {
-            minion.target = enemy;
-            enemy.health.subscribeToDeath(() => minion.target = "cursor");
+            minion.setTarget(enemy);
+            enemy.health.subscribeToDeath(() => minion.removeTarget());
             return true;
           }
           return false;
@@ -179,7 +178,7 @@ export const initializeMinions = (spriteCount) => {
         mod = formationIterator.nextValue();
       }
 
-      const target = minion.target === 'cursor' ? { x: targetX + mod.x, y: targetY + mod.y } : minion.target.sprite;
+      const target = minion.target === null ? { x: targetX + mod.x, y: targetY + mod.y } : minion.target.sprite;
       followTarget(minion.sprite, minions, target, delta, { followForce: 5, separation: 2 })
     })
   })

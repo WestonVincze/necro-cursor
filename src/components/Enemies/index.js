@@ -10,7 +10,7 @@ import { minions } from "/src/components/Minions";
 const {
   getUnitById: getEnemyById,
   units: enemies,
-  createUnit,
+  addUnit,
   addAttacker,
   removeAttacker
 } = Swarm();
@@ -18,29 +18,25 @@ const {
 export { enemies, getEnemyById, addAttacker, removeAttacker }
 
 const createEnemy = (type, position, player) => {
-  const { gameTicks$ } = appService;
-  const enemy = createUnit(type, position);
+  const enemy = addUnit(type, position);
 
   enemy.health.subscribeToDeath(() => {
-    gameState.incrementKillCount(enemy.type);
-    player.addExperience(enemyData[enemy.type].exp);
+    gameState.incrementKillCount(enemy.name);
+    player.addExperience(enemyData[type].exp);
 
-    if (enemy.type === "paladin" && enemy.holyNova) {
+    if (enemy.name === "paladin" && enemy.holyNova) {
       enemy.holyNova.cancelSpell();
     }
   })
 
   // TODO: refactor into proper damage system
-  gameTicks$.subscribe(() => {
-    enemy.health.takeDamage(enemy.attackers * 1);
-  })
 }
 
 const Enemies = (player) => {
   const { physicsUpdate } = appService;
   physicsUpdate.subscribe((delta) => {
     enemies.forEach(enemy => {
-      if (enemy.type === "paladin") {
+      if (enemy.name === "paladin") {
         if (Math.random() > 0.99 && !enemy?.holyNova) {
           enemy.holyNova = RadialSpell({
             position: enemy.sprite,
@@ -84,14 +80,9 @@ export const ExplicitSpawner = (player) => {
   Enemies(player);
 
   // spawns enemies on demand only
-  const spawnEnemy = (type) => {
-    if (!enemyData[type]) {
-      console.error("invalid enemy type");
-      return;
-    }
-
+  const spawnEnemy = (name) => {
     createEnemy(
-      enemyData[type],
+      name,
       {
         x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
         y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,
@@ -119,7 +110,7 @@ export const TimedSpawner = (rate = 5000, player) => {
 
     for (let i = 0; i < Math.floor(difficultyScale); i++) {
       createEnemy(
-        Math.random() > Math.min(0.5, (0.05 * difficultyScale)) ? enemyData.guard : enemyData.paladin,
+        Math.random() > Math.min(0.5, (0.05 * difficultyScale)) ? "guard" : "paladin",
         {
           x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
           y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,

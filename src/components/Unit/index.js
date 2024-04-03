@@ -28,65 +28,139 @@
  * 
  */
 
+import { Sprite, Container } from "pixi.js"
 import { appService } from "../../app";
 import { Health } from "../Health";
 import { isIntersectingRect } from "../Colliders/isIntersecting";
-import { Sprite, Container } from "pixi.js"
+import { attackTarget } from "../Attack";
+import { units } from "../../data/units";
 
-export const Unit = () => {
+// TODO: create unit based on unit name, do not force other scripts to collect unitData
+export const createUnit = (id, unitName, position, options) => {
+  const unitData = units[unitName];
+  if (!unitData) {
+    console.error(`${unitName} is not a valid unit.`); 
+    return;
+  }
+
+  const { gameTicks$, spriteContainer } = appService;
+  const _stats = unitData.stats;
+  let _targetType = null;
+  let _target = null; // unit or null
+  let _canAttack = _stats.maxHit > 0; // always false if there is no max hit
+  let _ticksToAttack = 0;
+  let _isInRange = false; // not sure if we need this
+
+  // configure sprite
   let sprite = null;
-  let canAttack = true;
-  let target = null; // object containing id and sprite
-  let isInRange = false;
-  let attackRange = 0;
-  let damage = 0;
 
-  const initializeUnit = (unitData, position, options) => {
-    const { spriteContainer } = appService;
-    sprite = Sprite.from(unitData.url);
-    sprite.width = unitData.width;
-    sprite.height = unitData.height;
-    sprite.anchor.set(0.5);
+  sprite = Sprite.from(unitData.url);
+  sprite.width = unitData.width;
+  sprite.height = unitData.height;
+  sprite.anchor.set(0.5);
 
-    attackRange = unitData.attackRange;
-    damage = unitData.damage;
+  if (!unitData.hideUI) {
+    const container = new Container();
+    container.addChild(sprite);
+    sprite = container;
+  }
 
-    if (!unitData.hideUI) {
-      const container = new Container();
-      container.addChild(sprite);
-      sprite = container;
+  sprite.position.set(position.x, position.y);
+  sprite.vx = 0;
+  sprite.vy = 0;
+  spriteContainer.addChild(sprite);
+
+  const health = Health({ maxHP: _stats.maxHP, container: sprite, hideHealthBar: unitData.hideUI });
+
+  const checkForStat = (stat) => {
+    if (!_stats.hasOwnProperty(stat)) {
+      console.error(`Invalid stat: ${stat}`);
+      return false;
     }
 
-    sprite.position.set(position.x, position.y);
-    sprite.vx = 0;
-    sprite.vy = 0;
-    spriteContainer.addChild(sprite);
+    return true;
+  }
 
-    const health = Health({ maxHP: unitData.maxHP, container });
+  const getStat = (stat) => _stats[stat];
 
-    return {
-      id, 
-      type: unitData.type,
-      sprite,
-      health,
-      ...options
-    }
+  const setStat = (stat, value) => {
+    if (!checkForStat(stat)) return;
+
+    _stats[stat] = value;
+  }
+
+  const addToStat = (stat, value) => {
+    if (!checkForStat(stat)) return;
+
+    _stats[stat] += value;
   }
 
   // finds the closest available target or returns null if none found
   // run every tick?
-  const checkForClosestTarget = (type) => {}
+  const assignClosestTarget = (type) => {
+    if (!_targetType) {
+      console.error("No target type set.");
+      return;
+    }
+
+    // search game state for targetType... assign closest potential target to _target
+  }
+
+  let attackTicks = null;
+  const setTarget = (target) => {
+    _target = target;
+    attackTicks = gameTicks$.subscribe(() => {
+      console.log(_ticksToAttack);
+      console.log('trying to attttaaackkk')
+      tryAttack();
+      if (_ticksToAttack > 0) _ticksToAttack -= 1;
+      if (_ticksToAttack === 0) _canAttack = true; // we'll need to refactor this later so that we don't HARD SET can attack like this
+    })
+  }
+
+  const removeTarget = () => {
+    _target = null;
+    attackTicks.unsubscribe();
+
+  }
 
   // target = { health, x, y }
   const tryAttack = () => {
-    if (!canAttack || !target) return;
+    // check if can attack and target is set
+    if (!_canAttack || !_target) return;
 
-    // check if in Range
-    isInRange = isIntersectingRect(sprite, target.sprite, attackRange);
+    // check if in range
+    if(!isIntersectingRect(sprite, _target.sprite, _stats.attackRange)) return;
 
-    if (isInRange) {
-      target.health.takeDamage(damage);
-      // spawn hitSplat
-    }
+    console.log('making a real attack')
+    attackTarget(_stats, _target);
+
+    _canAttack = false;
+    _ticksToAttack = _stats.attackSpeed;
+    // set canAttack to false
+    // set ticks to wait
+  }
+
+  // every tick, if we have a target, check if in range, if in range
+  // NO. This should not be automatic...
+  /*
+  gameTicks$.subscribe(() => {
+    tryAttack();
+  })
+  */
+
+  return {
+    id,
+    sprite,
+    health,
+    stats: { ..._stats },
+    getStat,
+    addToStat,
+    setStat,
+    targetType: _targetType, 
+    target: _target,
+    setTarget,
+    removeTarget,
+    ...options
   }
 }
