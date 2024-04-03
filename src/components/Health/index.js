@@ -1,8 +1,8 @@
 import { Container, Graphics } from "pixi.js";
 import { Subject } from "rxjs";
+import { HitSplats } from "./HitSplats";
 
 export const Health = ({ maxHP, container, hideHealthBar = false }) => {
-  console.log('set up HP')
   let hp = maxHP;
   const onDeath = new Subject();
   const onHealthChange = new Subject();
@@ -12,11 +12,13 @@ export const Health = ({ maxHP, container, hideHealthBar = false }) => {
     healthBar = HealthBar({ maxHP, hp, container })
   }
 
+  const { spawnHitSplat } = HitSplats(container);
+
   const takeDamage = (amount) => {
-    console.log('taking damage');
     hp -= amount;
     healthBar?.updateHealth(hp, maxHP);
     onHealthChange.next('damage', amount);
+    spawnHitSplat(amount);
     if (hp <= 0) {
       hp = 0;
       onDeath.next();
