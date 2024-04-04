@@ -45,12 +45,15 @@ export const enemyData = {
     maxAttackers: 10,
     exp: 10,
     stats: {
-      maxHP: 20,
+      maxHP: 15,
       armor: 12,
-      attackSpeed: 8,
+      attackBonus: 5,
+      attackSpeed: 10,
       attackRange: 20,
       maxHit: 4,
       damageBonus: 0,
+      moveSpeed: 0.5,
+      maxSpeed: 1,
     }
   },
   paladin: {
@@ -64,10 +67,13 @@ export const enemyData = {
     stats: {
       maxHP: 30,
       armor: 16,
-      attackSpeed: 12,
+      attackBonus: 8,
+      attackSpeed: 15,
       attackRange: 30,
       maxHit: 6,
       damageBonus: 1,
+      moveSpeed: 0.3,
+      maxSpeed: 0.5,
     }
   },
   // doppelsoldner (montante AoE attacks)
@@ -86,10 +92,13 @@ export const minionData = {
     stats: {
       maxHP: 10,
       armor: 10,
-      maxHit: 2,
-      attackSpeed: 10,
+      maxHit: 3,
+      attackBonus: 5,
+      attackSpeed: 12,
       attackRange: 20,
       damageBonus: 0,
+      moveSpeed: 0.5,
+      maxSpeed: 1,
     }
   }
 }
@@ -102,7 +111,7 @@ export const playerData = {
     width: 50,
     height: 114,
     stats: {
-      maxHP: 100,
+      maxHP: 50,
       armor: 10,
       moveSpeed: 0.3,
       maxSpeed: 5,

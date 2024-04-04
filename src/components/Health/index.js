@@ -89,6 +89,7 @@ const HealthBar = ({ maxHP, hp, container }) => {
   const healthBar = new Graphics();
 
   const updateHealth = (newHP, maxHP) => {
+    // TODO: hide healthbar when HP is full after x time without taking damage
     healthBar.clear();
     healthBar.beginFill(0x55ff55);
     healthBar.drawRect(xOffset, yOffset, width * (newHP / maxHP), heightOffset);

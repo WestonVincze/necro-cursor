@@ -36,6 +36,7 @@ export const Swarm = () => {
     units.splice(i, 1);
   }
 
+  // "attackers" is no longer necessary
   const addAttacker = (id) => {
     const unit = getUnitById(id);
     if (unit.attackers + 1 > unit.maxAttackers) return false;

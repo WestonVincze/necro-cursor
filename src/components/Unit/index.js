@@ -116,14 +116,17 @@ export const createUnit = (id, unitName, position, options) => {
 
   const clearTarget = () => {
     _target = null;
-    attackTicks.unsubscribe();
+    attackTicks?.unsubscribe();
     attackTicks = null;
   }
+
+  health.subscribeToDeath(clearTarget);
 
   // target = { health, x, y }
   const tryAttack = () => {
     // check if can attack and target is set
-    if (!_canAttack || _target === null) return;
+    console.log(id + " id trying attack")
+    if (!_canAttack || _target === null || !_target.sprite) return;
 
     // check if in range
     if(!isIntersectingRect(sprite, _target.sprite, _stats.attackRange)) return;
@@ -160,7 +163,7 @@ export const createUnit = (id, unitName, position, options) => {
       enumerable: true,
     },
     stats: {
-      get: () => ({ ..._stats }),
+      get: () => _stats,
       enumerable: true,
     },
     targetType: {

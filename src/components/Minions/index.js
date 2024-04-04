@@ -185,7 +185,7 @@ export const initializeMinions = (spriteCount) => {
       }
 
       const targetPosition = !target || !aggressionSubject.getValue() ? { x: targetX + mod.x, y: targetY + mod.y } : target.sprite;
-      followTarget(minion.sprite, minions, targetPosition, delta, { followForce: 5, separation: 2 })
+      followTarget(minion.sprite, minions, targetPosition, delta, { followForce: minion.stats.moveSpeed, maxSpeed: minion.stats.maxSpeed, separation: 2 })
     })
   })
 

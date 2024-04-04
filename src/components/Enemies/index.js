@@ -52,7 +52,6 @@ const Enemies = (player) => {
                 minions.map(minion => {
                   if (distanceBetweenPoints(minion.sprite, enemy.sprite) <= radius) {
                     minion.health.takeDamage(10);
-                    enemy.attackers = Math.max(0, enemy.attackers - 1);
                   }
                 })
               }
@@ -60,14 +59,10 @@ const Enemies = (player) => {
             }
           })
         }
-
-        followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 0.01, maxSpeed: 0.5, separation: 2, cohesion: 1 });
-
         if (enemy.holyNova?.getRadius() >= 100) enemy.holyNova.resolveSpell();
+      } 
 
-      } else {
-        followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 5, maxSpeed: 2 / Math.max(1, enemy.attackers), separation: 2, cohesion: 1 });
-      }
+      followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: enemy.stats.moveSpeed, maxSpeed: enemy.stats.maxSpeed, separation: 2 });
     })
   })
 }
