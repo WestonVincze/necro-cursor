@@ -99,7 +99,7 @@ export { gameState };
 
 const { createButton } = DebugTools(gameState);
 
-const skeletons = getURLParam("skeletons", 3);
+const skeletons = getURLParam("skeletons", 1);
 const spawnRate = getURLParam("spawnRate", 5000);
 
 const { createMinion } = initializeMinions(skeletons);
@@ -119,6 +119,9 @@ const initializeGame = () => {
     createButton("spawn_guard", "Spawn Guard", () => spawnEnemy("guard"));
     createButton("spawn_skeleton", "Spawn Skeleton", () => createMinion(player.sprite));
     createButton("level_player", "Level Up", () => player.levelUp());
+    createButton("immortal_player", "Immortal Player", () =>
+      player.health.subscribeToHealthChange(({ type, amount }) =>
+        type === "damage" && player.health.heal(amount)));
   }
 }
 

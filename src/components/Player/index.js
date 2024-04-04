@@ -78,7 +78,6 @@ const initializePlayer = () => {
     .subscribe(({ level, experience }) => {
       const percentage = getLevelPercentage(level, experience);
       gameState.playerExpPercent.next(percentage);
-      player.level = level;
     });
 
   const addExperience = (experience) => {
@@ -125,7 +124,7 @@ const initializePlayer = () => {
       onSelect: () => {
         console.log("MAX HP");
         player.addToStat("maxHP", 15);
-        health.setMaxHP(player.stats.maxHP);
+        player.health.setMaxHP(player.stats.maxHP);
         appService.resume();
       }
     },
@@ -143,6 +142,7 @@ const initializePlayer = () => {
   onLevelUp.subscribe((level) => {
     console.log(`Congratulations! You've reached level ${level}!`);
     appService.pause();
+    player.level = level;
     LevelUp({
       level,
       options: getRandomElements(levelUpOptions, 3),

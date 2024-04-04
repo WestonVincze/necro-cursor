@@ -3,6 +3,7 @@
   --border-radius: 15px;
   --primary: #442244;
   --primary-light: #663366;
+  --debug-console-width: 0;
 }
 
 * {
@@ -12,13 +13,14 @@
 }
 
 body {
+  padding-left: var(--debug-console-width);
   background-color: #555;
   font-family: monospace;
   font-size: 20px;
 }
 
 #container {
-  width: calc(100svw - 10px);
+  width: calc(100svw - (var(--debug-console-width) + 10px));
   max-width: 1400px;
   height: 95svh;
   margin: 2.5svh auto;
