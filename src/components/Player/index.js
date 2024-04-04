@@ -1,7 +1,5 @@
-import { Container, Sprite } from "pixi.js";
 import { BehaviorSubject, Subject, map, scan, startWith } from "rxjs";
 
-import { Health } from "/src/components/Health";
 import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
 import { appService, gameState } from "/src/app";
 import { bones, removeBones } from "/src/components/Drops";
@@ -10,18 +8,9 @@ import { getRandomElements, normalizeForce } from "/src/helpers";
 import { RadialSpell } from "/src/components/Spells";
 import { LevelUp } from "/src/Views/LevelUp";
 import { activeKeys$ } from "/src/components/Inputs";
+import { createUnit } from "../Unit";
 
 const FRICTION = 0.05;
-
-const initialStats = {
-  level: 0,
-  moveSpeed: 0.3,
-  maxSpeed: 5,
-  summonSpeed: 0.5,
-  summonRadius: 50,
-  HPregeneration: 0.5,
-  maxHP: 100,
-}
 
 const initialLevel = 0;
 const initialExperience = 0;
@@ -47,36 +36,20 @@ const getLevelPercentage = (level, experience) => {
   return progress >= 1 ? 100 : Math.floor(progress * 100);
 }
 
-
 const initializePlayer = () => {
-  const { app, spriteContainer } = appService;
-  const sprite = Sprite.from("assets/necro.png");
-  sprite.width = 50;
-  sprite.height = 114;
-  sprite.anchor.set(0.5);
+  const { app } = appService;
+  const player = createUnit("player", "naked", { x: app.screen.width / 2, y: app.screen.height / 2 });
 
-  const container = new Container();
-  container.position.set(app.screen.width / 2, app.screen.height / 2);
-  container.vx = 0;
-  container.vy = 0;
-
-  container.addChild(sprite);
-  spriteContainer.addChild(container);
-
-  const _stats = initialStats;
-
-  const health = Health({ maxHP: _stats.maxHP, container });
-
-  health.subscribeToDeath(() => {
+  player.health.subscribeToDeath(() => {
     gameState.transitionToScene("gameOver");
     appService.pause();
   })
 
-  health.subscribeToHealthChange((type, amount) => {
+  player.health.subscribeToHealthChange((type, amount) => {
     if (type === "damage") {
       gameState.incrementDamageTaken(amount);
     }
-    const healthPercent = (player.health.getHP() / _stats.maxHP) * 100;
+    const healthPercent = (player.health.getHP() / player.stats.maxHP) * 100;
     gameState.playerHealthPercent.next(healthPercent)
   })
 
@@ -105,7 +78,7 @@ const initializePlayer = () => {
     .subscribe(({ level, experience }) => {
       const percentage = getLevelPercentage(level, experience);
       gameState.playerExpPercent.next(percentage);
-      _stats.level = level;
+      player.level = level;
     });
 
   const addExperience = (experience) => {
@@ -113,26 +86,8 @@ const initializePlayer = () => {
   }
 
   const levelUp = () => {
-    if (_stats.level >= experienceTable.length) return;
-    addExperience(experienceTable[_stats.level + 1]);
-  }
-
-  const getStat = (stat) => _stats[stat];
-
-  const setStat = (stat, value) => {
-    if (_stats.hasOwnProperty(stat)) {
-      _stats[stat] = value;
-    } else {
-      console.error(`Invalid stat: ${stat}`);
-    }
-  }
-
-  const addToStat = (stat, value) => {
-    if (_stats.hasOwnProperty(stat)) {
-      _stats[stat] += value;
-    } else {
-      console.error(`Invalid stat: ${stat}`);
-    }
+    if (player.level >= experienceTable.length) return;
+    addExperience(experienceTable[player.level + 1]);
   }
 
   const levelUpOptions = [
@@ -141,8 +96,8 @@ const initializePlayer = () => {
       description: "Increases movement speed.",
       onSelect: () => {
         console.log("MOVE SPEED");
-        _stats.moveSpeed += 0.05;
-        _stats.maxSpeed += 0.75;
+        player.addToStat("moveSpeed", 0.5);
+        player.addToStat("maxSpeed", 0.75);
         appService.resume();
       }
     },
@@ -151,7 +106,7 @@ const initializePlayer = () => {
       description: "Increases how quickly the summon circle grows.",
       onSelect: () => {
         console.log("CAST SPEED");
-        _stats.summonSpeed += 0.5;
+        player.addToStat("castingSpeed", 0.5);
         appService.resume();
       }
     },
@@ -160,7 +115,7 @@ const initializePlayer = () => {
       description: "How fast health regenerates over time.",
       onSelect: () => {
         console.log("REGEN");
-        _stats.HPregeneration += 0.75; 
+        player.addToStat("HPregeneration", 0.75);
         appService.resume();
       }
     },
@@ -169,8 +124,8 @@ const initializePlayer = () => {
       description: "The maximum amount of health available.",
       onSelect: () => {
         console.log("MAX HP");
-        _stats.maxHP += 15; 
-        health.setMaxHP(_stats.maxHP);
+        player.addToStat("maxHP", 15);
+        health.setMaxHP(player.stats.maxHP);
         appService.resume();
       }
     },
@@ -179,7 +134,7 @@ const initializePlayer = () => {
       description: "How much area the skeleton summoning circle covers.",
       onSelect: () => {
         console.log("SPELL SIZE");
-        _stats.summonRadius += 15; 
+        player.addToStat("spellRadius", 15);
         appService.resume();
       }
     }
@@ -193,22 +148,8 @@ const initializePlayer = () => {
       options: getRandomElements(levelUpOptions, 3),
     })
   });
-  
-  const player = {
-    sprite: container,
-    attackers: [],
-    summoningCircle: null,
-    health,
-    addExperience,
-    levelUp,
-    onLevelUp,
-    _stats,
-    getStat,
-    setStat,
-    addToStat,
-  }
 
-  return player;
+  return { ...player, levelUp, addExperience };
 }
 
 export const Player = () => {
@@ -216,9 +157,8 @@ export const Player = () => {
   const player = initializePlayer();
   const sprite = player.sprite;
 
-
   gameTicks$.subscribe(() => {
-    player.health.heal(player._stats.HPregeneration)
+    player.health?.heal(player.stats.HPregeneration);
   })
 
   // state
@@ -229,8 +169,8 @@ export const Player = () => {
       if (!player.summoningCircle?.casting) {
         player.summoningCircle = RadialSpell({
           position: sprite,
-          maxRadius: player._stats.summonRadius,
-          growth: player._stats.summonSpeed,
+          maxRadius: player.stats.spellRadius,
+          growth: player.stats.castingSpeed,
           onComplete: (radius) => { 
             bones.map(b => {
               if (distanceBetweenPoints(b.sprite, sprite) <= radius + 25) {
@@ -246,7 +186,7 @@ export const Player = () => {
       moveX = 0;
       moveY = 0;
     } else {
-      if (player.summoningCircle !== null) {
+      if (player.summoningCircle) {
         player.summoningCircle.resolveSpell();
       }
       moveX = x;
@@ -263,19 +203,19 @@ export const Player = () => {
     if (x === 0) {
       sprite.vx += -sprite.vx * FRICTION * delta;
     } else {
-      sprite.vx += x * player._stats.moveSpeed * delta;
+      sprite.vx += x * player.stats.moveSpeed * delta;
     }
 
     if (y === 0) {
       sprite.vy += -sprite.vy * FRICTION * delta;
     } else {
-      sprite.vy += y * player._stats.moveSpeed * delta;
+      sprite.vy += y * player.stats.moveSpeed * delta;
     }
 
     // limit max speed
     const magnitude = (sprite.vx * sprite.vx + sprite.vy * sprite.vy);
-    if (magnitude > player._stats.maxSpeed) {
-      const scale = player._stats.maxSpeed / magnitude
+    if (magnitude > player.stats.maxSpeed) {
+      const scale = player.stats.maxSpeed / magnitude
       sprite.vx *= scale;
       sprite.vy *= scale;
     }

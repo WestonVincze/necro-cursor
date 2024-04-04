@@ -19,6 +19,7 @@ export { enemies, getEnemyById, addAttacker, removeAttacker }
 
 const createEnemy = (type, position, player) => {
   const enemy = addUnit(type, position);
+  enemy.setTarget(player);
 
   enemy.health.subscribeToDeath(() => {
     gameState.incrementKillCount(enemy.name);
@@ -37,7 +38,7 @@ const Enemies = (player) => {
   physicsUpdate.subscribe((delta) => {
     enemies.forEach(enemy => {
       if (enemy.name === "paladin") {
-        if (Math.random() > 0.99 && !enemy?.holyNova) {
+        if (Math.random() > 0.99 && !enemy.holyNova) {
           enemy.holyNova = RadialSpell({
             position: enemy.sprite,
             growth: 0.1,
@@ -60,16 +61,12 @@ const Enemies = (player) => {
           })
         }
 
-        const inRange = followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 0.01, maxSpeed: 0.5, separation: 2, cohesion: 1 });
-
-        if (inRange) player.health.takeDamage(1);
+        followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 0.01, maxSpeed: 0.5, separation: 2, cohesion: 1 });
 
         if (enemy.holyNova?.getRadius() >= 100) enemy.holyNova.resolveSpell();
 
       } else {
-        const inRange = followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 5, maxSpeed: 2 / Math.max(1, enemy.attackers), separation: 2, cohesion: 1 });
-        // TODO: develop proper damaging system
-        if (inRange) player.health.takeDamage(0.5);
+        followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 5, maxSpeed: 2 / Math.max(1, enemy.attackers), separation: 2, cohesion: 1 });
       }
     })
   })
@@ -106,14 +103,13 @@ export const TimedSpawner = (rate = 5000, player) => {
   timer$.subscribe(() => {
     if (!app.ticker.started) return
     difficultyScale += 0.1;
-    console.log(difficultyScale * 0.05);
 
     for (let i = 0; i < Math.floor(difficultyScale); i++) {
       createEnemy(
         Math.random() > Math.min(0.5, (0.05 * difficultyScale)) ? "guard" : "paladin",
         {
-          x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
-          y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,
+          x: Math.random() < 0.5 ? Math.random() * 600 : app.screen.width - Math.random() * 600,
+          y: Math.random() < 0.5 ? Math.random() * 600 : app.screen.height - Math.random() * 600,
         },
         player
       )

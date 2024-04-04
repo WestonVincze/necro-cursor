@@ -84,10 +84,11 @@ export const initializeMinions = (spriteCount) => {
   aggressionSubject.subscribe(aggression => {
     gameState.minionAggression.next(aggression);
     if (!aggression) {
-      minions.map(m => { 
-        if (m.target === "cursor") return;
-        removeAttacker(m.target.id);
-        m.target = "cursor";
+      minions.map(minion => { 
+        if (!minion.target) return;
+
+        removeAttacker(minion.target.id);
+        minion.clearTarget();
       });
     }
   })
@@ -108,19 +109,22 @@ export const initializeMinions = (spriteCount) => {
   }
 
   gameTicks$.subscribe(() => {
-    if (!aggressionSubject.getValue()) return;
-
     minions.forEach(minion => {
-      // only check minions that are not busy
       if (minion.target === null) {
         enemies.some(enemy => {
+          // TODO: change hard coded 100 and 150 values to chase distance
           if (isIntersectingRect(minion.sprite, enemy.sprite, 100) && addAttacker(enemy.id)) {
             minion.setTarget(enemy);
-            enemy.health.subscribeToDeath(() => minion.removeTarget());
+            enemy.health.subscribeToDeath(() => minion.clearTarget());
             return true;
           }
           return false;
         });
+      } else {
+        if (!isIntersectingRect(minion.sprite, minion.target.sprite, 150)) {
+          removeAttacker(minion.target.id);
+          minion.clearTarget();
+        }
       }
     })
   })
@@ -128,7 +132,7 @@ export const initializeMinions = (spriteCount) => {
   physicsUpdate.subscribe((delta) => {
     let formationIterator = null;
 
-    const length = minions.filter(m => m.target === 'cursor').length || 0;
+    const minionCount = minions.filter(minion => !minion.target).length || 0;
     switch (selectedFormationTypeSubject.getValue().value) {
       case "cluster":
         formationIterator = null;
@@ -144,28 +148,28 @@ export const initializeMinions = (spriteCount) => {
         break;
       case "triangleUp":
         formationIterator = TriangleFormationIterator({
-          length: length,
+          length: minionCount,
           spacing: 45,
           direction: "up"
         });
         break;
       case "triangleDown":
         formationIterator = TriangleFormationIterator({
-          length: length,
+          length: minionCount,
           spacing: 45,
           direction: "down"
         });
         break;
       case "triangleRight":
         formationIterator = TriangleFormationIterator({
-          length: length,
+          length: minionCount,
           spacing: 45,
           direction: "right"
         });
         break;
       case "triangleLeft":
         formationIterator = TriangleFormationIterator({
-          length: length,
+          length: minionCount,
           spacing: 45,
           direction: "left"
         });
@@ -174,12 +178,14 @@ export const initializeMinions = (spriteCount) => {
 
     let mod = { x: 0, y: 0 };
     minions.forEach(minion => {
-      if (formationIterator && minion.target === 'cursor') {
+      const target = minion.target;
+
+      if (formationIterator && !target) {
         mod = formationIterator.nextValue();
       }
 
-      const target = minion.target === null ? { x: targetX + mod.x, y: targetY + mod.y } : minion.target.sprite;
-      followTarget(minion.sprite, minions, target, delta, { followForce: 5, separation: 2 })
+      const targetPosition = !target || !aggressionSubject.getValue() ? { x: targetX + mod.x, y: targetY + mod.y } : target.sprite;
+      followTarget(minion.sprite, minions, targetPosition, delta, { followForce: 5, separation: 2 })
     })
   })
 

@@ -8,7 +8,6 @@
  * @prop {string} url
  * @prop {number} width
  * @prop {number} height
- * @prop {number} maxHP // remove this
  * @prop {Stats} stats
  * @prop {number} [exp] // change to expReward?
  * @prop {boolean} [hideUI]
@@ -30,6 +29,8 @@
  * @prop {number} [damageBonus]
  * @prop {number} [critChance]
  * @prop {number} [critDamage]
+ * @prop {number} [castingSpeed]
+ * @prop {number} [spellRadius] // TODO: this should be spell data, not a stat
  * @prop {number} [knockback]
  */
 
@@ -41,14 +42,13 @@ export const enemyData = {
     url: "/assets/guard.png",
     width: 50,
     height: 110,
-    maxHP: 100,
     maxAttackers: 10,
     exp: 10,
     stats: {
       maxHP: 20,
       armor: 12,
-      attackSpeed: 3,
-      attackRange: 0,
+      attackSpeed: 8,
+      attackRange: 20,
       maxHit: 4,
       damageBonus: 0,
     }
@@ -59,15 +59,14 @@ export const enemyData = {
     url: "/assets/paladin.png",
     width: 60,
     height: 110,
-    maxHP: 150,
     maxAttackers: 10,
     exp: 15,
     stats: {
       maxHP: 30,
       armor: 16,
-      attackSpeed: 3,
-      attackRange: 0,
-      maxHit: 4,
+      attackSpeed: 12,
+      attackRange: 30,
+      maxHit: 6,
       damageBonus: 1,
     }
   },
@@ -83,20 +82,40 @@ export const minionData = {
     url: "/assets/skele.png",
     width: 40,
     height: 60,
-    maxHP: 1,
     hideUI: true,
     stats: {
       maxHP: 10,
       armor: 10,
-      maxHit: 4,
-      attackSpeed: 4,
-      attackRange: 50,
+      maxHit: 2,
+      attackSpeed: 10,
+      attackRange: 20,
       damageBonus: 0,
     }
+  }
+}
+/** @type {Object.<string, Unit>} */
+export const playerData = {
+  naked: {
+    name: "naked",
+    type: "player",
+    url: "/assets/necro.png",
+    width: 50,
+    height: 114,
+    stats: {
+      maxHP: 100,
+      armor: 10,
+      moveSpeed: 0.3,
+      maxSpeed: 5,
+      HPregeneration: 0.5,
+      castingSpeed: 0.5,
+      spellRadius: 50,
+    }
+
   }
 }
 
 export const units = {
   ...enemyData,
   ...minionData,
+  ...playerData,
 }

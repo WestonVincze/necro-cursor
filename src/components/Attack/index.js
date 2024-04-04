@@ -1,7 +1,8 @@
 import { Unit } from "../../data/units";
 
+// dice rolls are 0 inclusive
 const rollDice = (sides, bonus = 0) => {
-  return Math.floor(Math.random() * sides) + 1 + bonus;
+  return Math.floor(Math.random() * sides) + bonus;
 }
 
 const rollToHit = (difficulty, bonus = 0) => {
@@ -22,13 +23,13 @@ export const attackTarget = (attackerStats, target) => {
     return false;
   }
 
-  console.log('rolling to hit')
-  if (!rollToHit(target.stats.armor, attackerStats.attackBonus)) return false;
-  console.log('HIT')
-
-  const damage = rollDice(attackerStats.maxHit, attackerStats.damageBonus);
-
+  let damage = 0;
   let critMod = 1;
+
+  if (rollToHit(target.stats.armor, attackerStats.attackBonus)) {
+    damage = rollDice(attackerStats.maxHit, attackerStats.damageBonus);
+  }
+
   if (attackerStats.critChance && rollToCrit(attackerStats.critChance)) {
     console.log("CRIT");
     critMod = attackerStats.critMod;

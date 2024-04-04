@@ -15,12 +15,19 @@ export const Health = ({ maxHP, container, hideHealthBar = false }) => {
   const { spawnHitSplat } = HitSplats(container);
 
   const takeDamage = (amount) => {
-    hp -= amount;
-    healthBar?.updateHealth(hp, maxHP);
-    onHealthChange.next('damage', amount);
+    if (amount < 0) {
+      console.error("cannot deal negative damage.")
+      return;
+    } 
+
     spawnHitSplat(amount);
+
+    if (amount === 0) return;
+
+    hp = Math.max(0, hp - amount);
+    healthBar?.updateHealth(hp, maxHP);
+    onHealthChange.next({ type: 'damage', amount });
     if (hp <= 0) {
-      hp = 0;
       onDeath.next();
       onDeath.complete();
       onHealthChange.complete();
@@ -31,7 +38,7 @@ export const Health = ({ maxHP, container, hideHealthBar = false }) => {
     if (hp === maxHP) return;
     hp = Math.min(hp + amount, maxHP);
     healthBar?.updateHealth(hp, maxHP);
-    onHealthChange.next('heal', amount);
+    onHealthChange.next({ type: 'heal', amount });
   }
 
   const getHP = () => hp;
@@ -67,31 +74,29 @@ export const Health = ({ maxHP, container, hideHealthBar = false }) => {
 
 const HealthBar = ({ maxHP, hp, container }) => {
   const hpContainer = new Container();
-  const rect = container.getBounds();
-  const height = 5;
-  const xOffset = -rect.width / 2;
-  const yOffset = (-rect.height / 2) - 10;
+  const { width, height } = container.getBounds();
+  const heightOffset = 5;
+  const xOffset = -width / 2;
+  const yOffset = (-height / 2) - 10;
 
-  // look into creating a reference object and cloning it with .clone()
+  // TODO: look into creating a reference object and cloning it with .clone()
   const bg = new Graphics();
   bg.beginFill(0xff5555);
-  bg.drawRect(xOffset, yOffset, rect.width, height);
+  bg.drawRect(xOffset, yOffset, width, heightOffset);
   bg.endFill();
   hpContainer.addChild(bg);
 
   const healthBar = new Graphics();
-  healthBar.beginFill(0x55ff55);
-  healthBar.drawRect(xOffset, yOffset, rect.width * (hp / maxHP), height);
-  healthBar.endFill();
-  hpContainer.addChild(healthBar);
 
   const updateHealth = (newHP, maxHP) => {
     healthBar.clear();
     healthBar.beginFill(0x55ff55);
-    healthBar.drawRect(xOffset, yOffset, rect.width * (newHP / maxHP), height);
+    healthBar.drawRect(xOffset, yOffset, width * (newHP / maxHP), heightOffset);
     healthBar.endFill();
   }
 
+  updateHealth(hp, maxHP);
+  hpContainer.addChild(healthBar);
   container.addChild(hpContainer)
 
   return {

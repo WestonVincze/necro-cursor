@@ -34,6 +34,7 @@ import { Health } from "../Health";
 import { isIntersectingRect } from "../Colliders/isIntersecting";
 import { attackTarget } from "../Attack";
 import { units } from "../../data/units";
+import { take, finalize } from "rxjs";
 
 // TODO: create unit based on unit name, do not force other scripts to collect unitData
 export const createUnit = (id, unitName, position, options) => {
@@ -48,8 +49,8 @@ export const createUnit = (id, unitName, position, options) => {
   let _targetType = null;
   let _target = null; // unit or null
   let _canAttack = _stats.maxHit > 0; // always false if there is no max hit
-  let _ticksToAttack = 0;
-  let _isInRange = false; // not sure if we need this
+
+  let level = 0;
 
   // configure sprite
   let sprite = null;
@@ -108,59 +109,65 @@ export const createUnit = (id, unitName, position, options) => {
 
   let attackTicks = null;
   const setTarget = (target) => {
+    if (_target === target) return;
     _target = target;
-    attackTicks = gameTicks$.subscribe(() => {
-      console.log(_ticksToAttack);
-      console.log('trying to attttaaackkk')
-      tryAttack();
-      if (_ticksToAttack > 0) _ticksToAttack -= 1;
-      if (_ticksToAttack === 0) _canAttack = true; // we'll need to refactor this later so that we don't HARD SET can attack like this
-    })
+    attackTicks = gameTicks$.subscribe(tryAttack);
   }
 
-  const removeTarget = () => {
+  const clearTarget = () => {
     _target = null;
     attackTicks.unsubscribe();
-
+    attackTicks = null;
   }
 
   // target = { health, x, y }
   const tryAttack = () => {
     // check if can attack and target is set
-    if (!_canAttack || !_target) return;
+    if (!_canAttack || _target === null) return;
 
     // check if in range
     if(!isIntersectingRect(sprite, _target.sprite, _stats.attackRange)) return;
 
-    console.log('making a real attack')
     attackTarget(_stats, _target);
 
     _canAttack = false;
-    _ticksToAttack = _stats.attackSpeed;
-    // set canAttack to false
-    // set ticks to wait
+    // TODO: check for potential memory leaks here
+    gameTicks$
+      .pipe(
+        take(_stats.attackSpeed + 1),
+        finalize(() => _canAttack = true),
+      ).subscribe();
   }
 
-  // every tick, if we have a target, check if in range, if in range
-  // NO. This should not be automatic...
-  /*
-  gameTicks$.subscribe(() => {
-    tryAttack();
-  })
-  */
-
-  return {
+  const unit = {
     id,
+    name: unitName,
+    level, // TODO: encapsulate this?
     sprite,
     health,
-    stats: { ..._stats },
     getStat,
     addToStat,
     setStat,
-    targetType: _targetType, 
-    target: _target,
     setTarget,
-    removeTarget,
-    ...options
+    clearTarget,
+    ...options // might want to remove this
   }
+
+  // define public accessors
+  Object.defineProperties(unit, {
+    target: {
+      get: () => _target,
+      enumerable: true,
+    },
+    stats: {
+      get: () => ({ ..._stats }),
+      enumerable: true,
+    },
+    targetType: {
+      get: () => _targetType,
+      enumerable: true,
+    }
+  })
+
+  return unit;
 }
