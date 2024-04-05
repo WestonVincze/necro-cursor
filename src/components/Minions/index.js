@@ -118,7 +118,7 @@ export const initializeMinions = (spriteCount) => {
         });
       } else {
         // TODO: make this more obvious?
-        const chaseDistance = aggressionSubject.getValue() ? 200 : 100;
+        const chaseDistance = aggressionSubject.getValue() ? 150 : 100;
         if (!isIntersectingRect(minion.sprite, minion.target.sprite, chaseDistance)) {
           minion.target.removeAttacker();
           minion.clearTarget();
@@ -182,13 +182,13 @@ export const initializeMinions = (spriteCount) => {
         mod = formationIterator.nextValue();
       }
 
-      const targetPosition = !target || !aggressionSubject.getValue() ? { x: targetX + mod.x, y: targetY + mod.y } : target.sprite;
+      const targetPosition = !aggressionSubject.getValue() || !target ? { x: targetX + mod.x, y: targetY + mod.y } : target.sprite;
 
       const options = {
         followForce: 1,
         separation: 2,
         maxSpeed: minion.stats.maxSpeed,
-        closeEnough: target ? { x: target.sprite.width, y: target.sprite.height } : null
+        closeEnough: targetPosition.width ? { x: target.sprite.width, y: target.sprite.height } : null 
       }
 
       followTarget(minion.sprite, targetPosition, minion.stats.moveSpeed, delta, options)

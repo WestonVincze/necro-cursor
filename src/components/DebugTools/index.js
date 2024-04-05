@@ -35,6 +35,7 @@ export const DebugTools = (gameState) => {
       FPS.innerHTML = Math.round(app.ticker.FPS);
     }
     if (!gameState.debugMode) {
+      if (!window.gameState) window.gameState = gameState;
       debugSubscription = gameTicks$.subscribe(showFPS);
     } else {
       debugSubscription.unsubscribe();

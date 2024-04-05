@@ -16,16 +16,26 @@ const initialLevel = 0;
 const initialExperience = 0;
 
 const experienceTable = {
-  1: 50,
-  2: 110,
-  3: 180,
-  4: 260,
-  5: 350,
-  6: 450,
-  7: 560,
-  8: 680,
-  9: 800,
-  10: 1000
+  1: 35,
+  2: 75,
+  3: 120,
+  4: 170,
+  5: 225,
+  6: 285,
+  7: 350,
+  8: 420,
+  9: 495,
+  10: 575,
+  11: 660,
+  12: 750,
+  13: 845,
+  14: 945,
+  15: 1050,
+  16: 1160,
+  17: 1275,
+  18: 1395,
+  19: 1520,
+  20: 1650,
 }
 
 const getLevelPercentage = (level, experience) => {
@@ -114,7 +124,7 @@ const initializePlayer = () => {
       description: "How fast health regenerates over time.",
       onSelect: () => {
         console.log("REGEN");
-        player.addToStat("HPregeneration", 0.75);
+        player.addToStat("HPregeneration", 0.01);
         appService.resume();
       }
     },
@@ -137,15 +147,48 @@ const initializePlayer = () => {
         appService.resume();
       }
     },
+    // TODO: improve stat upgrading system...
     {
       name: "Minion Speed",
-      description: "How much area the skeleton summoning circle covers.",
+      description: "How fast minions can move.",
       onSelect: () => {
+        gameState.minions?.[0].addToStat("moveSpeed", 0.1);
+        gameState.minions?.[0].addToStat("maxSpeed", 0.3);
+        appService.resume();
+      }
+    },
+    {
+      name: "Minion Max Hit",
+      description: "The maximum damage of your minions.",
+      onSelect: () => {
+        gameState.minions?.[0].addToStat("maxHit", 1);
+        appService.resume();
+      }
+    },
+    {
+      name: "Minion Armor",
+      description: "How difficult minions are to hit.",
+      onSelect: () => {
+        gameState.minions?.[0].addToStat("armor", 1);
+        appService.resume();
+      }
+    },
+    {
+      name: "Minion Accuracy",
+      description: "How likely a minion is to hit.",
+      onSelect: () => {
+        gameState.minions[0].addToStat("attackBonus", 1);
+        appService.resume();
+      }
+    },
+    {
+      name: "Minion MaxHP",
+      description: "The max HP of your minions.",
+      onSelect: () => {
+        gameState.minions[0].addToStat("maxHP", 5);
         gameState.minions.forEach(m => {
-          console.log(m.stats);
-          m.addToStat("moveSpeed", 2);
-          m.addToStat("maxSpeed", 5);
-          console.log(m.stats);
+          m.health.setMaxHP(m.stats.maxHP);
+          m.health.heal(5);
         })
         appService.resume();
       }
@@ -223,14 +266,14 @@ export const Player = () => {
     }
 
     // limit max speed
-    const magnitude = (sprite.vx * sprite.vx + sprite.vy * sprite.vy);
+    const magnitude = Math.sqrt(sprite.vx * sprite.vx + sprite.vy * sprite.vy);
     if (magnitude > player.stats.maxSpeed) {
       const scale = player.stats.maxSpeed / magnitude
       sprite.vx *= scale;
       sprite.vy *= scale;
     }
 
-    const position = { x: sprite.x += sprite.vx * delta, y: sprite.y += sprite.vy * delta }
+    const position = { x: sprite.x += sprite.vx, y: sprite.y += sprite.vy}
 
     position.x = Math.min(Math.max(position.x, sprite.width / 2), app.screen.width - sprite.width / 2);
     position.y = Math.min(Math.max(position.y, sprite.height / 2), app.screen.height - sprite.height / 2);

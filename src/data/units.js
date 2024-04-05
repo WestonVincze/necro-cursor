@@ -96,8 +96,8 @@ export const minionData = {
       attackSpeed: 5,
       attackRange: 20,
       damageBonus: 0,
-      moveSpeed: 0.5,
-      maxSpeed: 100,
+      moveSpeed: 0.2,
+      maxSpeed: 1.5,
     }
   }
 }
@@ -110,11 +110,11 @@ export const playerData = {
     width: 50,
     height: 114,
     stats: {
-      maxHP: 50,
+      maxHP: 40,
       armor: 10,
-      moveSpeed: 0.3,
-      maxSpeed: 5,
-      HPregeneration: 0.5,
+      moveSpeed: 0.2,
+      maxSpeed: 2,
+      HPregeneration: 0.05,
       castingSpeed: 0.5,
       spellRadius: 50,
     }

@@ -29,11 +29,13 @@ export const followTarget = (sprite, target, speed, delta, options) => {
   }
 
   if (options?.followForce > 0) {
-    forces.follow = calculateFollowForce({ targetX, targetY }, sprite, options.followForce);
+    forces.follow = calculateFollowForce({ targetX, targetY }, sprite);
+    forces.follow.x *= options.followForce;
+    forces.follow.y *= options.followForce;
   }
 
   if (options?.separation) {
-    forces.separation = calculateSeparationForce(sprite, sprites, 0, options.followForce);
+    forces.separation = calculateSeparationForce(sprite, sprites, 0);
     forces.separation.x *= options.separation;
     forces.separation.y *= options.separation;
   }
@@ -65,27 +67,18 @@ export const followTarget = (sprite, target, speed, delta, options) => {
   // Limit maximum speed
   if (options?.maxSpeed > 0) {
     const magnitude = Math.sqrt(sprite.vx * sprite.vx + sprite.vy * sprite.vy);
-    console.log(magnitude)
     if (magnitude > options.maxSpeed) {
       const scale = options.maxSpeed / magnitude
       sprite.vx *= scale;
       sprite.vy *= scale;
     }
-    /*
-    const velocityMagnitude = Math.sqrt(sprite.vx * sprite.vx + sprite.vy * sprite.vy);
-    if (velocityMagnitude > options.maxSpeed) {
-      const scale = options.maxSpeed / velocityMagnitude;
-      sprite.vy *= scale;
-      sprite.vx *= scale;
-    }
-    */
   }
 
   sprite.x += sprite.vx;
   sprite.y += sprite.vy;
 }
 
-export const calculateFollowForce = ({ targetX, targetY }, sprite, speed) => {
+export const calculateFollowForce = ({ targetX, targetY }, sprite) => {
   const followForce = { x: 0, y: 0 };
   const dx = targetX - sprite.x;
   const dy = targetY - sprite.y;
@@ -95,15 +88,15 @@ export const calculateFollowForce = ({ targetX, targetY }, sprite, speed) => {
     const directionX = dx / distance;
     const directionY = dy / distance;
 
-    followForce.x = directionX * speed;
-    followForce.y = directionY * speed;
+    followForce.x = directionX;
+    followForce.y = directionY;
   }
 
   return followForce;
 }
 
 // raycast at 4 points and if an overlap is detected apply separation force?
-const calculateSeparationForce = (sprite, flock, maxOverlapRatio, speed) => {
+const calculateSeparationForce = (sprite, flock, maxOverlapRatio) => {
   const separationForce = { x: 0, y: 0 };
 
   flock.forEach((unit, i) => {

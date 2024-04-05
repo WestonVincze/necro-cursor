@@ -99,8 +99,8 @@ export { gameState };
 
 const { createButton } = DebugTools(gameState);
 
-const skeletons = getURLParam("skeletons", 2);
-const spawnRate = getURLParam("spawnRate", 10000);
+const skeletons = getURLParam("skeletons", 3);
+const spawnRate = getURLParam("spawnRate", 8000);
 
 const { createMinion } = initializeMinions(skeletons);
 

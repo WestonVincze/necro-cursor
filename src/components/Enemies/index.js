@@ -116,8 +116,8 @@ export const TimedSpawner = (rate = 5000) => {
       createEnemy(
         Math.random() > Math.min(0.5, (0.05 * difficultyScale)) ? "guard" : "paladin",
         {
-          x: Math.random() < 0.5 ? Math.random() * 600 : app.screen.width - Math.random() * 600,
-          y: Math.random() < 0.5 ? Math.random() * 600 : app.screen.height - Math.random() * 600,
+          x: Math.random() < 0.5 ? Math.random() * 600 : app.screen.width - Math.random() * 100,
+          y: Math.random() < 0.5 ? Math.random() * 600 : app.screen.height - Math.random() * 100,
         }
       )
     }
