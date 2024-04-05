@@ -2,7 +2,6 @@ import { Swarm } from "/src/components/Swarm";
 import { appService, gameState } from "/src/app";
 import { followTarget } from "/src/components/Movement/followTarget";
 import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
-import { enemies, addAttacker, removeAttacker } from "/src/components/Enemies";
 import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
 import { keyDown$ } from "../Inputs";
 import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator, TriangleFormationIterator } from "./formations";
@@ -10,15 +9,11 @@ import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterato
 const {
   units: minions,
   addUnit,
-  getUnitById: getMinionById,
-  removeUnit: removeMinion,
 } = Swarm();
-
-export { minions, getMinionById, removeMinion }
 
 // TODO: Fix performance issues (might be related to high number of containers being used)
 export const createMinion = (position) => {
-  const minion = addUnit("skeleton", position, { followTarget: 'cursor' }); // TODO: change to followTarget?
+  const minion = addUnit("skeleton", position);
   gameState.incrementReanimations();
   minion.health.subscribeToDeath(() => { 
     gameState.incrementDeanimations();
@@ -26,6 +21,7 @@ export const createMinion = (position) => {
 }
 
 export const initializeMinions = (spriteCount) => {
+  gameState.minions = minions;
   // register mousemove event
   const move$ = fromEvent(container, 'mousemove');
   const result$ = move$.pipe(auditTime(200));
@@ -87,7 +83,7 @@ export const initializeMinions = (spriteCount) => {
       minions.map(minion => { 
         if (!minion.target) return;
 
-        removeAttacker(minion.target.id);
+        minion.target.removeAttacker();
         minion.clearTarget();
       });
     }
@@ -111,9 +107,9 @@ export const initializeMinions = (spriteCount) => {
   gameTicks$.subscribe(() => {
     minions.forEach(minion => {
       if (minion.target === null) {
-        enemies.some(enemy => {
+        gameState.enemies.some(enemy => {
           // TODO: change hard coded 100 and 150 values to chase distance
-          if (isIntersectingRect(minion.sprite, enemy.sprite, 100) && addAttacker(enemy.id)) {
+          if (isIntersectingRect(minion.sprite, enemy.sprite, 100) && enemy.addAttacker()) {
             minion.setTarget(enemy);
             enemy.health.subscribeToDeath(() => minion.clearTarget());
             return true;
@@ -121,8 +117,10 @@ export const initializeMinions = (spriteCount) => {
           return false;
         });
       } else {
-        if (!isIntersectingRect(minion.sprite, minion.target.sprite, 150)) {
-          removeAttacker(minion.target.id);
+        // TODO: make this more obvious?
+        const chaseDistance = aggressionSubject.getValue() ? 200 : 100;
+        if (!isIntersectingRect(minion.sprite, minion.target.sprite, chaseDistance)) {
+          minion.target.removeAttacker();
           minion.clearTarget();
         }
       }
@@ -185,7 +183,15 @@ export const initializeMinions = (spriteCount) => {
       }
 
       const targetPosition = !target || !aggressionSubject.getValue() ? { x: targetX + mod.x, y: targetY + mod.y } : target.sprite;
-      followTarget(minion.sprite, minions, targetPosition, delta, { followForce: minion.stats.moveSpeed, maxSpeed: minion.stats.maxSpeed, separation: 2 })
+
+      const options = {
+        followForce: 1,
+        separation: 2,
+        maxSpeed: minion.stats.maxSpeed,
+        closeEnough: target ? { x: target.sprite.width, y: target.sprite.height } : null
+      }
+
+      followTarget(minion.sprite, targetPosition, minion.stats.moveSpeed, delta, options)
     })
   })
 

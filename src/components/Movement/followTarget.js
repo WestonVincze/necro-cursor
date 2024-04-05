@@ -1,3 +1,4 @@
+import { gameState } from '../../app';
 import { normalizeForce } from '../../helpers';
 
 /**
@@ -8,10 +9,11 @@ import { normalizeForce } from '../../helpers';
  * @param {number} options.alignment
  * @param {number} options.maxSpeed
  */
-export const followTarget = (sprite, swarm, target, delta, options) => {
-  // we'll need a proper system to manage swarms consistently
-  // a swarm should be an object with relevent data
-  const sprites = swarm.map(s => s.sprite);
+export const followTarget = (sprite, target, speed, delta, options) => {
+  // get the sprites from our swarm
+  const sprites = gameState.allUnits;
+  let { x: targetX, y: targetY } = target;
+
   const forces = {
     follow: { x: 0, y: 0 },
     separation: { x: 0, y: 0 },
@@ -19,12 +21,19 @@ export const followTarget = (sprite, swarm, target, delta, options) => {
     alignment: {x: 0, y: 0 },
   }
 
+  if (options?.closeEnough && options?.followForce) {
+    if (!(sprite.x + options.closeEnough.x < target.x || sprite.x - options.closeEnough.x > target.x) &&
+        !(sprite.y + options.closeEnough.y < target.y || sprite.y - options.closeEnough.y > target.y)) {
+      options.followForce = 0;
+    }
+  }
+
   if (options?.followForce > 0) {
-    forces.follow = calculateFollowForce({ targetX: target.x, targetY: target.y }, sprite, options.followForce);
+    forces.follow = calculateFollowForce({ targetX, targetY }, sprite, options.followForce);
   }
 
   if (options?.separation) {
-    forces.separation = calculateSeparationForce(sprite, sprites, 50, 0.01);
+    forces.separation = calculateSeparationForce(sprite, sprites, 0, options.followForce);
     forces.separation.x *= options.separation;
     forces.separation.y *= options.separation;
   }
@@ -44,41 +53,40 @@ export const followTarget = (sprite, swarm, target, delta, options) => {
   const totalForceX = forces.follow.x + forces.separation.x + forces.alignment.x + forces.cohesion.x;
   const totalForceY = forces.follow.y + forces.separation.y + forces.alignment.y + forces.cohesion.y;
 
-  sprite.vx += totalForceX * 0.1 * delta;
-  sprite.vy += totalForceY * 0.1 * delta;
+  const totalForceNormalized = normalizeForce({ x: totalForceX, y: totalForceY });
 
-  // friction (stronger when close to target)
-  const closeEnough = Math.random() * (80 - 20) + 20;
-  let isInRange = false;
-  if (!(sprite.x + closeEnough < target.x || sprite.x - closeEnough > target.x) &&
-      !(sprite.y + closeEnough < target.y || sprite.y - closeEnough > target.y)) {
-    isInRange = true;
-    sprite.vx *= 0.80;
-    sprite.vy *= 0.80;
-  } else {
-    isInRange = false;
-    sprite.vx *= 0.95;
-    sprite.vy *= 0.95;
-  }
+  sprite.vx += totalForceNormalized.x * speed * delta;
+  sprite.vy += totalForceNormalized.y * speed * delta;
+
+  // friction
+  sprite.vx *= 0.95;
+  sprite.vy *= 0.95;
 
   // Limit maximum speed
   if (options?.maxSpeed > 0) {
+    const magnitude = Math.sqrt(sprite.vx * sprite.vx + sprite.vy * sprite.vy);
+    console.log(magnitude)
+    if (magnitude > options.maxSpeed) {
+      const scale = options.maxSpeed / magnitude
+      sprite.vx *= scale;
+      sprite.vy *= scale;
+    }
+    /*
     const velocityMagnitude = Math.sqrt(sprite.vx * sprite.vx + sprite.vy * sprite.vy);
     if (velocityMagnitude > options.maxSpeed) {
       const scale = options.maxSpeed / velocityMagnitude;
       sprite.vy *= scale;
       sprite.vx *= scale;
     }
+    */
   }
 
   sprite.x += sprite.vx;
   sprite.y += sprite.vy;
-  return isInRange;
 }
 
 export const calculateFollowForce = ({ targetX, targetY }, sprite, speed) => {
   const followForce = { x: 0, y: 0 };
-  if (targetX === 0 && targetY === 0) return followForce;
   const dx = targetX - sprite.x;
   const dy = targetY - sprite.y;
   const distance = Math.sqrt(dx * dx + dy * dy);
@@ -91,15 +99,15 @@ export const calculateFollowForce = ({ targetX, targetY }, sprite, speed) => {
     followForce.y = directionY * speed;
   }
 
-  return normalizeForce(followForce);
+  return followForce;
 }
 
 // raycast at 4 points and if an overlap is detected apply separation force?
-const calculateSeparationForce = (sprite, flock, separationRadius = 1, maxOverlapRatio) => {
+const calculateSeparationForce = (sprite, flock, maxOverlapRatio, speed) => {
   const separationForce = { x: 0, y: 0 };
 
-  flock.forEach(minion => {
-    const otherSprite = minion;
+  flock.forEach((unit, i) => {
+    const otherSprite = unit;
     if (otherSprite !== sprite) {
       const dx = otherSprite.x - sprite.x;
       const dy = otherSprite.y - sprite.y;
@@ -111,7 +119,7 @@ const calculateSeparationForce = (sprite, flock, separationRadius = 1, maxOverla
         distance = Math.sqrt(distance);
         const overlapRatio = (minDistance - distance) / minDistance;
 
-        if (overlapRatio > maxOverlapRatio && distance < separationRadius) {
+        if (overlapRatio > maxOverlapRatio) {
           const separationDirectionX = dx / distance;
           const separationDirectionY = dy / distance;
 
@@ -122,7 +130,7 @@ const calculateSeparationForce = (sprite, flock, separationRadius = 1, maxOverla
     }
   })
 
-  return normalizeForce(separationForce);
+  return separationForce;
 }
 
 const calculateCohesionForce = (sprite, flock, cohesionRadius) => {
@@ -157,7 +165,7 @@ const calculateCohesionForce = (sprite, flock, cohesionRadius) => {
     cohesionForce.y = avgPosition.y - sprite.y;
   }
 
-  return normalizeForce(cohesionForce);
+  return cohesionForce;
 };
 
 const calculateAlignmentForce = (sprite, flock, alignmentRadius) => {

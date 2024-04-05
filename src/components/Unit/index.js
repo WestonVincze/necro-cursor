@@ -38,29 +38,30 @@ import { take, finalize } from "rxjs";
 
 // TODO: create unit based on unit name, do not force other scripts to collect unitData
 export const createUnit = (id, unitName, position, options) => {
-  const unitData = units[unitName];
-  if (!unitData) {
+  const _unitData = units[unitName];
+  if (!_unitData) {
     console.error(`${unitName} is not a valid unit.`); 
     return;
   }
 
   const { gameTicks$, spriteContainer } = appService;
-  const _stats = unitData.stats;
-  let _targetType = null;
+  const _stats = _unitData.stats;
+  let _targetTypes = null; // array of possible target types
   let _target = null; // unit or null
   let _canAttack = _stats.maxHit > 0; // always false if there is no max hit
+  let _attackers = 0;
 
   let level = 0;
 
   // configure sprite
   let sprite = null;
 
-  sprite = Sprite.from(unitData.url);
-  sprite.width = unitData.width;
-  sprite.height = unitData.height;
+  sprite = Sprite.from(_unitData.url);
+  sprite.width = _unitData.width;
+  sprite.height = _unitData.height;
   sprite.anchor.set(0.5);
 
-  if (!unitData.hideUI) {
+  if (!_unitData.hideUI) {
     const container = new Container();
     container.addChild(sprite);
     sprite = container;
@@ -71,7 +72,13 @@ export const createUnit = (id, unitName, position, options) => {
   sprite.vy = 0;
   spriteContainer.addChild(sprite);
 
-  const health = Health({ maxHP: _stats.maxHP, container: sprite, hideHealthBar: unitData.hideUI });
+  const health = Health({ maxHP: _stats.maxHP, container: sprite, hideHealthBar: _unitData.hideUI });
+
+  if (_stats.HPregeneration > 0 ) {
+    gameTicks$.subscribe(() => {
+      health.heal(_stats.HPregeneration);
+    })
+  }
 
   const checkForStat = (stat) => {
     if (!_stats.hasOwnProperty(stat)) {
@@ -99,7 +106,7 @@ export const createUnit = (id, unitName, position, options) => {
   // finds the closest available target or returns null if none found
   // run every tick?
   const assignClosestTarget = (type) => {
-    if (!_targetType) {
+    if (!_targetTypes) {
       console.error("No target type set.");
       return;
     }
@@ -109,24 +116,24 @@ export const createUnit = (id, unitName, position, options) => {
 
   let attackTicks = null;
   const setTarget = (target) => {
-    if (_target === target) return;
+    if (_target?.id === target.id) return;
     _target = target;
-    attackTicks = gameTicks$.subscribe(tryAttack);
+    attackTicks?.complete();
+    attackTicks = gameTicks$.subscribe(() => tryAttack());
   }
 
   const clearTarget = () => {
+    attackTicks?.complete();
+    _target?.removeAttacker();
     _target = null;
-    attackTicks?.unsubscribe();
     attackTicks = null;
   }
 
-  health.subscribeToDeath(clearTarget);
+  health.subscribeToDeath(() => clearTarget());
 
-  // target = { health, x, y }
   const tryAttack = () => {
     // check if can attack and target is set
-    console.log(id + " id trying attack")
-    if (!_canAttack || _target === null || !_target.sprite) return;
+    if (!_canAttack || _target === null || !_target.sprite || !sprite) return;
 
     // check if in range
     if(!isIntersectingRect(sprite, _target.sprite, _stats.attackRange)) return;
@@ -142,6 +149,17 @@ export const createUnit = (id, unitName, position, options) => {
       ).subscribe();
   }
 
+  // "attackers" might not be necessary...
+  const addAttacker = () => {
+    if (_attackers + 1 > _stats.maxAttackers) return false;
+    _attackers++;
+    return true;
+  }
+
+  const removeAttacker = () => {
+    _attackers = Math.max(0, _attackers - 1);
+  }
+
   const unit = {
     id,
     name: unitName,
@@ -153,7 +171,9 @@ export const createUnit = (id, unitName, position, options) => {
     setStat,
     setTarget,
     clearTarget,
-    ...options // might want to remove this
+    addAttacker,
+    removeAttacker,
+    ...options // might want to remove this as well
   }
 
   // define public accessors
@@ -167,9 +187,13 @@ export const createUnit = (id, unitName, position, options) => {
       enumerable: true,
     },
     targetType: {
-      get: () => _targetType,
+      get: () => _targetTypes,
       enumerable: true,
-    }
+    },
+    attackers: {
+      get: () => _attackers,
+      enumerable: true,
+    },
   })
 
   return unit;

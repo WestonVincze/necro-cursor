@@ -14,7 +14,6 @@ const createHitSplatSpots = (container) => {
     { x: -quarterWidth, y: quarterHeight },
     { x: quarterWidth, y: quarterHeight },
   ]
-  console.log (offsets)
 
   for (let i = 0; i < numSpots; i++) {
     const spotContainer = new Container();
@@ -51,7 +50,7 @@ export const HitSplats = (container) => {
 
     const hitSplatContainer = new Container();
     // add a 10% variance to the x and y offsets
-    const positionVariance = 20;
+    const positionVariance = 10;
     hitSplatContainer.x += (Math.random() * positionVariance * 2) - positionVariance;
     hitSplatContainer.y += (Math.random() * positionVariance * 2) - positionVariance;
 

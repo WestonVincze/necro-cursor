@@ -45,7 +45,7 @@ const initializePlayer = () => {
     appService.pause();
   })
 
-  player.health.subscribeToHealthChange((type, amount) => {
+  player.health.subscribeToHealthChange(({ type, amount }) => {
     if (type === "damage") {
       gameState.incrementDamageTaken(amount);
     }
@@ -136,6 +136,19 @@ const initializePlayer = () => {
         player.addToStat("spellRadius", 15);
         appService.resume();
       }
+    },
+    {
+      name: "Minion Speed",
+      description: "How much area the skeleton summoning circle covers.",
+      onSelect: () => {
+        gameState.minions.forEach(m => {
+          console.log(m.stats);
+          m.addToStat("moveSpeed", 2);
+          m.addToStat("maxSpeed", 5);
+          console.log(m.stats);
+        })
+        appService.resume();
+      }
     }
   ]
 
@@ -153,13 +166,10 @@ const initializePlayer = () => {
 }
 
 export const Player = () => {
-  const { app, gameTicks$, physicsUpdate } = appService;
+  const { app, physicsUpdate } = appService;
   const player = initializePlayer();
+  gameState.player = player;
   const sprite = player.sprite;
-
-  gameTicks$.subscribe(() => {
-    player.health?.heal(player.stats.HPregeneration);
-  })
 
   // state
   let [ moveX, moveY ] = [0, 0]
@@ -227,8 +237,6 @@ export const Player = () => {
     sprite.x = position.x;
     sprite.y = position.y;
   })
-
-  return player;
 }
 
 // converting input to x/y values

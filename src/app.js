@@ -99,8 +99,8 @@ export { gameState };
 
 const { createButton } = DebugTools(gameState);
 
-const skeletons = getURLParam("skeletons", 1);
-const spawnRate = getURLParam("spawnRate", 5000);
+const skeletons = getURLParam("skeletons", 2);
+const spawnRate = getURLParam("spawnRate", 10000);
 
 const { createMinion } = initializeMinions(skeletons);
 
@@ -110,18 +110,18 @@ const alignSprites = () => {
 gameTicks$.subscribe(alignSprites);
 
 const initializeGame = () => {
-  const player = Player();
+  Player();
   if (!gameState.debugMode) {
-    TimedSpawner(spawnRate, player);
+    TimedSpawner(spawnRate);
   } else {
-    const { spawnEnemy } = ExplicitSpawner(player);
+    const { spawnEnemy } = ExplicitSpawner();
     createButton("spawn_paladin", "Spawn Paladin", () => spawnEnemy("paladin"));
     createButton("spawn_guard", "Spawn Guard", () => spawnEnemy("guard"));
-    createButton("spawn_skeleton", "Spawn Skeleton", () => createMinion(player.sprite));
-    createButton("level_player", "Level Up", () => player.levelUp());
+    createButton("spawn_skeleton", "Spawn Skeleton", () => createMinion({ x: appService.app.screen.width / 2, y: appService.app.screen.height / 2 }));
+    createButton("level_player", "Level Up", () => gameState.player.levelUp());
     createButton("immortal_player", "Immortal Player", () =>
-      player.health.subscribeToHealthChange(({ type, amount }) =>
-        type === "damage" && player.health.heal(amount)));
+      gameState.player.health.subscribeToHealthChange(({ type, amount }) =>
+        type === "damage" && gameState.player.health.heal(amount)));
   }
 }
 

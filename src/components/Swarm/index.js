@@ -36,31 +36,28 @@ export const Swarm = () => {
     units.splice(i, 1);
   }
 
-  // "attackers" is no longer necessary
-  const addAttacker = (id) => {
-    const unit = getUnitById(id);
-    if (unit.attackers + 1 > unit.maxAttackers) return false;
-    unit.attackers++;
-    return true;
-  }
-
-  const removeAttacker = (id) => {
-    const unit = getUnitById(id);
-    if (unit.attackers === 0) return false;
-    unit.attackers--;
-    return true;
-  }
 
   const getUnitById = (id) => {
     return units.find(unit => unit.id === id);
   }
 
+  const getClosestUnit = ({ x, y }) => {
+    let closestDistanceSq = Infinity;
+    return units.reduce((closestUnit, currentUnit) => {
+      const distance = (currentUnit.sprite.x - x) ** 2 + (currentUnit.sprite.y - y) ** 2;
+      if (distance < closestDistanceSq) {
+        closestUnit = currentUnit;
+      }
+    })
+  }
+
+  const getFirstUnitWithin = (position, range) => {}
+
   return {
     units,
     addUnit,
     removeUnit,
-    addAttacker,
-    removeAttacker,
     getUnitById,
+    getClosestUnit,
   }
 }

@@ -5,25 +5,32 @@ import { Swarm } from "/src/components/Swarm";
 import { enemyData } from "/src/data/units";
 import { RadialSpell } from "/src/components/Spells";
 import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
-import { minions } from "/src/components/Minions";
+import { getClosestUnit } from "../../helpers";
 
 const {
-  getUnitById: getEnemyById,
   units: enemies,
   addUnit,
-  addAttacker,
-  removeAttacker
+  getUnitById,
 } = Swarm();
 
-export { enemies, getEnemyById, addAttacker, removeAttacker }
-
-const createEnemy = (type, position, player) => {
+const createEnemy = (type, position) => {
   const enemy = addUnit(type, position);
-  enemy.setTarget(player);
+  enemy.setTarget(gameState.player);
+
+  enemy.health.subscribeToHealthChange(({ type }) => {
+    if (type !== "damage") return;
+
+    const newTarget = getClosestUnit(enemy.sprite, gameState.minions);
+    enemy.setTarget(newTarget);
+    newTarget.health.subscribeToDeath(() => {
+      if (!getUnitById(enemy.id)) return;
+      enemy?.setTarget(gameState.player)}
+    );
+  });
 
   enemy.health.subscribeToDeath(() => {
     gameState.incrementKillCount(enemy.name);
-    player.addExperience(enemyData[type].exp);
+    gameState.player.addExperience(enemyData[type].exp);
 
     if (enemy.name === "paladin" && enemy.holyNova) {
       enemy.holyNova.cancelSpell();
@@ -33,7 +40,8 @@ const createEnemy = (type, position, player) => {
   // TODO: refactor into proper damage system
 }
 
-const Enemies = (player) => {
+const Enemies = () => {
+  gameState.enemies = enemies;
   const { physicsUpdate } = appService;
   physicsUpdate.subscribe((delta) => {
     enemies.forEach(enemy => {
@@ -46,10 +54,10 @@ const Enemies = (player) => {
             color: "FFFF55",
             onComplete: (radius) => {
               if (!enemy.sprite.destroyed) {
-                if (distanceBetweenPoints(player.sprite, enemy.sprite) <= radius) {
-                  player.health.takeDamage(10);
+                if (distanceBetweenPoints(gameState.player.sprite, enemy.sprite) <= radius) {
+                  gameState.player.health.takeDamage(10);
                 }
-                minions.map(minion => {
+                gameState.minions.map(minion => {
                   if (distanceBetweenPoints(minion.sprite, enemy.sprite) <= radius) {
                     minion.health.takeDamage(10);
                   }
@@ -62,14 +70,20 @@ const Enemies = (player) => {
         if (enemy.holyNova?.getRadius() >= 100) enemy.holyNova.resolveSpell();
       } 
 
-      followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: enemy.stats.moveSpeed, maxSpeed: enemy.stats.maxSpeed, separation: 2 });
+      const options = {
+        followForce: 1,
+        separation: 2,
+        maxSpeed: enemy.stats.maxSpeed,
+        closeEnough: enemy.target ? { x: enemy.target.sprite.width, y: enemy.target.sprite.height } : null
+      }
+      followTarget(enemy.sprite, enemy.target.sprite, enemy.stats.moveSpeed, delta, options);
     })
   })
 }
 
-export const ExplicitSpawner = (player) => {
+export const ExplicitSpawner = () => {
   const { app } = appService;
-  Enemies(player);
+  Enemies();
 
   // spawns enemies on demand only
   const spawnEnemy = (name) => {
@@ -78,8 +92,7 @@ export const ExplicitSpawner = (player) => {
       {
         x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
         y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,
-      },
-      player
+      }
     )
   }
 
@@ -87,11 +100,11 @@ export const ExplicitSpawner = (player) => {
 }
 
 // continuously spawns enemies
-export const TimedSpawner = (rate = 5000, player) => {
+export const TimedSpawner = (rate = 5000) => {
   const { app } = appService;
   const timer$ = interval(rate);
 
-  Enemies(player);
+  Enemies();
 
   let difficultyScale = 1;
 
@@ -105,8 +118,7 @@ export const TimedSpawner = (rate = 5000, player) => {
         {
           x: Math.random() < 0.5 ? Math.random() * 600 : app.screen.width - Math.random() * 600,
           y: Math.random() < 0.5 ? Math.random() * 600 : app.screen.height - Math.random() * 600,
-        },
-        player
+        }
       )
     }
   })

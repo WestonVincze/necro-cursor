@@ -32,3 +32,18 @@ export const getRandomElements = (array, count) => {
 
   return randomElements;
 }
+
+export const getClosestUnit = ({ x, y }, units) => {
+  let closestDistanceSq = Infinity;
+  let closestUnit = null;
+  units.forEach(unit => {
+    const distance = (unit.sprite.x - x) ** 2 + (unit.sprite.y - y) ** 2;
+    if (distance < closestDistanceSq) {
+      closestUnit = unit;
+    }
+  })
+
+  return closestUnit;
+}
+
+const getFirstUnitWithin = (position, range) => {}

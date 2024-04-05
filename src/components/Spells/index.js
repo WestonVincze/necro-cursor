@@ -22,7 +22,9 @@ export const RadialSpell = ({
 
   let radius = startRadius;
   const getRadius = () => radius;
+  circle.beginFill(color, 0.3);
   circle.drawCircle(position.x, position.y, radius);
+  circle.endFill();
 
   const resolveSpell = () => {
     onComplete?.(radius);
@@ -49,7 +51,9 @@ export const RadialSpell = ({
       console.error("no position found");
       return;
     }
+    circle.beginFill(color, 0.2);
     circle.drawCircle(position.x, position.y, radius);
+    circle.endFill();
 
     return radius;
   }

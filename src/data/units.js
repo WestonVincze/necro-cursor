@@ -11,7 +11,6 @@
  * @prop {Stats} stats
  * @prop {number} [exp] // change to expReward?
  * @prop {boolean} [hideUI]
- * @prop {number} [maxAttackers] // remove this
  * @prop {function} [behavior] - defines the "brain"
  */
 
@@ -31,6 +30,7 @@
  * @prop {number} [critDamage]
  * @prop {number} [castingSpeed]
  * @prop {number} [spellRadius] // TODO: this should be spell data, not a stat
+ * @prop {number} [maxAttackers] // remove this?
  * @prop {number} [knockback]
  */
 
@@ -42,18 +42,18 @@ export const enemyData = {
     url: "/assets/guard.png",
     width: 50,
     height: 110,
-    maxAttackers: 10,
     exp: 10,
     stats: {
       maxHP: 15,
       armor: 12,
       attackBonus: 5,
-      attackSpeed: 10,
+      attackSpeed: 4,
       attackRange: 20,
       maxHit: 4,
       damageBonus: 0,
-      moveSpeed: 0.5,
+      moveSpeed: 0.3,
       maxSpeed: 1,
+      maxAttackers: 10,
     }
   },
   paladin: {
@@ -62,18 +62,18 @@ export const enemyData = {
     url: "/assets/paladin.png",
     width: 60,
     height: 110,
-    maxAttackers: 10,
     exp: 15,
     stats: {
       maxHP: 30,
       armor: 16,
       attackBonus: 8,
-      attackSpeed: 15,
+      attackSpeed: 8,
       attackRange: 30,
       maxHit: 6,
       damageBonus: 1,
-      moveSpeed: 0.3,
+      moveSpeed: 0.2,
       maxSpeed: 0.5,
+      maxAttackers: 10,
     }
   },
   // doppelsoldner (montante AoE attacks)
@@ -88,17 +88,16 @@ export const minionData = {
     url: "/assets/skele.png",
     width: 40,
     height: 60,
-    hideUI: true,
     stats: {
       maxHP: 10,
       armor: 10,
       maxHit: 3,
       attackBonus: 5,
-      attackSpeed: 12,
+      attackSpeed: 5,
       attackRange: 20,
       damageBonus: 0,
       moveSpeed: 0.5,
-      maxSpeed: 1,
+      maxSpeed: 100,
     }
   }
 }
