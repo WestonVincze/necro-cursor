@@ -27,15 +27,26 @@ export const DebugTools = (gameState) => {
     }
   });
 
+  let lowestFPS = Infinity;
+
   const toggleDebug = () => {
     toggleConsole();
     const FPS = document.getElementById('FPS');
+    const lowestFPSElement = document.getElementById('lowestFPS');
     const showFPS = (tick) => {
       // console.log(tick);
       FPS.innerHTML = Math.round(app.ticker.FPS);
+      lowestFPSElement.innerHTML = lowestFPS;
     }
     if (!gameState.debugMode) {
+      if (!window.gameState) window.gameState = gameState;
       debugSubscription = gameTicks$.subscribe(showFPS);
+      app.ticker.add(() => {
+        const currentFPS = Math.round(app.ticker.FPS)
+        if (currentFPS < lowestFPS) {
+          lowestFPS = currentFPS
+        }
+      })
     } else {
       debugSubscription.unsubscribe();
     }

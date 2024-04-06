@@ -5,43 +5,48 @@ import { Swarm } from "/src/components/Swarm";
 import { enemyData } from "/src/data/units";
 import { RadialSpell } from "/src/components/Spells";
 import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
-import { minions } from "/src/components/Minions";
+import { getClosestUnit } from "../../helpers";
 
 const {
-  getUnitById: getEnemyById,
   units: enemies,
-  createUnit,
-  addAttacker,
-  removeAttacker
+  addUnit,
+  getUnitById,
 } = Swarm();
 
-export { enemies, getEnemyById, addAttacker, removeAttacker }
+const createEnemy = (type, position) => {
+  const enemy = addUnit(type, position);
+  enemy.setTarget(gameState.player);
 
-const createEnemy = (type, position, player) => {
-  const { gameTicks$ } = appService;
-  const enemy = createUnit(type, position);
+  enemy.health.subscribeToHealthChange(({ type }) => {
+    if (type !== "damage") return;
+
+    const newTarget = getClosestUnit(enemy.sprite, gameState.minions);
+    enemy.setTarget(newTarget);
+    newTarget.health.subscribeToDeath(() => {
+      if (!getUnitById(enemy.id)) return;
+      enemy?.setTarget(gameState.player)}
+    );
+  });
 
   enemy.health.subscribeToDeath(() => {
-    gameState.incrementKillCount(enemy.type);
-    player.addExperience(enemyData[enemy.type].exp);
+    gameState.incrementKillCount(enemy.name);
+    gameState.player.addExperience(enemyData[type].exp);
 
-    if (enemy.type === "paladin" && enemy.holyNova) {
+    if (enemy.name === "paladin" && enemy.holyNova) {
       enemy.holyNova.cancelSpell();
     }
   })
 
   // TODO: refactor into proper damage system
-  gameTicks$.subscribe(() => {
-    enemy.health.takeDamage(enemy.attackers * 1);
-  })
 }
 
-const Enemies = (player) => {
+const Enemies = () => {
+  gameState.enemies = enemies;
   const { physicsUpdate } = appService;
   physicsUpdate.subscribe((delta) => {
     enemies.forEach(enemy => {
-      if (enemy.type === "paladin") {
-        if (Math.random() > 0.99 && !enemy?.holyNova) {
+      if (enemy.name === "paladin") {
+        if (Math.random() > 0.99 && !enemy.holyNova) {
           enemy.holyNova = RadialSpell({
             position: enemy.sprite,
             growth: 0.1,
@@ -49,13 +54,12 @@ const Enemies = (player) => {
             color: "FFFF55",
             onComplete: (radius) => {
               if (!enemy.sprite.destroyed) {
-                if (distanceBetweenPoints(player.sprite, enemy.sprite) <= radius) {
-                  player.health.takeDamage(10);
+                if (distanceBetweenPoints(gameState.player.sprite, enemy.sprite) <= radius) {
+                  gameState.player.health.takeDamage(10);
                 }
-                minions.map(minion => {
+                gameState.minions.map(minion => {
                   if (distanceBetweenPoints(minion.sprite, enemy.sprite) <= radius) {
                     minion.health.takeDamage(10);
-                    enemy.attackers = Math.max(0, enemy.attackers - 1);
                   }
                 })
               }
@@ -63,40 +67,32 @@ const Enemies = (player) => {
             }
           })
         }
-
-        const inRange = followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 0.01, maxSpeed: 0.5, separation: 2, cohesion: 1 });
-
-        if (inRange) player.health.takeDamage(1);
-
         if (enemy.holyNova?.getRadius() >= 100) enemy.holyNova.resolveSpell();
+      } 
 
-      } else {
-        const inRange = followTarget(enemy.sprite, enemies, player.sprite, delta, { followForce: 5, maxSpeed: 2 / Math.max(1, enemy.attackers), separation: 2, cohesion: 1 });
-        // TODO: develop proper damaging system
-        if (inRange) player.health.takeDamage(0.5);
+      const options = {
+        followForce: 1,
+        separation: 2,
+        maxSpeed: enemy.stats.maxSpeed,
+        closeEnough: enemy.target ? { x: enemy.target.sprite.width, y: enemy.target.sprite.height } : null
       }
+      followTarget(enemy.sprite, enemy.target.sprite, enemy.stats.moveSpeed, delta, options);
     })
   })
 }
 
-export const ExplicitSpawner = (player) => {
+export const ExplicitSpawner = () => {
   const { app } = appService;
-  Enemies(player);
+  Enemies();
 
   // spawns enemies on demand only
-  const spawnEnemy = (type) => {
-    if (!enemyData[type]) {
-      console.error("invalid enemy type");
-      return;
-    }
-
+  const spawnEnemy = (name) => {
     createEnemy(
-      enemyData[type],
+      name,
       {
         x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
         y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,
-      },
-      player
+      }
     )
   }
 
@@ -104,27 +100,25 @@ export const ExplicitSpawner = (player) => {
 }
 
 // continuously spawns enemies
-export const TimedSpawner = (rate = 5000, player) => {
+export const TimedSpawner = (rate = 5000) => {
   const { app } = appService;
   const timer$ = interval(rate);
 
-  Enemies(player);
+  Enemies();
 
   let difficultyScale = 1;
 
   timer$.subscribe(() => {
     if (!app.ticker.started) return
     difficultyScale += 0.1;
-    console.log(difficultyScale * 0.05);
 
     for (let i = 0; i < Math.floor(difficultyScale); i++) {
       createEnemy(
-        Math.random() > Math.min(0.5, (0.05 * difficultyScale)) ? enemyData.guard : enemyData.paladin,
+        Math.random() > Math.min(0.5, (0.05 * difficultyScale)) ? "guard" : "paladin",
         {
           x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
           y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,
-        },
-        player
+        }
       )
     }
   })

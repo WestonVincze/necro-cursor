@@ -27,8 +27,8 @@ export const spawnBones = ({ x, y }, id) => {
       take(despawnTickCount)
     )
     .subscribe(
-      t => {
-        if (t < flashTickCount) return;
+      tickCount => {
+        if (tickCount < flashTickCount) return;
         sprite.alpha = sprite.alpha === 1 ? 0.5 : 1; 
       },
       null,

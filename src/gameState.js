@@ -5,22 +5,9 @@
  * 
  * contains subjects that the rest of the app can subscribe or push data to
  * 
- * Examples:
- * * killCount => BehaviorSubject
- * * > "Enemies" will push values
- * * > "Player" will access value
- * * > "UI" will listen to value changes
- * 
- * 
- * === Determines what screen to display ===
- * * gameOver => display GameOver screen
- * 
- * === Contains state transition hooks ===
- * * onGameEnd => display stats
- * 
  */
 
-import { BehaviorSubject, combineLatest, distinctUntilChanged, map, scan } from "rxjs";
+import { of, BehaviorSubject, combineLatest, distinctUntilChanged, map, scan } from "rxjs";
 import { MainMenu } from "./Views/MainMenu";
 import { UI } from "./UI";
 import { GameOver } from "./Views/GameOver";
@@ -50,9 +37,19 @@ export const initializeGameState = () => {
   }
 
   // metadata
-  const gameVersion = "0.1";
+  const gameVersion = "0.2";
   let time = 0;
   let debugMode = false;
+
+  // live data references
+  let _minions = [];
+  let _enemies = [];
+  let _player = null;
+
+  const _minions$ = of(_minions);
+  const _enemies$ = of(_enemies);
+  const _player$ = of(_player);
+
 
   // run stats
   const killCount = new BehaviorSubject({ guards: 0, paladins: 0, total: 0 });
@@ -129,7 +126,32 @@ export const initializeGameState = () => {
     }
   })
 
-  return {
+  const setMinions = (minions) => {
+    if (_minions?.length > 0) {
+      // probably don't need this, but we can add fail safes like this
+      console.error("minions are already set.")
+      return;
+    }
+    _minions = minions;
+  }
+
+  const setEnemies = (enemies) => {
+    _enemies = enemies;
+  }
+
+  const setPlayer = (player) => {
+    _player = player;
+  }
+
+  // TODO: optimize or cache values? Maybe use a subject and update whenever dependencies change to reduce excess work
+  const getAllUnits = () => {
+    const units = _player?.sprite ? [_player.sprite] : [];
+    return units.concat([..._minions?.map(m => m.sprite), ..._enemies?.map(e => e.sprite)]);
+  }
+
+  const separationForceCache = new Map();
+
+  const gameState = {
     transitionToScene,
     onSceneChange,
     killCount,
@@ -145,5 +167,27 @@ export const initializeGameState = () => {
     incrementDeanimations,
     incrementBonesDespawned,
     debugMode,
+    separationForceCache,
+    getAllUnits,
   }
+
+  Object.defineProperties(gameState, {
+    player: {
+      get: () => _player,
+      set: setPlayer,
+      enumerable: true,
+    },
+    enemies: {
+      get: () => _enemies,
+      set: setEnemies,
+      enumerable: true,
+    },
+    minions: {
+      get: () => _minions,
+      set: setMinions,
+      enumerable: true,
+    },
+  })
+
+  return gameState;
 }

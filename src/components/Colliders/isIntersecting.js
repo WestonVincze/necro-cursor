@@ -9,15 +9,15 @@ export const isIntersectingRect = (a, b, range = 0) => {
   const aBox = a.getBounds();
   const bBox = b.getBounds();
 
-  return aBox.x + aBox.width > bBox.x &&
+  return aBox.x + aBox.width / 2 > bBox.x - range &&
          aBox.x < bBox.x + bBox.width + range &&
-         aBox.y + aBox.height > bBox.y &&
+         aBox.y + aBox.height > bBox.y - range &&
          aBox.y < bBox.y + bBox.height + range 
 }
 
 export const drawHitboxRect = (sprite, range) => {
   const hitBox = new Graphics();
-  hitBox.lineStyle(2, 0xFF0000);
+  hitBox.lineStyle(2, 0xFF0000, 0.1);
   const spriteBounds = sprite.getBounds();
   hitBox.drawRect(spriteBounds.x - range, spriteBounds.y - range, spriteBounds.width + range * 2, spriteBounds.height + range * 2)
   sprite.parent.addChild(hitBox);
@@ -66,3 +66,22 @@ const drawHitboxCircle = (sprite, range) => {
 
 /** Notes */
 // would it be worth it to have a "collider" that simply checks if the distance between two points is within a threshhold?
+
+
+/**
+ * getLocalBounds has a "containsPoint" function... maybe we can use that to determine whether or not sprites overlap? 
+ * 
+ * below, we have a sprite and each star represents the sprites "colliders"
+ * 
+ * if a dot is "containedWithin" a potential target's sprite, then we know we are colliding
+ * 
+ *      * * *
+ *       [ ]
+ *      *[ ]*
+ *       [ ]
+ *      * * *
+ * 
+ * gotchas:
+ *  - we need to ensure that no sprite can fit between another sprites "colliders" (we can solve this by deciding on a smallest unit and ensuring the auto-generated "colliders" are never further apart than the defined value)
+ * 
+ */

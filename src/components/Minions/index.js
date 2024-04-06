@@ -1,25 +1,19 @@
 import { Swarm } from "/src/components/Swarm";
-import { minionData } from "/src/data/units";
 import { appService, gameState } from "/src/app";
 import { followTarget } from "/src/components/Movement/followTarget";
 import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
-import { enemies, addAttacker, removeAttacker } from "/src/components/Enemies";
 import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
 import { keyDown$ } from "../Inputs";
 import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator, TriangleFormationIterator } from "./formations";
 
 const {
   units: minions,
-  createUnit,
-  getUnitById: getMinionById,
-  removeUnit: removeMinion,
+  addUnit,
 } = Swarm();
-
-export { minions, getMinionById, removeMinion }
 
 // TODO: Fix performance issues (might be related to high number of containers being used)
 export const createMinion = (position) => {
-  const minion = createUnit(minionData.skeleton, position, { target: 'cursor' });
+  const minion = addUnit("skeleton", position);
   gameState.incrementReanimations();
   minion.health.subscribeToDeath(() => { 
     gameState.incrementDeanimations();
@@ -27,6 +21,7 @@ export const createMinion = (position) => {
 }
 
 export const initializeMinions = (spriteCount) => {
+  gameState.minions = minions;
   // register mousemove event
   const move$ = fromEvent(container, 'mousemove');
   const result$ = move$.pipe(auditTime(200));
@@ -85,10 +80,11 @@ export const initializeMinions = (spriteCount) => {
   aggressionSubject.subscribe(aggression => {
     gameState.minionAggression.next(aggression);
     if (!aggression) {
-      minions.map(m => { 
-        if (m.target === "cursor") return;
-        removeAttacker(m.target.id);
-        m.target = "cursor";
+      minions.map(minion => { 
+        if (!minion.target) return;
+
+        minion.target.removeAttacker();
+        minion.clearTarget();
       });
     }
   })
@@ -104,24 +100,30 @@ export const initializeMinions = (spriteCount) => {
   result$.subscribe(followMouse);
 
   const { app, gameTicks$, physicsUpdate } = appService;
+  const spawnMinionRandomly = () => createMinion({ x: Math.random() * app.screen.width, y: Math.random() * app.screen.height })
   for (let i = 0; i < spriteCount; i++) {
-    createMinion({ x: Math.random() * app.screen.width, y: Math.random() * app.screen.height });
+    spawnMinionRandomly();
   }
 
   gameTicks$.subscribe(() => {
-    if (!aggressionSubject.getValue()) return;
-
     minions.forEach(minion => {
-      // only check minions that are not busy
-      if (minion.target === 'cursor') {
-        enemies.some(enemy => {
-          if (isIntersectingRect(minion.sprite, enemy.sprite, 100) && addAttacker(enemy.id)) {
-            minion.target = enemy;
-            enemy.health.subscribeToDeath(() => minion.target = "cursor");
+      if (minion.target === null) {
+        gameState.enemies.some(enemy => {
+          // TODO: change hard coded 100 and 150 values to chase distance
+          if (isIntersectingRect(minion.sprite, enemy.sprite, 100) && enemy.addAttacker()) {
+            minion.setTarget(enemy);
+            enemy.health.subscribeToDeath(() => minion.clearTarget());
             return true;
           }
           return false;
         });
+      } else {
+        // TODO: make this more obvious?
+        const chaseDistance = aggressionSubject.getValue() ? 150 : 100;
+        if (!isIntersectingRect(minion.sprite, minion.target.sprite, chaseDistance)) {
+          minion.target.removeAttacker();
+          minion.clearTarget();
+        }
       }
     })
   })
@@ -129,7 +131,7 @@ export const initializeMinions = (spriteCount) => {
   physicsUpdate.subscribe((delta) => {
     let formationIterator = null;
 
-    const length = minions.filter(m => m.target === 'cursor').length || 0;
+    const minionCount = minions.filter(minion => !minion.target).length || 0;
     switch (selectedFormationTypeSubject.getValue().value) {
       case "cluster":
         formationIterator = null;
@@ -145,28 +147,28 @@ export const initializeMinions = (spriteCount) => {
         break;
       case "triangleUp":
         formationIterator = TriangleFormationIterator({
-          length: length,
+          length: minionCount,
           spacing: 45,
           direction: "up"
         });
         break;
       case "triangleDown":
         formationIterator = TriangleFormationIterator({
-          length: length,
+          length: minionCount,
           spacing: 45,
           direction: "down"
         });
         break;
       case "triangleRight":
         formationIterator = TriangleFormationIterator({
-          length: length,
+          length: minionCount,
           spacing: 45,
           direction: "right"
         });
         break;
       case "triangleLeft":
         formationIterator = TriangleFormationIterator({
-          length: length,
+          length: minionCount,
           spacing: 45,
           direction: "left"
         });
@@ -175,14 +177,24 @@ export const initializeMinions = (spriteCount) => {
 
     let mod = { x: 0, y: 0 };
     minions.forEach(minion => {
-      if (formationIterator && minion.target === 'cursor') {
+      const target = minion.target;
+
+      if (formationIterator && !target) {
         mod = formationIterator.nextValue();
       }
 
-      const target = minion.target === 'cursor' ? { x: targetX + mod.x, y: targetY + mod.y } : minion.target.sprite;
-      followTarget(minion.sprite, minions, target, delta, { followForce: 5, separation: 2 })
+      const targetPosition = !aggressionSubject.getValue() || !target ? { x: targetX + mod.x, y: targetY + mod.y } : target.sprite;
+
+      const options = {
+        followForce: 1,
+        separation: 2,
+        maxSpeed: minion.stats.maxSpeed,
+        closeEnough: targetPosition.width ? { x: target.sprite.width, y: target.sprite.height } : null 
+      }
+
+      followTarget(minion.sprite, targetPosition, minion.stats.moveSpeed, delta, options)
     })
   })
 
-  return { createMinion }
+  return { spawnMinionRandomly }
 }

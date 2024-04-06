@@ -1,9 +1,8 @@
-import { Health } from "/src/components/Health";
-import { Container, Sprite } from "pixi.js";
-import { appService } from "/src/app";
+import { createUnit } from "../Unit";
 import { spawnBones } from "/src/components/Drops";
 import { Emitter } from "@pixi/particle-emitter";
 import { explode } from "/src/VFX/deathFX";
+import { appService } from "../../app";
 
 /**
  * Let's add some object pooling to reduce the workload of creating and destroying units
@@ -14,44 +13,16 @@ export const Swarm = () => {
   let id = 0;
   const units = [];
 
-  const createUnit = (unitData, position = { x: 0, y: 0 }, options) => {
-    const { spriteContainer, particleContainer } = appService;
-    const sprite = Sprite.from(unitData.url);
-    sprite.width = unitData.width;
-    sprite.height = unitData.height;
-    sprite.anchor.set(0.5);
-
-    let container;
-    if (unitData.hideUI) {
-      container = sprite;
-    } else {
-      container = new Container();
-      container.addChild(sprite);
-    }
-
-    container.position.set(position.x, position.y);
-    container.vx = 0;
-    container.vy = 0;
-    spriteContainer.addChild(container);
-
-    const health = Health({ maxHP: unitData.maxHP, container });
-
-    const unit = {
-      id: `${unitData.type}-${id++}`,
-      type: unitData.type,
-      sprite: container,
-      health,
-      maxAttackers: unitData.maxAttackers,
-      attackers: 0,
-      ...options
-    }
+  const addUnit = (unitName, position = { x: 0, y: 0 }, options) => {
+    const { particleContainer } = appService;
+    const unit = createUnit(`${unitName}-${id++}`, unitName, position, options);
 
     units.push(unit);
 
-    health.subscribeToDeath(() => {
-      const emitter = new Emitter(particleContainer, explode({ x: container.x, y: container.y }));
+    unit.health.subscribeToDeath(() => {
+      const emitter = new Emitter(particleContainer, explode({ x: unit.sprite.x, y: unit.sprite.y }));
       emitter.playOnceAndDestroy();
-      spawnBones(container, unit.id);
+      spawnBones(unit.sprite, unit.id);
       removeUnit(unit.id);
     })
 
@@ -65,30 +36,28 @@ export const Swarm = () => {
     units.splice(i, 1);
   }
 
-  const addAttacker = (id) => {
-    const unit = getUnitById(id);
-    if (unit.attackers + 1 > unit.maxAttackers) return false;
-    unit.attackers++;
-    return true;
-  }
-
-  const removeAttacker = (id) => {
-    const unit = getUnitById(id);
-    if (unit.attackers === 0) return false;
-    unit.attackers--;
-    return true;
-  }
 
   const getUnitById = (id) => {
     return units.find(unit => unit.id === id);
   }
 
+  const getClosestUnit = ({ x, y }) => {
+    let closestDistanceSq = Infinity;
+    return units.reduce((closestUnit, currentUnit) => {
+      const distance = (currentUnit.sprite.x - x) ** 2 + (currentUnit.sprite.y - y) ** 2;
+      if (distance < closestDistanceSq) {
+        closestUnit = currentUnit;
+      }
+    })
+  }
+
+  const getFirstUnitWithin = (position, range) => {}
+
   return {
     units,
-    createUnit,
+    addUnit,
     removeUnit,
-    addAttacker,
-    removeAttacker,
     getUnitById,
+    getClosestUnit,
   }
 }
