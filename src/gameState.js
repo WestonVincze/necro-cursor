@@ -7,7 +7,7 @@
  * 
  */
 
-import { BehaviorSubject, combineLatest, distinctUntilChanged, map, scan } from "rxjs";
+import { of, BehaviorSubject, combineLatest, distinctUntilChanged, map, scan } from "rxjs";
 import { MainMenu } from "./Views/MainMenu";
 import { UI } from "./UI";
 import { GameOver } from "./Views/GameOver";
@@ -45,6 +45,11 @@ export const initializeGameState = () => {
   let _minions = [];
   let _enemies = [];
   let _player = null;
+
+  const _minions$ = of(_minions);
+  const _enemies$ = of(_enemies);
+  const _player$ = of(_player);
+
 
   // run stats
   const killCount = new BehaviorSubject({ guards: 0, paladins: 0, total: 0 });
@@ -144,6 +149,8 @@ export const initializeGameState = () => {
     return units.concat([..._minions?.map(m => m.sprite), ..._enemies?.map(e => e.sprite)]);
   }
 
+  const separationForceCache = new Map();
+
   const gameState = {
     transitionToScene,
     onSceneChange,
@@ -160,6 +167,8 @@ export const initializeGameState = () => {
     incrementDeanimations,
     incrementBonesDespawned,
     debugMode,
+    separationForceCache,
+    getAllUnits,
   }
 
   Object.defineProperties(gameState, {
@@ -178,10 +187,6 @@ export const initializeGameState = () => {
       set: setMinions,
       enumerable: true,
     },
-    allUnits: {
-      get: getAllUnits,
-      enumerable: true,
-    }
   })
 
   return gameState;

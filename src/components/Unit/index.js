@@ -61,18 +61,14 @@ export const createUnit = (id, unitName, position, options) => {
   sprite.height = _unitData.height;
   sprite.anchor.set(0.5);
 
-  if (!_unitData.hideUI) {
-    const container = new Container();
-    container.addChild(sprite);
-    sprite = container;
-  }
 
   sprite.position.set(position.x, position.y);
   sprite.vx = 0;
   sprite.vy = 0;
+  sprite.id = id; // is this dumb?
   spriteContainer.addChild(sprite);
 
-  const health = Health({ maxHP: _stats.maxHP, container: sprite, hideHealthBar: _unitData.hideUI });
+  const health = Health({ maxHP: _stats.maxHP, sprite, hideHealthBar: _unitData.hideUI });
 
   if (_stats.HPregeneration > 0 ) {
     gameTicks$.subscribe(() => {

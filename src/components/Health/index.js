@@ -1,18 +1,19 @@
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Ticker } from "pixi.js";
 import { Subject } from "rxjs";
 import { HitSplats } from "./HitSplats";
+import { appService } from "../../app";
 
-export const Health = ({ maxHP, container, hideHealthBar = false }) => {
+export const Health = ({ maxHP, sprite, hideHealthBar = false }) => {
   let hp = maxHP;
   const onDeath = new Subject();
   const onHealthChange = new Subject();
   let healthBar = null;
 
-  if (!hideHealthBar && container) {
-    healthBar = HealthBar({ maxHP, hp, container })
+  if (!hideHealthBar) {
+    healthBar = HealthBar({ maxHP, hp, sprite })
   }
 
-  const { spawnHitSplat } = HitSplats(container);
+  const { spawnHitSplat } = HitSplats(sprite);
 
   const takeDamage = (amount) => {
     if (amount < 0) {
@@ -31,6 +32,7 @@ export const Health = ({ maxHP, container, hideHealthBar = false }) => {
       onDeath.next();
       onDeath.complete();
       onHealthChange.complete();
+      healthBar.clearHealthBar();
     }
   }
 
@@ -67,27 +69,27 @@ export const Health = ({ maxHP, container, hideHealthBar = false }) => {
     getHP,
     subscribeToDeath,
     subscribeToHealthChange,
-    healthBar,
     setMaxHP,
   }
 }
 
-const HealthBar = ({ maxHP, hp, container }) => {
+const HealthBar = ({ maxHP, hp, sprite }) => {
+  const { UIContainer, app } = appService;
+  const { width, height, x, y } = sprite;
+
   const hpContainer = new Container();
-  const { width, height } = container.getBounds();
-  const heightOffset = 5;
+  const healthBarHeight = 5;
+  const heightOffset = 10;
   const xOffset = -width / 2;
-  const yOffset = (-height / 2) - 10;
+  const yOffset = (-height / 2) - heightOffset;
 
   // TODO: look into creating a reference object and cloning it with .clone()
   const bg = new Graphics();
   bg.beginFill(0xff5555);
-  bg.drawRect(xOffset, yOffset, width, heightOffset);
+  bg.drawRect(xOffset, yOffset, width, healthBarHeight);
   bg.endFill();
-  hpContainer.addChild(bg);
 
   const healthBar = new Graphics();
-
   const updateHealth = (newHP, maxHP) => {
     if (newHP === maxHP) {
       hpContainer.alpha = 0;
@@ -96,16 +98,29 @@ const HealthBar = ({ maxHP, hp, container }) => {
     }
     healthBar.clear();
     healthBar.beginFill(0x55ff55);
-    healthBar.drawRect(xOffset, yOffset, width * (newHP / maxHP), heightOffset);
+    healthBar.drawRect(xOffset, yOffset, width * (newHP / maxHP), healthBarHeight);
     healthBar.endFill();
   }
 
   updateHealth(hp, maxHP);
+  hpContainer.addChild(bg);
   hpContainer.addChild(healthBar);
-  container.addChild(hpContainer)
+  UIContainer.addChild(hpContainer);
+
+  const followSprite = () => {
+    if (hpContainer.alpha === 0) return;
+    hpContainer.position.set(sprite.x, sprite.y);
+  }
+
+  app.ticker.add(followSprite);
+
+  const clearHealthBar = () => {
+    app.ticker.remove(followSprite);
+    hpContainer.destroy();
+  }
 
   return {
-    container,
-    updateHealth
+    updateHealth,
+    clearHealthBar,
   }
 }

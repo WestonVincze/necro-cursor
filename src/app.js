@@ -3,7 +3,7 @@ import { Application, Container, ParticleContainer } from "pixi.js";
 import { Player } from "./components/Player";
 import { TimedSpawner, ExplicitSpawner } from "./components/Enemies";
 import { getURLParam } from "./helpers";
-import { filter, interval } from "rxjs";
+import { filter, interval, of } from "rxjs";
 import { initializeMinions } from "./components/Minions";
 import { activeKeys$ } from "./components/Inputs";
 import { PhysicsUpdate } from "./components/PhysicsUpdate";
@@ -95,6 +95,11 @@ appService.initialize();
 const { gameTicks$, spriteContainer } = appService;
 
 const gameState = initializeGameState();
+appService.physicsUpdate.subscribe(() => {
+  // creates a cache for the app to use
+  // gameState.separationForceCache.clear();
+  gameState.allUnits = gameState.getAllUnits();
+})
 export { gameState };
 
 const { createButton } = DebugTools(gameState);
@@ -102,7 +107,7 @@ const { createButton } = DebugTools(gameState);
 const skeletons = getURLParam("skeletons", 3);
 const spawnRate = getURLParam("spawnRate", 8000);
 
-const { createMinion } = initializeMinions(skeletons);
+const { spawnMinionRandomly } = initializeMinions(skeletons);
 
 const alignSprites = () => {
   spriteContainer.children.map(c => c.zIndex = c.y);
@@ -115,9 +120,9 @@ const initializeGame = () => {
     TimedSpawner(spawnRate);
   } else {
     const { spawnEnemy } = ExplicitSpawner();
-    createButton("spawn_paladin", "Spawn Paladin", () => spawnEnemy("paladin"));
-    createButton("spawn_guard", "Spawn Guard", () => spawnEnemy("guard"));
-    createButton("spawn_skeleton", "Spawn Skeleton", () => createMinion({ x: appService.app.screen.width / 2, y: appService.app.screen.height / 2 }));
+    createButton("spawn_paladin", "Spawn Paladin", () => spawnEnemy("paladin"), 5);
+    createButton("spawn_guard", "Spawn Guard", () => spawnEnemy("guard"), 5);
+    createButton("spawn_skeleton", "Spawn Skeleton", () => spawnMinionRandomly(), 20);
     createButton("level_player", "Level Up", () => gameState.player.levelUp());
     createButton("immortal_player", "Immortal Player", () =>
       gameState.player.health.subscribeToHealthChange(({ type, amount }) =>

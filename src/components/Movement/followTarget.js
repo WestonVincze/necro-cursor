@@ -95,13 +95,27 @@ export const calculateFollowForce = ({ targetX, targetY }, sprite) => {
   return followForce;
 }
 
+/*
+const generateSymmetricKey = (index1, index2) => {
+  const [ first, second ] = [index1, index2].sort();
+  return `${first}-${second}`;
+}
+*/
+
 // raycast at 4 points and if an overlap is detected apply separation force?
 const calculateSeparationForce = (sprite, flock, maxOverlapRatio) => {
   const separationForce = { x: 0, y: 0 };
 
+  // const index = flock.findIndex(s => s === sprite);
   flock.forEach((unit, i) => {
     const otherSprite = unit;
-    if (otherSprite !== sprite) {
+    if (!otherSprite.destroyed && otherSprite !== sprite) {
+      /*
+      const id = generateSymmetricKey(index, i);
+      if (gameState.separationForceCache.has(id)) {
+        return gameState.separationForceCache.get(id);
+      }
+      */
       const dx = otherSprite.x - sprite.x;
       const dy = otherSprite.y - sprite.y;
       let distance = dx * dx + dy * dy;
@@ -120,6 +134,7 @@ const calculateSeparationForce = (sprite, flock, maxOverlapRatio) => {
           separationForce.y -= separationDirectionY;
         }
       }
+      // gameState.separationForceCache.set(id, separationForce);
     }
   })
 

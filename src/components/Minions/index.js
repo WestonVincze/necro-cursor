@@ -100,8 +100,9 @@ export const initializeMinions = (spriteCount) => {
   result$.subscribe(followMouse);
 
   const { app, gameTicks$, physicsUpdate } = appService;
+  const spawnMinionRandomly = () => createMinion({ x: Math.random() * app.screen.width, y: Math.random() * app.screen.height })
   for (let i = 0; i < spriteCount; i++) {
-    createMinion({ x: Math.random() * app.screen.width, y: Math.random() * app.screen.height });
+    spawnMinionRandomly();
   }
 
   gameTicks$.subscribe(() => {
@@ -195,5 +196,5 @@ export const initializeMinions = (spriteCount) => {
     })
   })
 
-  return { createMinion }
+  return { spawnMinionRandomly }
 }

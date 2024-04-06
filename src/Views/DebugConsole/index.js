@@ -4,6 +4,7 @@ import styles from "./index.module.css";
 const DebugConsoleScreen = () => `
   <div class="${styles.debugConsole} ${styles.hide}">
     <div class="${styles.FPSContainer}">FPS: <span id="FPS">0</span></div>
+    <div class="${styles.FPSContainer}">LowestFPS: <span id="lowestFPS">0</span></div>
     <div class="${styles.buttonContainer}"></div>
   </div>
 `;
@@ -16,11 +17,14 @@ export const DebugConsole = () => {
   const buttonContainer = debugConsole.querySelector(`.${styles.buttonContainer}`);
   let showConsole = false;
 
-  const createButton = (id, text, action) => {
+  const createButton = (id, text, action, count = 1) => {
+    const handleAction = () => {
+      for (let i = 0; i < count; i++) action();
+    }
     const button = document.createElement('button');
     button.id = id;
     button.textContent = text;
-    button.addEventListener('click', action);
+    button.addEventListener('click', handleAction);
     buttonContainer.append(button);
   }
 
