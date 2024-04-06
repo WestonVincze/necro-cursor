@@ -2,7 +2,7 @@ import { Unit } from "../../data/units";
 
 // dice rolls are 0 inclusive
 const rollDice = (sides, bonus = 0) => {
-  return Math.floor(Math.random() * sides) + bonus;
+  return Math.round(Math.random() * sides) + bonus;
 }
 
 const rollToHit = (difficulty, bonus = 0) => {
@@ -32,7 +32,7 @@ export const attackTarget = (attackerStats, target) => {
 
   if (attackerStats.critChance && rollToCrit(attackerStats.critChance)) {
     console.log("CRIT");
-    critMod = attackerStats.critMod;
+    critMod = attackerStats.critDamage;
   }
 
   target.health.takeDamage(damage * critMod);
