@@ -1,5 +1,6 @@
 import { HighscoreData } from "/api/HighscoreData";
 import styles from "./index.module.css";
+import { StatEditor } from "../StatEditor";
 
 // TODO: create separate (and more detailed) "how to play" view
 const Controls = () => `
@@ -23,6 +24,7 @@ const MainMenuScreen = () => `
 
 <button id="start_button">Start Game</button>
 <button id="toggle_content">View Highscores</button>
+<button id="edit_stats">Edit Stats</button>
 `
 
 export const MainMenu = ({ onStartGame, gameVersion }) => {
@@ -36,11 +38,15 @@ export const MainMenu = ({ onStartGame, gameVersion }) => {
     overlay.classList.remove('show');
   }
 
+  const content = document.querySelector('#content');
+  content.innerHTML = Controls();
+
   const startButton = document.querySelector('#start_button');
   startButton.addEventListener('click', handleStartGame);
 
-  const content = document.querySelector('#content');
-  content.innerHTML = Controls();
+  const editStatsButton = document.querySelector('#edit_stats');
+  editStatsButton.addEventListener('click', () => StatEditor(content));
+
 
   const toggleContentButton = document.querySelector('#toggle_content');
 
