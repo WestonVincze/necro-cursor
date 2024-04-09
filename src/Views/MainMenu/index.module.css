@@ -7,6 +7,20 @@
   width: 100px;
 }
 
+.buttons {
+  display: flex;
+  align-items: center;
+  width: 50%;
+  margin: 0 auto;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.buttons button {
+  width: 225px;
+}
+
 @media screen and (max-width: 900px) {
   .content {
     width: 100%;

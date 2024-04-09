@@ -3,12 +3,13 @@ import { Application, Container, ParticleContainer } from "pixi.js";
 import { Player } from "./components/Player";
 import { TimedSpawner, ExplicitSpawner } from "./components/Enemies";
 import { getURLParam } from "./helpers";
-import { filter, interval, of } from "rxjs";
+import { filter, interval } from "rxjs";
 import { initializeMinions } from "./components/Minions";
 import { activeKeys$ } from "./components/Inputs";
 import { PhysicsUpdate } from "./components/PhysicsUpdate";
 import { initializeGameState } from "./gameState";
 import { DebugTools } from "./components/DebugTools";
+import { spawnItem } from "./components/Drops";
 
 // Setup PixiJS APP
 export const appService = {
@@ -104,10 +105,9 @@ export { gameState };
 
 const { createButton } = DebugTools(gameState);
 
-const skeletons = getURLParam("skeletons", 3);
-const spawnRate = getURLParam("spawnRate", 8000);
+const skeletons = getURLParam("skeletons", 0);
+const spawnRate = getURLParam("spawnRate", 5000);
 
-const { spawnMinionRandomly } = initializeMinions(skeletons);
 
 const alignSprites = () => {
   spriteContainer.children.map(c => c.zIndex = c.y);
@@ -117,11 +117,14 @@ gameTicks$.subscribe(alignSprites);
 const initializeGame = () => {
   Player();
   if (!gameState.debugMode) {
+    spawnItem("bones", { x: appService.app.screen.width / 2, y: appService.app.screen.height / 4 }, "start_bones", 0);
     TimedSpawner(spawnRate);
+    initializeMinions(skeletons);
   } else {
-    const { spawnEnemy } = ExplicitSpawner();
-    createButton("spawn_paladin", "Spawn Paladin", () => spawnEnemy("paladin"), 5);
-    createButton("spawn_guard", "Spawn Guard", () => spawnEnemy("guard"), 5);
+    const { spawnMinionRandomly } = initializeMinions(skeletons);
+    const { createEnemy } = ExplicitSpawner();
+    createButton("spawn_paladin", "Spawn Paladin", () => createEnemy("paladin"), 5);
+    createButton("spawn_guard", "Spawn Guard", () => createEnemy("guard"), 5);
     createButton("spawn_skeleton", "Spawn Skeleton", () => spawnMinionRandomly(), 20);
     createButton("level_player", "Level Up", () => gameState.player.levelUp());
     createButton("immortal_player", "Immortal Player", () =>

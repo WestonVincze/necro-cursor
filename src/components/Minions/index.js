@@ -14,6 +14,9 @@ const {
 // TODO: Fix performance issues (might be related to high number of containers being used)
 export const createMinion = (position) => {
   const minion = addUnit("skeleton", position);
+
+  if (Math.random() * 100 >= 50) minion.addItemToDrops("bones");
+
   gameState.incrementReanimations();
   minion.health.subscribeToDeath(() => { 
     gameState.incrementDeanimations();

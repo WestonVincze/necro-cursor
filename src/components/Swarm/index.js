@@ -1,5 +1,5 @@
 import { createUnit } from "../Unit";
-import { spawnBones } from "/src/components/Drops";
+import { spawnDrops } from "../Drops";
 import { Emitter } from "@pixi/particle-emitter";
 import { explode } from "/src/VFX/deathFX";
 import { appService } from "../../app";
@@ -22,7 +22,6 @@ export const Swarm = () => {
     unit.health.subscribeToDeath(() => {
       const emitter = new Emitter(particleContainer, explode({ x: unit.sprite.x, y: unit.sprite.y }));
       emitter.playOnceAndDestroy();
-      spawnBones(unit.sprite, unit.id);
       removeUnit(unit.id);
     })
 

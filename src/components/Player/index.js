@@ -2,7 +2,7 @@ import { BehaviorSubject, Subject, map, scan, startWith } from "rxjs";
 
 import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
 import { appService, gameState } from "/src/app";
-import { bones, removeBones } from "/src/components/Drops";
+import { items, removeItem } from "/src/components/Drops";
 import { createMinion } from "/src/components/Minions";
 import { getRandomElements, normalizeForce } from "/src/helpers";
 import { RadialSpell } from "/src/components/Spells";
@@ -225,10 +225,10 @@ export const Player = () => {
           maxRadius: player.stats.spellRadius,
           growth: player.stats.castingSpeed,
           onComplete: (radius) => { 
-            bones.map(b => {
+            items.bones?.map(b => {
               if (distanceBetweenPoints(b.sprite, sprite) <= radius + 25) {
                 createMinion(b.sprite);
-                removeBones(b);
+                removeItem("bones", b);
               }
             })
             player.summoningCircle = null

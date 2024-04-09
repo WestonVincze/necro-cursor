@@ -57,12 +57,6 @@ export const Health = ({ maxHP, sprite, hideHealthBar = false }) => {
     return onHealthChange.subscribe(fn);
   }
 
-  // TODO: improve garbage collection
-  /*
-  onDeath.subscribe(() => healthBar.container.destroy());
-  onDeath.subscribe(() => healthBar = null)
-  */
-
   return {
     takeDamage,
     heal,

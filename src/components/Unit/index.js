@@ -35,6 +35,7 @@ import { isIntersectingRect } from "../Colliders/isIntersecting";
 import { attackTarget } from "../Attack";
 import { units } from "../../data/units";
 import { take, finalize } from "rxjs";
+import { spawnDrops } from "../Drops";
 
 export const createUnit = (id, unitName, position, options) => {
   const _unitData = units[unitName];
@@ -45,8 +46,9 @@ export const createUnit = (id, unitName, position, options) => {
 
   const { gameTicks$, spriteContainer } = appService;
   const _stats = _unitData.stats;
+  const _dropTable = _unitData.dropTable || {};
   const _statOverrides = {};
-  let _targetTypes = null; // array of possible target types
+  let _targetTypes = null; // array of possible target types (not being used yet)
   let _target = null; // unit or null
   let _canAttack = _stats.maxHit > 0; // always false if there is no max hit
   let _attackers = 0;
@@ -61,7 +63,6 @@ export const createUnit = (id, unitName, position, options) => {
   sprite.height = _unitData.height;
   sprite.anchor.set(0.5);
 
-
   sprite.position.set(position.x, position.y);
   sprite.vx = 0;
   sprite.vy = 0;
@@ -69,6 +70,10 @@ export const createUnit = (id, unitName, position, options) => {
   spriteContainer.addChild(sprite);
 
   const health = Health({ maxHP: _stats.maxHP, sprite, hideHealthBar: _unitData.hideUI });
+
+  health.subscribeToDeath(() => {
+    spawnDrops(sprite, _dropTable);
+  })
 
   if (_stats.HPregeneration > 0 ) {
     gameTicks$.subscribe(() => {
@@ -157,6 +162,14 @@ export const createUnit = (id, unitName, position, options) => {
     _attackers = Math.max(0, _attackers - 1);
   }
 
+  const addItemToDrops = (item) => {
+    if (!_dropTable.always) {
+      _dropTable.always = [];
+    }
+    _dropTable.always.push(item);
+  }
+
+
   const unit = {
     id,
     name: unitName,
@@ -170,6 +183,7 @@ export const createUnit = (id, unitName, position, options) => {
     clearTarget,
     addAttacker,
     removeAttacker,
+    addItemToDrops,
     ...options // might want to remove this as well
   }
 

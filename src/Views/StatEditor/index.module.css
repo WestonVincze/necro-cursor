@@ -14,14 +14,15 @@
 .statInputsContainer {
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin: 15px 0;
 }
 .statInputsContainer img {
   max-width: 120px;
 }
 
 .statInputs {
-  max-width: 300px;
-  margin: 15px auto;
 }
 
 .inputGroup {

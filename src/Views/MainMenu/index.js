@@ -2,32 +2,36 @@ import { HighscoreData } from "/api/HighscoreData";
 import styles from "./index.module.css";
 import { StatEditor } from "../StatEditor";
 
-// TODO: create separate (and more detailed) "how to play" view
-const Controls = () => `
-  <img class="${styles.hero}" src="/assets/necro.png" alt="necromancer image" />
-  <h2>Controls</h2>
-
-  <h3>Skeletons</h3>
-  <p>Use your cursor to command the skeletons.</p>
-
-  <h3>Movement</h3>
-  <p>WASD to move the necromancer.</p>
-
-  <h3>Summoning Skeletons</h3>
-  <p>Hold spacebar to create a summoning circle that transforms bones into new skeletons.</p>
-`
-
 const MainMenuScreen = () => `
-<h1>NECRO CURSOR</h1>
+  <h1>NECRO CURSOR</h1>
 
-<div id="content" class="${styles.content}">
-  <img class="${styles.hero}" src="/assets/necro.png" alt="necromancer image" />
-</div>
+  <div id="content" class="${styles.content}">
+    <img class="${styles.hero}" src="/assets/necro.png" alt="necromancer image" />
+  </div>
 
-<button id="start_button">Start Game</button>
-<button id="toggle_content">View Highscores</button>
-<button id="edit_stats">Edit Stats</button>
+  <div class="${styles.buttons}">
+    <button id="how_to_play_btn">How to Play</button>
+    <button id="highscores_btn">Highscores</button>
+    <button id="stat_editor_btn">Edit Stats</button>
+    <button id="start_game_btn">Start Game</button>
+  </div>
 `
+
+// TODO: create separate (and more detailed) "how to play" view
+const printControls = (container) => {
+  container.innerHTML = `
+    <h2>Controls</h2>
+
+    <h3>Skeletons</h3>
+    <p>Use your cursor to command the skeletons.</p>
+
+    <h3>Movement</h3>
+    <p>WASD to move the necromancer.</p>
+
+    <h3>Summoning Skeletons</h3>
+    <p>Hold spacebar to create a summoning circle that transforms bones into new skeletons.</p>
+  `
+}
 
 export const MainMenu = ({ onStartGame, gameVersion }) => {
   const { printHighscores } = HighscoreData();
@@ -41,35 +45,39 @@ export const MainMenu = ({ onStartGame, gameVersion }) => {
   }
 
   const content = document.querySelector('#content');
-  content.innerHTML = Controls();
 
-  const startButton = document.querySelector('#start_button');
+  const howToPlayButton = document.querySelector('#how_to_play_btn');
+  howToPlayButton.addEventListener('click', () => showContent("how_to_play"))
+
+  const highscoresButton = document.querySelector('#highscores_btn');
+  highscoresButton.addEventListener('click', () => showContent("highscores"))
+
+  const editStatsButton = document.querySelector('#stat_editor_btn');
+  editStatsButton.addEventListener('click', () => showContent("stat_editor"));
+
+  const startButton = document.querySelector('#start_game_btn');
   startButton.addEventListener('click', handleStartGame);
 
-  const editStatsButton = document.querySelector('#edit_stats');
-  editStatsButton.addEventListener('click', () => {
-    StatEditor(content);
-    editStatsButton.classList.add('hidden');
-  });
-
-  const toggleContentButton = document.querySelector('#toggle_content');
-
-  const toggleContent = () => {
+  const showContent = (page) => {
+    highscoresButton.classList.remove('hidden');
+    howToPlayButton.classList.remove('hidden');
     editStatsButton.classList.remove('hidden');
-    switch (toggleContentButton.innerHTML) {
-      case "View Highscores":
+    switch (page) {
+      case "highscores":
         content.innerHTML = printHighscores(5, gameVersion);
-        toggleContentButton.innerHTML = "View Controls";
+        highscoresButton.classList.add('hidden');
         break;
-      case "View Controls":
-        content.innerHTML = Controls();
-        toggleContentButton.innerHTML = "View Highscores";
+      case "how_to_play":
+        printControls(content);
+        howToPlayButton.classList.add('hidden');
+        break;
+      case "stat_editor":
+        StatEditor(content);
+        editStatsButton.classList.add('hidden');
         break;
       default:
         console.error("Something went wrong with toggleContent...")
         break;
     }
   }
-
-  toggleContentButton.addEventListener('click', toggleContent);
 }

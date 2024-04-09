@@ -1,6 +1,5 @@
 // @ts-check
 
-// TODO: change current "type" values to "name" and change "type" to be "enemy | minion | player"
 /**
  * @typedef {Object} Unit 
  * @prop {string} name 
@@ -9,9 +8,18 @@
  * @prop {number} width
  * @prop {number} height
  * @prop {Stats} stats
+ * @prop {DropTable} [dropTable]
  * @prop {number} [exp] // change to expReward?
  * @prop {boolean} [hideUI]
  * @prop {function} [behavior] - defines the "brain"
+ */
+
+/**
+ * @typedef {Object} DropTable
+ * @prop {string[]} [always]
+ * @prop {string[]} [common]
+ * @prop {string[]} [rare]
+ * @prop {string[]} [legendary]
  */
 
 /**
@@ -36,6 +44,29 @@
 
 /** @type {Object.<string, Unit>} */
 export const enemyData = {
+  peasant: {
+    name: "peasant",
+    type: "enemy",
+    url: "/assets/peasant.png",
+    width: 45,
+    height: 110,
+    exp: 5,
+    stats: {
+      maxHP: 5,
+      armor: 8,
+      attackBonus: 2,
+      attackSpeed: 8,
+      attackRange: 20,
+      maxHit: 1,
+      damageBonus: 0,
+      moveSpeed: 0.35,
+      maxSpeed: 1.2,
+      maxAttackers: 10,
+    },
+    dropTable: {
+      always: ["bones"]
+    }
+  },
   guard: {
     name: "guard",
     type: "enemy",
@@ -56,6 +87,9 @@ export const enemyData = {
       maxAttackers: 10,
       critChance: 5,
       critDamage: 2,
+    },
+    dropTable: {
+      always: ["bones"]
     }
   },
   paladin: {
@@ -78,6 +112,9 @@ export const enemyData = {
       maxAttackers: 10,
       critChance: 5,
       critDamage: 2,
+    },
+    dropTable: {
+      always: ["bones"]
     }
   },
   // doppelsoldner (montante AoE attacks)
@@ -98,13 +135,13 @@ export const minionData = {
       maxHit: 2,
       attackBonus: 5,
       attackSpeed: 5,
-      attackRange: 10,
+      attackRange: 20,
       damageBonus: 0,
       moveSpeed: 0.2,
       maxSpeed: 1.5,
       critChance: 5,
       critDamage: 2,
-    }
+    },
   }
 }
 /** @type {Object.<string, Unit>} */

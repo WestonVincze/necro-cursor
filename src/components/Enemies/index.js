@@ -13,8 +13,12 @@ const {
   getUnitById,
 } = Swarm();
 
-const createEnemy = (type, position) => {
-  const enemy = addUnit(type, position);
+const createEnemy = (name, position = {
+        x: Math.random() < 0.5 ? Math.random() * 100 : appService.app.screen.width - Math.random() * 100,
+        y: Math.random() < 0.5 ? Math.random() * 100 : appService.app.screen.height - Math.random() * 100,
+    }) => {
+
+  const enemy = addUnit(name, position);
   enemy.setTarget(gameState.player);
 
   enemy.health.subscribeToHealthChange(({ type }) => {
@@ -30,14 +34,12 @@ const createEnemy = (type, position) => {
 
   enemy.health.subscribeToDeath(() => {
     gameState.incrementKillCount(enemy.name);
-    gameState.player.addExperience(enemyData[type].exp);
+    gameState.player.addExperience(enemyData[name].exp);
 
     if (enemy.name === "paladin" && enemy.holyNova) {
       enemy.holyNova.cancelSpell();
     }
   })
-
-  // TODO: refactor into proper damage system
 }
 
 const Enemies = () => {
@@ -74,29 +76,18 @@ const Enemies = () => {
         followForce: 1,
         separation: 2,
         maxSpeed: enemy.stats.maxSpeed,
-        closeEnough: enemy.target ? { x: enemy.target.sprite.width, y: enemy.target.sprite.height } : null
+        closeEnough: enemy.target ? { x: enemy.target.sprite.width / 2 + enemy.sprite.width / 2, y: enemy.target.sprite.height / 2 + enemy.sprite.height / 2 } : null
       }
+
       followTarget(enemy.sprite, enemy.target.sprite, enemy.stats.moveSpeed, delta, options);
     })
   })
 }
 
 export const ExplicitSpawner = () => {
-  const { app } = appService;
   Enemies();
 
-  // spawns enemies on demand only
-  const spawnEnemy = (name) => {
-    createEnemy(
-      name,
-      {
-        x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
-        y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,
-      }
-    )
-  }
-
-  return { spawnEnemy }
+  return { createEnemy };
 }
 
 // continuously spawns enemies
@@ -109,17 +100,29 @@ export const TimedSpawner = (rate = 5000) => {
   let difficultyScale = 1;
 
   timer$.subscribe(() => {
-    if (!app.ticker.started) return
-    difficultyScale += 0.1;
+    if (!app.ticker.started) return;
+    difficultyScale += 0.05;
 
     for (let i = 0; i < Math.floor(difficultyScale); i++) {
-      createEnemy(
-        Math.random() > Math.min(0.5, (0.05 * difficultyScale)) ? "guard" : "paladin",
-        {
-          x: Math.random() < 0.5 ? Math.random() * 100 : app.screen.width - Math.random() * 100,
-          y: Math.random() < 0.5 ? Math.random() * 100 : app.screen.height - Math.random() * 100,
-        }
-      )
+      const name = decideEnemyToSpawn(difficultyScale);
+      createEnemy(name);
     }
   })
 }
+
+const decideEnemyToSpawn = (scale) => {
+  // if the scale is less than x, only spawn peasants
+  // if the scale is greater than y, spawn peasants and guards
+  // if the scale is greater than z, spawn guards with % chance for paladins
+
+    if (scale < 1.5) {
+      return "peasant";
+    }
+
+    if (scale < 3) {
+      return Math.random() > Math.min(0.5, (0.5 * scale)) ? "peasant" : "guard";
+    }
+
+    return Math.random() > Math.min(0.5, (0.05 * scale)) ? "guard" : "paladin";
+}
+
