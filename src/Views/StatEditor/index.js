@@ -15,6 +15,7 @@ const StatEditorScreen = () => `
     <div id="stats" class="${styles.statInputs}"></div>
     <button type="submit" id="submit" class="hidden">Save</button>
   </form>
+  <button id="stat_loader">Load Stats</button>
 </div>
 `;
 
@@ -50,17 +51,21 @@ export const StatEditor = (container) => {
     statsContainer.append(inputGroup);
   }
 
+  const addStatInputs = (stats) => {
+    statsContainer.innerHTML = "";
+    for (const [stat, value] of Object.entries(stats)) {
+      addStatInput(stat, value);
+    }
+  }
+
   const unitSelector = document.getElementById('unit_selector')
 
   unitSelector.addEventListener("change", (e) => {
-    statsContainer.innerHTML = "";
     if (units[e.target.value]) {
       document.getElementById('submit').classList.remove('hidden');
       selectedUnit = units[e.target.value];
       const { stats } = selectedUnit;
-      for (const [stat, value] of Object.entries(stats)) {
-        addStatInput(stat, value);
-      }
+      addStatInputs(stats);
     } else {
       selectedUnit = null;
       document.getElementById('submit').classList.add('hidden');
@@ -77,10 +82,29 @@ export const StatEditor = (container) => {
         selectedUnit.stats[stat] = modifiedStats[stat];
       })
 
+      localStorage.setItem(selectedUnit.name, JSON.stringify(modifiedStats));
       statsContainer.innerHTML = `Saved stats for ${selectedUnit.name}!`;
       unitSelector.value = "";
       selectedUnit = null;
       document.getElementById('submit').classList.add('hidden');
     } 
   });
+
+  const statLoader = document.getElementById('stat_loader');
+
+  statLoader.addEventListener('click', () => {
+    Object.keys(units).forEach(unit => {
+      console.log(`checking ${unit}`);
+      const savedStats = JSON.parse(localStorage.getItem(unit));
+      console.log(savedStats);
+
+
+      if (savedStats) {
+        for (const [stat, value] of Object.entries(savedStats)) {
+          console.log(stat, value)
+          units[unit].stats[stat] = value;
+        }
+      }
+    })
+  })
 }
