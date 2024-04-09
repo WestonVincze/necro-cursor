@@ -60,3 +60,11 @@
   - rangers can hit ally skeletons
 
   - skeleton lifesteal (minus accuracy)
+
+
+## boss ideas
+- minotaur charges at player and brutally massacres minions, forcing the player to dodge the minotaur attacks with the player and skeletons
+
+- boss that is multiple bosses and they only take damage if they are all being attacked
+- boss where you have to sacrifice units to avoid attacks
+- group of enemies that you have to break the formation of to get to a powerful enemy

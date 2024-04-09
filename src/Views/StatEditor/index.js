@@ -12,10 +12,15 @@ const StatEditorScreen = () => `
       <option value="guard">Guard</option>
       <option value="paladin">Paladin</option>
     </select>
-    <div id="stats" class="${styles.statInputs}"></div>
-    <button type="submit" id="submit" class="hidden">Save</button>
+    <div class="${styles.statInputsContainer}">
+      <div id="unit_img"></div>
+      <div id="stats_inputs" class="${styles.statInputs}"></div>
+    </div>
+    <div class="${styles.buttons}">
+      <button id="submit" type="submit" class="hidden">Save</button>
+      <button id="stat_loader">Load Stats</button>
+    </div>
   </form>
-  <button id="stat_loader">Load Stats</button>
 </div>
 `;
 
@@ -23,7 +28,8 @@ export const StatEditor = (container) => {
   let selectedUnit = null;
   let modifiedStats = {};
   container.innerHTML = StatEditorScreen();
-  const statsContainer = document.getElementById('stats');
+  const statInputs = document.getElementById('stats_inputs');
+  const imgContainer = document.getElementById('unit_img');
 
   const addStatInput = (stat, value) => {
     const inputGroup = document.createElement("div");
@@ -39,7 +45,7 @@ export const StatEditor = (container) => {
     input.setAttribute('value', value);
 
     input.addEventListener('change', (e) => {
-      const newValue = parseInt(e.target.value);
+      const newValue = parseFloat(e.target.value);
       if (selectedUnit[stat] === newValue) return;
 
       modifiedStats[stat] = newValue;
@@ -48,11 +54,19 @@ export const StatEditor = (container) => {
     inputGroup.appendChild(label);
     inputGroup.appendChild(input);
 
-    statsContainer.append(inputGroup);
+    statInputs.append(inputGroup);
   }
 
-  const addStatInputs = (stats) => {
-    statsContainer.innerHTML = "";
+  const createStatEditor = () => {
+    imgContainer.innerHTML = "";
+    statInputs.innerHTML = "";
+    if (!selectedUnit) return;
+
+    const { name, url, stats } = selectedUnit;
+    const img = document.createElement('img');
+    img.setAttribute('src', url);
+    img.setAttribute('alt', `${name} image`);
+    imgContainer.appendChild(img);
     for (const [stat, value] of Object.entries(stats)) {
       addStatInput(stat, value);
     }
@@ -64,12 +78,12 @@ export const StatEditor = (container) => {
     if (units[e.target.value]) {
       document.getElementById('submit').classList.remove('hidden');
       selectedUnit = units[e.target.value];
-      const { stats } = selectedUnit;
-      addStatInputs(stats);
     } else {
       selectedUnit = null;
       document.getElementById('submit').classList.add('hidden');
     }
+
+    createStatEditor();
   });
 
   const form = document.getElementById('stat_editor_form');
@@ -83,7 +97,8 @@ export const StatEditor = (container) => {
       })
 
       localStorage.setItem(selectedUnit.name, JSON.stringify(modifiedStats));
-      statsContainer.innerHTML = `Saved stats for ${selectedUnit.name}!`;
+      imgContainer.innerHTML = "";
+      statInputs.innerHTML = `Saved stats for ${selectedUnit.name}!`;
       unitSelector.value = "";
       selectedUnit = null;
       document.getElementById('submit').classList.add('hidden');
@@ -94,16 +109,14 @@ export const StatEditor = (container) => {
 
   statLoader.addEventListener('click', () => {
     Object.keys(units).forEach(unit => {
-      console.log(`checking ${unit}`);
       const savedStats = JSON.parse(localStorage.getItem(unit));
-      console.log(savedStats);
-
 
       if (savedStats) {
         for (const [stat, value] of Object.entries(savedStats)) {
-          console.log(stat, value)
           units[unit].stats[stat] = value;
         }
+
+        createStatEditor();
       }
     })
   })

@@ -4,6 +4,7 @@ import { StatEditor } from "../StatEditor";
 
 // TODO: create separate (and more detailed) "how to play" view
 const Controls = () => `
+  <img class="${styles.hero}" src="/assets/necro.png" alt="necromancer image" />
   <h2>Controls</h2>
 
   <h3>Skeletons</h3>
@@ -18,9 +19,10 @@ const Controls = () => `
 
 const MainMenuScreen = () => `
 <h1>NECRO CURSOR</h1>
-<img class="${styles.hero}" src="/assets/necro.png" alt="necromancer image" />
 
-<div id="content" class="${styles.content}"></div>
+<div id="content" class="${styles.content}">
+  <img class="${styles.hero}" src="/assets/necro.png" alt="necromancer image" />
+</div>
 
 <button id="start_button">Start Game</button>
 <button id="toggle_content">View Highscores</button>
@@ -45,12 +47,15 @@ export const MainMenu = ({ onStartGame, gameVersion }) => {
   startButton.addEventListener('click', handleStartGame);
 
   const editStatsButton = document.querySelector('#edit_stats');
-  editStatsButton.addEventListener('click', () => StatEditor(content));
-
+  editStatsButton.addEventListener('click', () => {
+    StatEditor(content);
+    editStatsButton.classList.add('hidden');
+  });
 
   const toggleContentButton = document.querySelector('#toggle_content');
 
   const toggleContent = () => {
+    editStatsButton.classList.remove('hidden');
     switch (toggleContentButton.innerHTML) {
       case "View Highscores":
         content.innerHTML = printHighscores(5, gameVersion);

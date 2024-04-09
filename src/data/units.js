@@ -54,6 +54,8 @@ export const enemyData = {
       moveSpeed: 0.3,
       maxSpeed: 1,
       maxAttackers: 10,
+      critChance: 5,
+      critDamage: 2,
     }
   },
   paladin: {
@@ -74,6 +76,8 @@ export const enemyData = {
       moveSpeed: 0.2,
       maxSpeed: 0.5,
       maxAttackers: 10,
+      critChance: 5,
+      critDamage: 2,
     }
   },
   // doppelsoldner (montante AoE attacks)
@@ -98,6 +102,8 @@ export const minionData = {
       damageBonus: 0,
       moveSpeed: 0.2,
       maxSpeed: 1.5,
+      critChance: 5,
+      critDamage: 2,
     }
   }
 }
