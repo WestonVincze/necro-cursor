@@ -28,7 +28,7 @@
  * 
  */
 
-import { Sprite, Container } from "pixi.js"
+import { Sprite } from "pixi.js"
 import { appService } from "../../app";
 import { Health } from "../Health";
 import { isIntersectingRect } from "../Colliders/isIntersecting";
@@ -36,7 +36,6 @@ import { attackTarget } from "../Attack";
 import { units } from "../../data/units";
 import { take, finalize } from "rxjs";
 
-// TODO: create unit based on unit name, do not force other scripts to collect unitData
 export const createUnit = (id, unitName, position, options) => {
   const _unitData = units[unitName];
   if (!_unitData) {
@@ -46,6 +45,7 @@ export const createUnit = (id, unitName, position, options) => {
 
   const { gameTicks$, spriteContainer } = appService;
   const _stats = _unitData.stats;
+  const _statOverrides = {};
   let _targetTypes = null; // array of possible target types
   let _target = null; // unit or null
   let _canAttack = _stats.maxHit > 0; // always false if there is no max hit
@@ -85,6 +85,7 @@ export const createUnit = (id, unitName, position, options) => {
     return true;
   }
 
+  // TODO: all of these modify the original reference, when we want to be able to modify stats at the unit level we will need to change these to modify the "_statOverrides" property and move these functions out of each unit
   const getStat = (stat) => _stats[stat];
 
   const setStat = (stat, value) => {
@@ -179,7 +180,7 @@ export const createUnit = (id, unitName, position, options) => {
       enumerable: true,
     },
     stats: {
-      get: () => _stats,
+      get: () => ({ ..._stats, ..._statOverrides }),
       enumerable: true,
     },
     targetType: {

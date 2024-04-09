@@ -1,0 +1,32 @@
+.statEditor {
+
+
+} 
+
+.statEditor select {
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  width: 150px;
+  padding: 5px 10px
+}
+
+.statInputs {
+  max-width: 300px;
+  margin: 15px auto;
+}
+
+.inputGroup {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 5px;
+}
+
+.inputGroup input {
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  width: 70px;
+  padding: 5px 10px
+}

@@ -46,7 +46,7 @@ export const enemyData = {
     stats: {
       maxHP: 15,
       armor: 12,
-      attackBonus: 5,
+      attackBonus: 6,
       attackSpeed: 4,
       attackRange: 20,
       maxHit: 4,
@@ -91,10 +91,10 @@ export const minionData = {
     stats: {
       maxHP: 10,
       armor: 10,
-      maxHit: 3,
+      maxHit: 2,
       attackBonus: 5,
       attackSpeed: 5,
-      attackRange: 20,
+      attackRange: 10,
       damageBonus: 0,
       moveSpeed: 0.2,
       maxSpeed: 1.5,
@@ -110,7 +110,7 @@ export const playerData = {
     width: 50,
     height: 114,
     stats: {
-      maxHP: 40,
+      maxHP: 20,
       armor: 10,
       moveSpeed: 0.2,
       maxSpeed: 2,
@@ -118,7 +118,6 @@ export const playerData = {
       castingSpeed: 0.5,
       spellRadius: 50,
     }
-
   }
 }
 

@@ -34,3 +34,29 @@
 
 ##### morph spells:
 - summon golem (10 skeletons merge into one mega skeleton)
+
+
+## alternative spellcasting concepts
+- time based spells (no other costs)
+- spells have random negative effects (or specific negative effects based on the spell)
+
+
+## Peasants merge into mob if there are 10 or more on screen?
+
+## Dopple attacks
+- low accuracy, high damage, big aoe strikes?
+- knockback
+- telegraphed charged
+
+
+## Other types of skeletons
+- at level ~5 choose a type of skeleton to randomly spawn?
+- choose a summoning circle spell that WILL summon a specific skeleton (but with a cost)
+- "class" based skeletons?
+  - druid skeleton turns into skeletal bear
+  - rogue skeletons do backstab damage
+  - mage skeletons deal damage to player when they attack (something like 0.2)
+  - warriors cannot be moved through (obstacles)
+  - rangers can hit ally skeletons
+
+  - skeleton lifesteal (minus accuracy)

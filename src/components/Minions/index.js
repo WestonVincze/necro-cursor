@@ -131,7 +131,7 @@ export const initializeMinions = (spriteCount) => {
   physicsUpdate.subscribe((delta) => {
     let formationIterator = null;
 
-    const minionCount = minions.filter(minion => !minion.target).length || 0;
+    const minionCount = minions.length; //filter(minion => !minion.target).length || 0;
     switch (selectedFormationTypeSubject.getValue().value) {
       case "cluster":
         formationIterator = null;
@@ -179,7 +179,7 @@ export const initializeMinions = (spriteCount) => {
     minions.forEach(minion => {
       const target = minion.target;
 
-      if (formationIterator && !target) {
+      if (formationIterator && (!target || !aggressionSubject.getValue())) {
         mod = formationIterator.nextValue();
       }
 
@@ -189,7 +189,7 @@ export const initializeMinions = (spriteCount) => {
         followForce: 1,
         separation: 2,
         maxSpeed: minion.stats.maxSpeed,
-        closeEnough: targetPosition.width ? { x: target.sprite.width, y: target.sprite.height } : null 
+        closeEnough: targetPosition.width ? { x: target.sprite.width / 2 + minion.sprite.width / 2, y: target.sprite.height + minion.sprite.height / 2 } : null 
       }
 
       followTarget(minion.sprite, targetPosition, minion.stats.moveSpeed, delta, options)
