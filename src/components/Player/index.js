@@ -209,7 +209,7 @@ const initializePlayer = () => {
 }
 
 export const Player = () => {
-  const { app, physicsUpdate } = appService;
+  const { app, physicsUpdate, world } = appService;
   const player = initializePlayer();
   gameState.player = player;
   const sprite = player.sprite;
@@ -273,12 +273,20 @@ export const Player = () => {
       sprite.vy *= scale;
     }
 
+    sprite.x += sprite.vx;
+    sprite.y += sprite.vy;
+
+    world.pivot.x = sprite.x;
+    world.pivot.y = sprite.y;
+
+    /*
     const position = { x: sprite.x += sprite.vx, y: sprite.y += sprite.vy}
 
     position.x = Math.min(Math.max(position.x, sprite.width / 2), app.screen.width - sprite.width / 2);
     position.y = Math.min(Math.max(position.y, sprite.height / 2), app.screen.height - sprite.height / 2);
     sprite.x = position.x;
     sprite.y = position.y;
+    */
   })
 }
 

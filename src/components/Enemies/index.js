@@ -18,6 +18,9 @@ const createEnemy = (name, position = {
         y: Math.random() < 0.5 ? Math.random() * 100 : appService.app.screen.height - Math.random() * 100,
     }) => {
 
+  console.log(appService.world);
+  console.log(appService.app.screen)
+
   const enemy = addUnit(name, position);
   enemy.setTarget(gameState.player);
 
