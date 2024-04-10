@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 import { HitSplats } from "./HitSplats";
 import { appService } from "../../app";
 
-export const Health = ({ maxHP, sprite, hideHealthBar = false }) => {
+export const Health = ({ maxHP, sprite, hideHealthBar = false, type }) => {
   let hp = maxHP;
   const onDeath = new Subject();
   const onHealthChange = new Subject();
@@ -13,16 +13,15 @@ export const Health = ({ maxHP, sprite, hideHealthBar = false }) => {
     healthBar = HealthBar({ maxHP, hp, sprite })
   }
 
-  const { spawnHitSplat } = HitSplats(sprite);
+  const { spawnHitSplat } = HitSplats(sprite, type);
 
-  const takeDamage = (amount) => {
+  const takeDamage = (amount, isCrit) => {
     if (amount < 0) {
       console.error("cannot deal negative damage.")
       return;
     } 
 
-    spawnHitSplat(amount);
-
+    spawnHitSplat(amount, isCrit);
     if (amount === 0) return;
 
     hp = Math.max(0, hp - amount);
@@ -64,6 +63,7 @@ export const Health = ({ maxHP, sprite, hideHealthBar = false }) => {
     subscribeToDeath,
     subscribeToHealthChange,
     setMaxHP,
+    spawnHitSplat,
   }
 }
 

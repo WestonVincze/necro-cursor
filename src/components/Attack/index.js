@@ -27,15 +27,15 @@ export const attackTarget = (attackerStats, target) => {
   let critMod = 1;
 
   if (rollToHit(target.stats.armor, attackerStats.attackBonus)) {
-    damage = rollDice(attackerStats.maxHit, attackerStats.damageBonus);
+    damage = rollDice(attackerStats.maxHit);
   }
 
   if (attackerStats.critChance && rollToCrit(attackerStats.critChance)) {
-    console.log("CRIT");
     critMod = attackerStats.critDamage;
   }
 
-  target.health.takeDamage(damage * critMod);
+  damage = damage * critMod + attackerStats.damageBonus;
+  target.health.takeDamage(damage, critMod > 1);
 
   // check for and apply effects like knockback...
 

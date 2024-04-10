@@ -5,6 +5,7 @@ const DebugConsoleScreen = () => `
   <div class="${styles.debugConsole} ${styles.hide}">
     <div class="${styles.FPSContainer}">FPS: <span id="FPS">0</span></div>
     <div class="${styles.FPSContainer}">LowestFPS: <span id="lowestFPS">0</span></div>
+    <input class="${styles.countInput}" id="count" type="number" />
     <div class="${styles.buttonContainer}"></div>
   </div>
 `;
@@ -19,7 +20,8 @@ export const DebugConsole = () => {
 
   const createButton = (id, text, action, count = 1) => {
     const handleAction = () => {
-      for (let i = 0; i < count; i++) action();
+      const countInput = parseInt(document.getElementById('count').value) || count;
+      for (let i = 0; i < countInput; i++) action();
     }
     const button = document.createElement('button');
     button.id = id;

@@ -69,7 +69,7 @@ export const createUnit = (id, unitName, position, options) => {
   sprite.id = id; // is this dumb?
   spriteContainer.addChild(sprite);
 
-  const health = Health({ maxHP: _stats.maxHP, sprite, hideHealthBar: _unitData.hideUI });
+  const health = Health({ maxHP: _stats.maxHP, sprite, hideHealthBar: _unitData.hideUI, type: _unitData.type });
 
   health.subscribeToDeath(() => {
     spawnDrops(sprite, _dropTable);

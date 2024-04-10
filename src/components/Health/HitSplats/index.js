@@ -1,4 +1,4 @@
-import { Container, Graphics, Ticker, Text } from "pixi.js";
+import { Container, Graphics, Ticker, Text, SHAPES } from "pixi.js";
 import { appService } from "../../../app";
 
 const createHitSplatSpots = (sprite) => {
@@ -41,11 +41,32 @@ const getNextSpot = (spots) => {
   return spot;
 }
 
-export const HitSplats = (sprite) => {
+const hitSplatColors = {
+  friendly: {
+    miss: 0xdbaded,
+    hit: 0xc360eb,
+    crit: 0xab17e6,
+  },
+  hostile: {
+    miss: 0xff9191,
+    hit: 0xff5555,
+    crit: 0xed2424,
+  }
+}
+
+export const HitSplats = (sprite, type) => {
   const spots = createHitSplatSpots(sprite);
+  const colors = type === "enemy" ? hitSplatColors.hostile : hitSplatColors.friendly;
   const { UIContainer } = appService;
 
-  const spawnHitSplat = (damage) => {
+  const spawnHitSplat = (damage, isCrit) => {
+    let color = colors.hit;
+    if (damage === 0) {
+      color = colors.miss;
+    } else if (isCrit) {
+      color = colors.crit;
+    }
+
     const spot = getNextSpot(spots);
 
     const hitSplatContainer = new Container();
@@ -56,13 +77,13 @@ export const HitSplats = (sprite) => {
     const x = spot.offset.x + (Math.random() * positionVariance * 2) - positionVariance
     const y = spot.offset.y + (Math.random() * positionVariance * 2) - positionVariance
 
-    const text = new Text(damage, { style: { fontFamily: 'monospace', fontSize: 12 }});
+    const text = new Text(damage, { style: { fontFamily: 'monospace', fontSize: isCrit ? 15 : 12, fontWeight: isCrit ? 600 : 400 }});
     text.anchor.set(0.5);
     // text.position.set(x, y);
 
     const star = new Graphics();
-    star.beginFill(damage > 0 ? 0xff5555 : 0x5555ff);
-    star.drawCircle(0, 0, 20);
+    star.beginFill(color);
+    star.drawCircle(0, 0, isCrit ? 30 : 20);
     star.endFill();
 
     hitSplatContainer.addChild(star);
