@@ -50,7 +50,7 @@ export const enemyData = {
     url: "/assets/peasant.png",
     width: 45,
     height: 110,
-    exp: 5,
+    exp: 8,
     stats: {
       maxHP: 5,
       armor: 8,
@@ -73,7 +73,7 @@ export const enemyData = {
     url: "/assets/guard.png",
     width: 50,
     height: 110,
-    exp: 10,
+    exp: 12,
     stats: {
       maxHP: 15,
       armor: 12,
@@ -98,7 +98,7 @@ export const enemyData = {
     url: "/assets/paladin.png",
     width: 60,
     height: 110,
-    exp: 15,
+    exp: 25,
     stats: {
       maxHP: 30,
       armor: 16,
@@ -139,8 +139,8 @@ export const minionData = {
       damageBonus: 0,
       moveSpeed: 0.2,
       maxSpeed: 1.5,
-      critChance: 5,
-      critDamage: 2,
+      critChance: 2,
+      critDamage: 1.5,
     },
   }
 }

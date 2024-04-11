@@ -18,12 +18,23 @@ const createEnemy = (name, position = {
         y: Math.random() < 0.5 ? Math.random() * 100 : appService.app.screen.height - Math.random() * 100,
     }) => {
 
-  console.log(appService.world);
-  console.log(appService.app.screen)
-
+  position.x += appService.world.pivot.x - appService.app.screen.width / 2;
+  position.y += appService.world.pivot.y - appService.app.screen.height / 2;
   const enemy = addUnit(name, position);
-  enemy.setTarget(gameState.player);
 
+  const findTarget = () => {
+    const newTarget = getClosestUnit(enemy.sprite, gameState.minions.concat(gameState.player));
+    enemy.setTarget(newTarget);
+    newTarget.health.subscribeToDeath(() => {
+      if (!getUnitById(enemy.id)) return;
+      findTarget();
+    });
+  }
+
+  findTarget();
+  const searchForTarget = appService.gameTicks$.subscribe(findTarget);
+
+  /*
   enemy.health.subscribeToHealthChange(({ type }) => {
     if (type !== "damage") return;
 
@@ -34,8 +45,10 @@ const createEnemy = (name, position = {
       enemy?.setTarget(gameState.player)}
     );
   });
+  */
 
   enemy.health.subscribeToDeath(() => {
+    searchForTarget.unsubscribe();
     gameState.incrementKillCount(enemy.name);
     gameState.player.addExperience(enemyData[name].exp);
 

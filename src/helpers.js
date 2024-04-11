@@ -48,3 +48,21 @@ export const getClosestUnit = ({ x, y }, units) => {
 }
 
 const getFirstUnitWithin = (position, range) => {}
+
+export const getRandomPosition = (minX, maxX, minY, maxY) => {
+  const x = Math.random() * (maxX - minX) + minX;
+  const y = Math.random() * (maxY - minY) + minY;
+  return { x, y }
+}
+
+export const spawnRandomShapes = (container, maxX, maxY, count) => {
+  for (let i = 0; i < count; i++) {
+    const position = getRandomPosition(0, maxX, 0, maxY);
+
+    const shape = Math.random() < 0.5 ? new Graphics().beginFill(0xFF0000).drawCircle(0, 0, 20) : new Graphics().beginFill(0x00FF00).drawRect(0, 0, 40, 40);
+
+    shape.position.set(position.x, position.y);
+
+    container.addChild(shape);
+  }
+}

@@ -24,19 +24,29 @@ export const createMinion = (position) => {
 }
 
 export const initializeMinions = (spriteCount) => {
+  const { app, world, gameTicks$, physicsUpdate } = appService;
   gameState.minions = minions;
+
   // register mousemove event
+  // maybe make this on click?
   const move$ = fromEvent(container, 'mousemove');
   const result$ = move$.pipe(auditTime(200));
+  const rect = container.getBoundingClientRect();
 
+  let mouseX = 0;
+  let mouseY = 0;
   let targetX = 0;
   let targetY = 0;
 
   const followMouse = (e) => {
-    const rect = container.getBoundingClientRect();
-    targetX = e.clientX - rect.left;
-    targetY = e.clientY - rect.top;
+    mouseX = e.clientX - rect.left;
+    mouseY = e.clientY - rect.top;
   }
+
+  gameTicks$.subscribe(() => {
+    targetX = mouseX + world.pivot.x - rect.width / 2;
+    targetY = mouseY + world.pivot.y - rect.height / 2;
+  })
 
   const formationTypes = [
     "cluttered",
@@ -102,7 +112,6 @@ export const initializeMinions = (spriteCount) => {
 
   result$.subscribe(followMouse);
 
-  const { app, gameTicks$, physicsUpdate } = appService;
   const spawnMinionRandomly = () => createMinion({ x: Math.random() * app.screen.width, y: Math.random() * app.screen.height })
   for (let i = 0; i < spriteCount; i++) {
     spawnMinionRandomly();
