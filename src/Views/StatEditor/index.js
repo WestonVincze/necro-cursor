@@ -113,6 +113,7 @@ export const StatEditor = (container) => {
 
       if (savedStats) {
         for (const [stat, value] of Object.entries(savedStats)) {
+          console.log(`loaded stats for ${unit}`)
           units[unit].stats[stat] = value;
         }
 

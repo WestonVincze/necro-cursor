@@ -1,5 +1,5 @@
 import "./style.css"
-import { Application, Container, ParticleContainer } from "pixi.js";
+import { Application, Container, ParticleContainer, Sprite, Graphics } from "pixi.js";
 import { Player } from "./components/Player";
 import { TimedSpawner, ExplicitSpawner } from "./components/Enemies";
 import { getURLParam } from "./helpers";
@@ -16,6 +16,8 @@ export const appService = {
   /** @type {Application} */
   app: null,
   /** @type {Container} */
+  world: null,
+  /** @type {Container} */
   spriteContainer: null,
   /** @type {Container} */
   UIContainer: null,
@@ -30,14 +32,27 @@ export const appService = {
     const app = new Application({ background: '#aeaeae', resizeTo: container});
     container.appendChild(app.view);
 
+    const world = new Container();
+    world.x = app.screen.width / 2;
+    world.y = app.screen.height / 2;
+    const bg = Sprite.from('/assets/testBG.jpg')
+    bg.width = 5000;
+    bg.height = 5000;
+    bg.alpha = 0.4;
+    world.addChild(bg);
+    bg.anchor.set(0.5);
+
+
     const spriteContainer = new Container();
     const UIContainer = new Container();
     const particleContainer = new ParticleContainer();
     spriteContainer.sortableChildren = true;
 
-    app.stage.addChild(spriteContainer);
-    app.stage.addChild(UIContainer);
-    app.stage.addChild(particleContainer);
+    world.addChild(spriteContainer);
+    world.addChild(UIContainer);
+    world.addChild(particleContainer);
+
+    app.stage.addChild(world);
     const gameTicks$ = interval(200);
 
     window.addEventListener('blur', () => this.softPause());
@@ -49,6 +64,7 @@ export const appService = {
       }
     });
 
+    this.world = world;
     this.app = app;
     this.spriteContainer = spriteContainer;
     this.UIContainer = UIContainer;
@@ -99,6 +115,7 @@ const gameState = initializeGameState();
 appService.physicsUpdate.subscribe(() => {
   // creates a cache for the app to use
   // gameState.separationForceCache.clear();
+  // TODO: convert to a Subject instead of updating every frame
   gameState.allUnits = gameState.getAllUnits();
 })
 export { gameState };
@@ -107,7 +124,6 @@ const { createButton } = DebugTools(gameState);
 
 const skeletons = getURLParam("skeletons", 0);
 const spawnRate = getURLParam("spawnRate", 5000);
-
 
 const alignSprites = () => {
   spriteContainer.children.map(c => c.zIndex = c.y);

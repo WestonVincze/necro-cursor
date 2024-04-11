@@ -1,5 +1,6 @@
 import { BehaviorSubject, Subject, map, scan, startWith } from "rxjs";
 
+import { levelUpOptions, experienceTable } from "../LevelUp";
 import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
 import { appService, gameState } from "/src/app";
 import { items, removeItem } from "/src/components/Drops";
@@ -14,29 +15,6 @@ const FRICTION = 0.05;
 
 const initialLevel = 0;
 const initialExperience = 0;
-
-const experienceTable = {
-  1: 35,
-  2: 75,
-  3: 120,
-  4: 170,
-  5: 225,
-  6: 285,
-  7: 350,
-  8: 420,
-  9: 495,
-  10: 575,
-  11: 660,
-  12: 750,
-  13: 845,
-  14: 945,
-  15: 1050,
-  16: 1160,
-  17: 1275,
-  18: 1395,
-  19: 1520,
-  20: 1650,
-}
 
 const getLevelPercentage = (level, experience) => {
   const nextLevel = Math.min(Object.keys(experienceTable).length, level + 1);
@@ -99,102 +77,6 @@ const initializePlayer = () => {
     addExperience(experienceTable[player.level + 1]);
   }
 
-  const levelUpOptions = [
-    {
-      name: "Move Speed",
-      description: "Increases movement speed.",
-      onSelect: () => {
-        console.log("MOVE SPEED");
-        player.addToStat("moveSpeed", 0.5);
-        player.addToStat("maxSpeed", 0.75);
-        appService.resume();
-      }
-    },
-    {
-      name: "Casting Speed",
-      description: "Increases how quickly the summon circle grows.",
-      onSelect: () => {
-        console.log("CAST SPEED");
-        player.addToStat("castingSpeed", 0.5);
-        appService.resume();
-      }
-    },
-    {
-      name: "Health Regeneration",
-      description: "How fast health regenerates over time.",
-      onSelect: () => {
-        console.log("REGEN");
-        player.addToStat("HPregeneration", 0.01);
-        appService.resume();
-      }
-    },
-    {
-      name: "Max Health",
-      description: "The maximum amount of health available.",
-      onSelect: () => {
-        console.log("MAX HP");
-        player.addToStat("maxHP", 15);
-        player.health.setMaxHP(player.stats.maxHP);
-        appService.resume();
-      }
-    },
-    {
-      name: "Spell Size",
-      description: "How much area the skeleton summoning circle covers.",
-      onSelect: () => {
-        console.log("SPELL SIZE");
-        player.addToStat("spellRadius", 15);
-        appService.resume();
-      }
-    },
-    // TODO: improve stat upgrading system...
-    {
-      name: "Minion Speed",
-      description: "How fast minions can move.",
-      onSelect: () => {
-        gameState.minions?.[0].addToStat("moveSpeed", 0.1);
-        gameState.minions?.[0].addToStat("maxSpeed", 0.3);
-        appService.resume();
-      }
-    },
-    {
-      name: "Minion Max Hit",
-      description: "The maximum damage of your minions.",
-      onSelect: () => {
-        gameState.minions?.[0].addToStat("maxHit", 1);
-        appService.resume();
-      }
-    },
-    {
-      name: "Minion Armor",
-      description: "How difficult minions are to hit.",
-      onSelect: () => {
-        gameState.minions?.[0].addToStat("armor", 1);
-        appService.resume();
-      }
-    },
-    {
-      name: "Minion Accuracy",
-      description: "How likely a minion is to hit.",
-      onSelect: () => {
-        gameState.minions[0].addToStat("attackBonus", 1);
-        appService.resume();
-      }
-    },
-    {
-      name: "Minion MaxHP",
-      description: "The max HP of your minions.",
-      onSelect: () => {
-        gameState.minions[0].addToStat("maxHP", 5);
-        gameState.minions.forEach(m => {
-          m.health.setMaxHP(m.stats.maxHP);
-          m.health.heal(5);
-        })
-        appService.resume();
-      }
-    }
-  ]
-
   onLevelUp.subscribe((level) => {
     console.log(`Congratulations! You've reached level ${level}!`);
     appService.pause();
@@ -209,7 +91,7 @@ const initializePlayer = () => {
 }
 
 export const Player = () => {
-  const { app, physicsUpdate } = appService;
+  const { physicsUpdate, world } = appService;
   const player = initializePlayer();
   gameState.player = player;
   const sprite = player.sprite;
@@ -273,12 +155,20 @@ export const Player = () => {
       sprite.vy *= scale;
     }
 
+    sprite.x += sprite.vx;
+    sprite.y += sprite.vy;
+
+    world.pivot.x = sprite.x;
+    world.pivot.y = sprite.y;
+
+    /*
     const position = { x: sprite.x += sprite.vx, y: sprite.y += sprite.vy}
 
     position.x = Math.min(Math.max(position.x, sprite.width / 2), app.screen.width - sprite.width / 2);
     position.y = Math.min(Math.max(position.y, sprite.height / 2), app.screen.height - sprite.height / 2);
     sprite.x = position.x;
     sprite.y = position.y;
+    */
   })
 }
 

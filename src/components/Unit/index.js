@@ -194,7 +194,7 @@ export const createUnit = (id, unitName, position, options) => {
       enumerable: true,
     },
     stats: {
-      get: () => ({ ..._stats, ..._statOverrides }),
+      get: () => _stats, // ({ ..._stats, ..._statOverrides }),
       enumerable: true,
     },
     targetType: {
