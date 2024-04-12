@@ -15,7 +15,8 @@ const {
 export const createMinion = (position) => {
   const minion = addUnit("skeleton", position);
 
-  if (Math.random() * 100 >= 50) minion.addItemToDrops("bones");
+  // let's see how the game is with 0% chance to get bones when minion dies
+  // if (Math.random() * 100 >= 10) minion.addItemToDrops("bones");
 
   gameState.incrementReanimations();
   minion.health.subscribeToDeath(() => { 

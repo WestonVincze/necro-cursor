@@ -30,7 +30,7 @@ export const attackTarget = (attackerStats, target) => {
     damage = rollDice(attackerStats.maxHit);
   }
 
-  if (attackerStats.critChance && rollToCrit(attackerStats.critChance)) {
+  if (damage > 0 && attackerStats.critChance && rollToCrit(attackerStats.critChance)) {
     critMod = attackerStats.critDamage;
   }
 

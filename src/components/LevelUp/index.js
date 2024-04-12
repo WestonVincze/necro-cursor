@@ -36,7 +36,7 @@ export const levelUpOptions = [
     description: "The maximum amount of health you can have.",
     onSelect: () => {
       gameState.player.addToStat("maxHP", 10);
-      gameState.player.health.setMaxHP(player.stats.maxHP);
+      gameState.player.health.setMaxHP(gameState.player.stats.maxHP);
       gameState.player.health.heal(10);
       appService.resume();
     }
@@ -113,10 +113,21 @@ export const levelUpOptions = [
   },
 ]
 
+const levelUpOption = () => {
+  // decide on random attribute to increase
+  // decide on random attribute to decrease OR random enemy attribute to increase?
+  // decide on percent to increase
+  // decide on percent to decrease
+
+  // sometimes upgrades are bad?
+  // update stats for LIVING vs FUTURE minions?
+  // sacrifice minions to re-roll?
+}
+
 const createExperienceTable = () => {
   const table = { 1: 35 };
-  for (let i = 2; i < 100; i++) {
-    table[i] = table[i - 1] + 5;
+  for (let i = 2; i < 50; i++) {
+    table[i] = table[i - 1] + 10;
   }
 
   return table;

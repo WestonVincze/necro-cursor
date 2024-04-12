@@ -33,8 +33,7 @@ export const DebugTools = (gameState) => {
     toggleConsole();
     const FPS = document.getElementById('FPS');
     const lowestFPSElement = document.getElementById('lowestFPS');
-    const showFPS = (tick) => {
-      // console.log(tick);
+    const showFPS = () => {
       FPS.innerHTML = Math.round(app.ticker.FPS);
       lowestFPSElement.innerHTML = lowestFPS;
     }

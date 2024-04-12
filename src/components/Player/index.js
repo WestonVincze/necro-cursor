@@ -10,6 +10,7 @@ import { RadialSpell } from "/src/components/Spells";
 import { LevelUp } from "/src/Views/LevelUp";
 import { activeKeys$ } from "/src/components/Inputs";
 import { createUnit } from "../Unit";
+import { RectangularSpell } from "../Spells";
 
 const FRICTION = 0.05;
 
@@ -106,9 +107,10 @@ export const Player = () => {
           position: sprite,
           maxRadius: player.stats.spellRadius,
           growth: player.stats.castingSpeed,
+          canBeHeld: true,
           onComplete: (radius) => { 
             items.bones?.map(b => {
-              if (distanceBetweenPoints(b.sprite, sprite) <= radius + 25) {
+              if (distanceBetweenPoints(b.sprite, sprite) <= radius + b.sprite.width / 2) {
                 createMinion(b.sprite);
                 removeItem("bones", b);
               }

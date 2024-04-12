@@ -67,17 +67,17 @@ const Enemies = () => {
         if (Math.random() > 0.99 && !enemy.holyNova) {
           enemy.holyNova = RadialSpell({
             position: enemy.sprite,
-            growth: 0.1,
-            maxRadius: 100,
+            growth: 0.15,
+            maxRadius: 70,
             color: "FFFF55",
             onComplete: (radius) => {
               if (!enemy.sprite.destroyed) {
                 if (distanceBetweenPoints(gameState.player.sprite, enemy.sprite) <= radius) {
-                  gameState.player.health.takeDamage(10);
+                  gameState.player.health.takeDamage(5);
                 }
                 gameState.minions.map(minion => {
                   if (distanceBetweenPoints(minion.sprite, enemy.sprite) <= radius) {
-                    minion.health.takeDamage(10);
+                    minion.health.takeDamage(5);
                   }
                 })
               }
@@ -85,7 +85,7 @@ const Enemies = () => {
             }
           })
         }
-        if (enemy.holyNova?.getRadius() >= 100) enemy.holyNova.resolveSpell();
+        // if (enemy.holyNova?.getRadius() >= 70) enemy.holyNova.resolveSpell();
       } 
 
       const options = {
