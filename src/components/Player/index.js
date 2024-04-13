@@ -6,11 +6,10 @@ import { appService, gameState } from "/src/app";
 import { items, removeItem } from "/src/components/Drops";
 import { createMinion } from "/src/components/Minions";
 import { getRandomElements, normalizeForce } from "/src/helpers";
-import { RadialSpell } from "/src/components/Spells";
+import { RadialSpell, RectangularSpell } from "/src/components/Spells";
 import { LevelUp } from "/src/Views/LevelUp";
 import { activeKeys$ } from "/src/components/Inputs";
 import { createUnit } from "../Unit";
-import { RectangularSpell } from "../Spells";
 
 const FRICTION = 0.05;
 
@@ -103,9 +102,23 @@ export const Player = () => {
   const handleInput = ({ x, y, summoning }) => {
     if (summoning) {
       if (!player.summoningCircle?.casting) {
+        /*
+        player.summoningCircle = RectangularSpell({
+          position: sprite,
+          maxWidth: 100,
+          growth: 0.5,
+          canBeHeld: true,
+          onComplete: (width) => {
+            console.log("COMPLETED SPELL: " + width);
+            player.vx += 50;
+            player.summoningCircle = null;
+          },
+          target: items.bones[0].sprite,
+        })
+        */
         player.summoningCircle = RadialSpell({
           position: sprite,
-          maxRadius: player.stats.spellRadius,
+          endRadius: player.stats.spellRadius,
           growth: player.stats.castingSpeed,
           canBeHeld: true,
           onComplete: (radius) => { 

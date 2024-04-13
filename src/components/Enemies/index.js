@@ -68,7 +68,7 @@ const Enemies = () => {
           enemy.holyNova = RadialSpell({
             position: enemy.sprite,
             growth: 0.15,
-            maxRadius: 70,
+            endRadius: 70,
             color: "FFFF55",
             onComplete: (radius) => {
               if (!enemy.sprite.destroyed) {
@@ -85,7 +85,6 @@ const Enemies = () => {
             }
           })
         }
-        // if (enemy.holyNova?.getRadius() >= 70) enemy.holyNova.resolveSpell();
       } 
 
       const options = {
@@ -126,19 +125,19 @@ export const TimedSpawner = (rate = 5000) => {
   })
 }
 
+// TODO: refactor the hell out of this trash
 const decideEnemyToSpawn = (scale) => {
+  const randomRoll = Math.random();
+
   // if the scale is less than x, only spawn peasants
+  if (scale < 1.5) return "peasant";
+
   // if the scale is greater than y, spawn peasants and guards
-  // if the scale is greater than z, spawn guards with % chance for paladins
+  if (scale < 3) {
+    return randomRoll > Math.min(0.5, (0.1 * scale)) ? "peasant" : "guard";
+  }
 
-    if (scale < 1.5) {
-      return "peasant";
-    }
-
-    if (scale < 3) {
-      return Math.random() > Math.min(0.5, (0.5 * scale)) ? "peasant" : "guard";
-    }
-
-    return Math.random() > Math.min(0.5, (0.05 * scale)) ? "guard" : "paladin";
+  if (randomRoll >= 0.9) return "doppelsoldner";
+  if (randomRoll < Math.min(0.4, (0.05 * scale))) return "paladin";
+  return "guard";
 }
-

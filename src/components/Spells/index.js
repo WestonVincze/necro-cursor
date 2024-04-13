@@ -1,4 +1,4 @@
-import { Container, Graphics, Ticker } from "pixi.js";
+import { Container, Graphics } from "pixi.js";
 import { Emitter } from "@pixi/particle-emitter";
 import { appService } from "/src/app";
 import { explosion } from "/src/VFX/spellFX";
@@ -7,48 +7,41 @@ export const RadialSpell = ({
   position = { x: 0, y: 0 },
   growth = 0.5,
   startRadius = 0,
-  maxRadius = 50,
+  endRadius = 50,
+  color,
   canBeHeld = false,
   onComplete,
-  color,
 }) => {
   const { UIContainer, particleContainer, physicsUpdate } = appService;
 
   let emitter = null; 
   let casting = true;
+  let radius = startRadius;
 
   const circle = new Graphics();
-  circle.lineStyle({ width: 2, color })
 
-  let radius = startRadius;
-  const getRadius = () => radius;
-  circle.beginFill(color, 0.3);
-  circle.drawCircle(position.x, position.y, radius);
-  circle.endFill();
+  const updateTelegraph = () => {
+    circle.clear();
+    circle.lineStyle({ width: 2, color })
+    circle.beginFill(color, 0.3);
+    circle.drawCircle(position.x, position.y, radius);
+    circle.endFill();
+  }
 
   UIContainer.addChild(circle);
 
-  const growCircle = () => {
-    if (radius >= maxRadius) {
-      if (!canBeHeld) resolveSpell();
-      return radius;
+  const updateSpell = () => {
+    if (radius < endRadius) {
+      radius += growth;
+      updateTelegraph();
+    } else if (!canBeHeld) {
+      resolveSpell();
     }
-    circle.clear();
-    circle.lineStyle({ width: 2, color });
-    radius += growth;
-    if (!position.x) {
-      // broke game once, cannot seem to reproduce...
-      console.error("no position found");
-      return;
-    }
-    circle.beginFill(color, 0.2);
-    circle.drawCircle(position.x, position.y, radius);
-    circle.endFill();
 
     return radius;
   }
 
-  const growCircleLoop$ = physicsUpdate.subscribe(growCircle);
+  const growCircleLoop$ = physicsUpdate.subscribe(updateSpell);
 
   const resolveSpell = () => {
     onComplete?.(radius);
@@ -63,62 +56,67 @@ export const RadialSpell = ({
     circle.destroy();
   }
 
-  return { casting, resolveSpell, cancelSpell, getRadius };
+  return { casting, resolveSpell, cancelSpell };
 }
 
 // telegraphed rectangular spell
-export const RectangularSpell = (
+export const RectangularSpell = ({
   position,
+  growth = 0.5,
   startWith = 0,
-  maxWidth= 100,
-  height = 10,
+  endWidth = 100,
+  height = 30,
   color = 0xaa5555,
   canBeHeld = false,
   onComplete,
-  growth = 0.5,
-) => {
+  target,
+}) => {
   const { UIContainer, physicsUpdate } = appService;
+  console.log(target);
 
   let emitter = null;
   let casting = true;
   let width = startWith;
 
   const container = new Container();
-
   const bg = new Graphics();
-  bg.lineStyle({ width: 2, color });
-  bg.beginFill(color);
-  bg.drawRect(position.x, position.y, maxWidth, height);
-  bg.endFill();
-
   const rect = new Graphics();
-  rect.beginFill(color, 0.2);
-  rect.drawRect(position.x, position.y, width, height);
-  rect.endFill();
+
+  const updateTelegraph = () => {
+    container.position = position
+    container.pivot = position 
+
+    bg.clear();
+    bg.lineStyle({ width: 2, color });
+    bg.beginFill(color, 0.2);
+    bg.drawRect(position.x, position.y - height / 2, endWidth, height);
+    bg.endFill();
+
+    rect.clear();
+    rect.beginFill(color, 0.6);
+    rect.drawRect(position.x, position.y - height / 2, width, height);
+    rect.endFill();
+  }
 
   container.addChild(bg);
   container.addChild(rect);
-
   UIContainer.addChild(container);
 
-  const growSpell = () => {
-    if (width >= maxWidth) {
-      if (!canBeHeld) resolveSpell();
-      return width;
+  const updateSpell = () => {
+    if (width < endWidth) {
+      width += growth;
+      updateTelegraph();
+    } else if (!canBeHeld) {
+      resolveSpell();
     }
-    rect.clear();
-    width += growth;
-    rect.beginFill(color, 0.2);
-    rect.drawRect(position.x, position.y, width, height);
-    rect.endFill();
 
     return width;
   }
 
-  const growSpellUpdate$ = physicsUpdate.subscribe(growSpell)
+  const growSpellUpdate$ = physicsUpdate.subscribe(updateSpell)
 
   const resolveSpell = () => {
-    onComplete?.(endWidth);
+    onComplete(endWidth);
     cancelSpell();
   }
 
@@ -129,7 +127,6 @@ export const RectangularSpell = (
   }
 
   return { casting, resolveSpell, cancelSpell };
-
 }
 
 const SemiCircleSpell = () => {

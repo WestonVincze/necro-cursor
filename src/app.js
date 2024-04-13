@@ -139,6 +139,7 @@ const initializeGame = () => {
   } else {
     const { spawnMinionRandomly } = initializeMinions(skeletons);
     const { createEnemy } = ExplicitSpawner();
+    createButton("spawn_doppelsoldner", "Spawn Doppelsoldner", () => createEnemy("doppelsoldner"), 5);
     createButton("spawn_paladin", "Spawn Paladin", () => createEnemy("paladin"), 5);
     createButton("spawn_guard", "Spawn Guard", () => createEnemy("guard"), 5);
     createButton("spawn_skeleton", "Spawn Skeleton", () => spawnMinionRandomly(), 20);

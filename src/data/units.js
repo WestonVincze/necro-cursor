@@ -117,7 +117,31 @@ export const enemyData = {
       always: ["bones"]
     }
   },
-  // doppelsoldner (montante AoE attacks)
+  doppelsoldner: {
+    name: "doppelsoldner",
+    type: "enemy",
+    url: "/assets/doppelsoldner.png",
+    width: 60,
+    height: 120,
+    exp: 30,
+    stats: {
+      maxHP: 40,
+      armor: 14,
+      attackBonus: 10,
+      attackSpeed: 8,
+      attackRange: 60,
+      maxHit: 12,
+      damageBonus: 3,
+      moveSpeed: 0.5,
+      maxSpeed: 1.2,
+      maxAttackers: 10,
+      critChance: 25,
+      critDamage: 2,
+    },
+    dropTable: {
+      always: ["bones"],
+    }
+  }
   // archer (piercing shot)
 }
 
@@ -130,10 +154,10 @@ export const minionData = {
     width: 40,
     height: 60,
     stats: {
-      maxHP: 10,
-      armor: 10,
+      maxHP: 8,
+      armor: 8,
       maxHit: 2,
-      attackBonus: 5,
+      attackBonus: 4,
       attackSpeed: 5,
       attackRange: 20,
       damageBonus: 0,
