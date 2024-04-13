@@ -28,8 +28,8 @@
  * 
  */
 
-import { Sprite } from "pixi.js"
-import { appService } from "../../app";
+import { Graphics, Sprite } from "pixi.js"
+import { appService, gameState } from "../../app";
 import { Health } from "../Health";
 import { isIntersectingRect } from "../Colliders/isIntersecting";
 import { attackTarget } from "../Attack";
@@ -44,7 +44,7 @@ export const createUnit = (id, unitName, position, options) => {
     return;
   }
 
-  const { gameTicks$, spriteContainer } = appService;
+  const { gameTicks$, spriteContainer, UIContainer } = appService;
   const _stats = _unitData.stats;
   const _dropTable = _unitData.dropTable || {};
   const _statOverrides = {};
@@ -129,12 +129,23 @@ export const createUnit = (id, unitName, position, options) => {
     _target?.removeAttacker();
     _target = null;
     attackTicks = null;
+    line.clear();
   }
 
   health.subscribeToDeath(() => clearTarget());
 
+  const line = new Graphics();
+  UIContainer.addChild(line);
   const tryAttack = () => {
     // check if can attack and target is set
+    line.clear();
+    if (gameState.debugMode) {
+      line.lineStyle({ width: 2, color: _canAttack ? 0xffff55 : 0xff5555 });
+      line.moveTo(sprite?.x, sprite?.y);
+      line.lineTo(_target?.sprite?.x, _target?.sprite?.y);
+      line.endFill();
+    }
+
     if (!_canAttack || _target === null || !_target.sprite || !sprite) return;
 
     // check if in range

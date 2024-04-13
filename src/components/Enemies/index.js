@@ -68,7 +68,7 @@ const Enemies = () => {
           enemy.holyNova = RadialSpell({
             position: enemy.sprite,
             growth: 0.15,
-            maxRadius: 70,
+            endRadius: 70,
             color: "FFFF55",
             onComplete: (radius) => {
               if (!enemy.sprite.destroyed) {
@@ -85,7 +85,6 @@ const Enemies = () => {
             }
           })
         }
-        // if (enemy.holyNova?.getRadius() >= 70) enemy.holyNova.resolveSpell();
       } 
 
       const options = {
