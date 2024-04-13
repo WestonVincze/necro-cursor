@@ -11,6 +11,7 @@ const StatEditorScreen = () => `
       <option value="skeleton">Skeleton</option>
       <option value="guard">Guard</option>
       <option value="paladin">Paladin</option>
+      <option value="doppelsoldner">Doppelsoldner</option>
     </select>
     <div class="${styles.statInputsContainer}">
       <div id="unit_img"></div>
