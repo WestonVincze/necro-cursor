@@ -102,6 +102,7 @@ export const Player = () => {
   const handleInput = ({ x, y, summoning }) => {
     if (summoning) {
       if (!player.summoningCircle?.casting) {
+        /*
         player.summoningCircle = RectangularSpell({
           position: sprite,
           maxWidth: 100,
@@ -114,7 +115,7 @@ export const Player = () => {
           },
           target: items.bones[0].sprite,
         })
-        /*
+        */
         player.summoningCircle = RadialSpell({
           position: sprite,
           endRadius: player.stats.spellRadius,
@@ -131,14 +132,11 @@ export const Player = () => {
           },
           color: "FFAAFF"
         })
-        */
-
       }
       moveX = 0;
       moveY = 0;
     } else {
       if (player.summoningCircle) {
-        console.log('resolve this')
         player.summoningCircle.resolveSpell();
       }
       moveX = x;

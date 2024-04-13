@@ -17,6 +17,7 @@ const GameOverScreen = ({
     <h2>You did okay, though...</h2>
     <p>You killed ${killCount.guards} guards.</p>
     <p>You killed ${killCount.paladins} paladins.</p>
+    <p>You killed ${killCount.doppelsoldners} doppelsoldners.</p>
     <br />
     <p>${reanimations} skeletons were reanimated.</p>
     <p>${deanimations} skeletons were deanimated.</p>
