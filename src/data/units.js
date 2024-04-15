@@ -141,8 +141,27 @@ export const enemyData = {
     dropTable: {
       always: ["bones"],
     }
+  },
+  archer: {
+    name: "archer",
+    type: "enemy",
+    url: "/assets/archer.png",
+    width: 60,
+    height: 110,
+    exp: 30,
+    stats: {
+      maxHP: 30,
+      armor: 16,
+      maxAttackers: 10,
+      moveSpeed: 0.6,
+      maxSpeed: 1.3,
+      critChance: 25,
+      critDamage: 2,
+    },
+    dropTable: {
+      always: ["bones"],
+    }
   }
-  // archer (piercing shot)
 }
 
 /** @type {Object.<string, Unit>} */
