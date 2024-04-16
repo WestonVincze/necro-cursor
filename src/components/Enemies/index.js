@@ -6,6 +6,7 @@ import { enemyData } from "/src/data/units";
 import { RadialSpell } from "/src/components/Spells";
 import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
 import { getClosestUnit } from "../../helpers";
+import { isIntersectingRect } from "../Colliders/isIntersecting";
 
 const {
   units: enemies,
@@ -88,10 +89,9 @@ const Enemies = () => {
       } 
 
       const options = {
-        followForce: 1,
+        followForce: isIntersectingRect(enemy.sprite, enemy.target.sprite, enemy.stats.attackRange) ? 0 : 1,
         separation: 2,
         maxSpeed: enemy.stats.maxSpeed,
-        closeEnough: enemy.target ? { x: enemy.target.sprite.width / 2 + enemy.sprite.width / 2, y: enemy.target.sprite.height / 2 + enemy.sprite.height / 2 } : null
       }
 
       followTarget(enemy.sprite, enemy.target.sprite, enemy.stats.moveSpeed, delta, options);

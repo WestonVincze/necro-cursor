@@ -157,6 +157,11 @@ export const enemyData = {
       maxSpeed: 1.3,
       critChance: 25,
       critDamage: 2,
+      attackRange: 300,
+      attackBonus: 5,
+      attackSpeed: 20,
+      damageBonus: 1,
+      maxHit: 8,
     },
     dropTable: {
       always: ["bones"],

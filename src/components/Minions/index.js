@@ -199,10 +199,9 @@ export const initializeMinions = (spriteCount) => {
       const targetPosition = !aggressionSubject.getValue() || !target ? { x: targetX + mod.x, y: targetY + mod.y } : target.sprite;
 
       const options = {
-        followForce: 1,
+        followForce: targetPosition.isSprite && isIntersectingRect(minion.sprite, minion.target.sprite, minion.stats.attackRange) ? 0 : 1,
         separation: 2,
         maxSpeed: minion.stats.maxSpeed,
-        closeEnough: targetPosition.width ? { x: target.sprite.width / 2 + minion.sprite.width / 2, y: target.sprite.height + minion.sprite.height / 2 } : null 
       }
 
       followTarget(minion.sprite, targetPosition, minion.stats.moveSpeed, delta, options)
