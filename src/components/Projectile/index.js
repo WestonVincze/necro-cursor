@@ -1,14 +1,18 @@
 import { Sprite } from "pixi.js";
 import { projectiles } from "../../data/projectiles";
-import { appService } from "../../app";
+import { appService, gameState } from "../../app";
+import { normalizeForce } from "../../helpers";
+import { take } from "rxjs";
+import { isIntersectingRect } from "../Colliders/isIntersecting";
 
 export const Projectile = ({
   startPos,
   targetPos,
-  maxDistance,
+  maxLifetimeTicks = 8,
   name,
-  whileAlive, // function to repeat while alive?
-  onDestroy, // if we should do anything once it breaks?
+  viableTargets,
+  onCollide,
+  onDestroy,
 }) => {
   const projectileData = projectiles[name];
 
@@ -16,7 +20,7 @@ export const Projectile = ({
     console.error(`Projectile ${name} not found.`)
   }
   
-  const { spriteContainer, physicsUpdate } = appService;
+  const { spriteContainer, physicsUpdate, gameTicks$ } = appService;
 
   const sprite = Sprite.from(projectileData.url);
   sprite.width = projectileData.width;
@@ -26,22 +30,38 @@ export const Projectile = ({
 
   const dx = targetPos.x - startPos.x;
   const dy = targetPos.y - startPos.y;
-  const distance = Math.sqrt(dx * dx + dy * dy);
 
-  const directionX = dx / distance;
-  const directionY = dy / distance;
-
-  let angle = Math.atan2(dy, dx) + 180 * (Math.PI / 180);
-
+  let angle = Math.atan2(dy, dx);
   sprite.rotation = angle;
 
+  const force = normalizeForce({ x: dx, y: dy });
+
   const moveProjectile = physicsUpdate.subscribe(() => {
-    // calculate direction to apply force
-    // normalize the x, y vector
-    // apply force
-    sprite.x += directionX * projectileData.speed;
-    sprite.y += directionY * projectileData.speed;
+    if (sprite.destroyed) return;
+
+    sprite.x += force.x * projectileData.speed;
+    sprite.y += force.y * projectileData.speed;
+    viableTargets.find(target => {
+      if (!target.sprite.destroyed && isIntersectingRect(sprite, target.sprite, -20)) {
+        onCollide?.(target);
+        destroyProjectile();
+        return true;
+      }
+    });
   })
 
+  const destroyProjectile = () => {
+    if (sprite.destroyed) return;
+
+    moveProjectile.unsubscribe();
+    sprite.destroy();
+    onDestroy?.();
+  }
+
+  gameTicks$
+    .pipe(
+      take(maxLifetimeTicks)
+    )
+    .subscribe(null, null, destroyProjectile);
   return { moveProjectile }
 }

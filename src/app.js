@@ -146,6 +146,8 @@ const initializeGame = () => {
         startPos: { x: 50, y: 50 },
         targetPos: gameState.player.sprite,
         name: "arrow",
+        viableTargets: [gameState.player, ...gameState.minions],
+        onCollide: (target) => target.health?.takeDamage(2)
       })
     );
 
