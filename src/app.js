@@ -10,6 +10,7 @@ import { PhysicsUpdate } from "./components/PhysicsUpdate";
 import { initializeGameState } from "./gameState";
 import { DebugTools } from "./components/DebugTools";
 import { spawnItem } from "./components/Drops";
+import { Projectile } from "./components/Projectile";
 
 // Setup PixiJS APP
 export const appService = {
@@ -139,6 +140,15 @@ const initializeGame = () => {
   } else {
     const { spawnMinionRandomly } = initializeMinions(skeletons);
     const { createEnemy } = ExplicitSpawner();
+  
+    createButton("spawn_arrow", "Spawn Arrow", () =>
+      Projectile({
+        startPos: { x: 50, y: 50 },
+        targetPos: gameState.player.sprite,
+        name: "arrow",
+      })
+    );
+
     createButton("spawn_doppelsoldner", "Spawn Doppelsoldner", () => createEnemy("doppelsoldner"), 5);
     createButton("spawn_archer", "Spawn Archer", () => createEnemy("archer"), 5);
     createButton("spawn_paladin", "Spawn Paladin", () => createEnemy("paladin"), 5);

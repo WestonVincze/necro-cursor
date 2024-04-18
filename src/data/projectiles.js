@@ -16,6 +16,6 @@ export const projectiles = {
     url: "/assets/arrow.png",
     width: 50,
     height: 8,
-    speed: 1,
+    speed: 12,
   },
 }
