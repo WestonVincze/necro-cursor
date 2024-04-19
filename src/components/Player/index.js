@@ -100,6 +100,9 @@ export const Player = () => {
   let [ moveX, moveY ] = [0, 0]
   // TODO: implement a state machine to manage player state
   const handleInput = ({ x, y, summoning }) => {
+    // forbid player actions while paused
+    if (appService.paused) return;
+
     if (summoning) {
       if (!player.summoningCircle?.casting) {
         /*

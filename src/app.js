@@ -10,6 +10,7 @@ import { PhysicsUpdate } from "./components/PhysicsUpdate";
 import { initializeGameState } from "./gameState";
 import { DebugTools } from "./components/DebugTools";
 import { spawnItem } from "./components/Drops";
+import { Projectile } from "./components/Projectile";
 
 // Setup PixiJS APP
 export const appService = {
@@ -89,6 +90,7 @@ export const appService = {
     this.physicsUpdate.pause();
   },
   resume() {
+    this.paused = false;
     this.app.ticker.start();
     this.physicsUpdate.start();
   },
@@ -139,11 +141,23 @@ const initializeGame = () => {
   } else {
     const { spawnMinionRandomly } = initializeMinions(skeletons);
     const { createEnemy } = ExplicitSpawner();
-    createButton("spawn_doppelsoldner", "Spawn Doppelsoldner", () => createEnemy("doppelsoldner"), 5);
-    createButton("spawn_archer", "Spawn Archer", () => createEnemy("archer"), 5);
-    createButton("spawn_paladin", "Spawn Paladin", () => createEnemy("paladin"), 5);
-    createButton("spawn_guard", "Spawn Guard", () => createEnemy("guard"), 5);
+  
+    createButton("spawn_arrow", "Spawn Arrow", () =>
+      Projectile({
+        startPos: { x: 50, y: 50 },
+        targetPos: gameState.player.sprite,
+        name: "arrow",
+        viableTargets: [gameState.player, ...gameState.minions],
+        onCollide: (target) => target.health?.takeDamage(2)
+      })
+    );
+
     createButton("spawn_skeleton", "Spawn Skeleton", () => spawnMinionRandomly(), 20);
+    createButton("spawn_peasant", "Spawn Peasant", () => createEnemy("peasant"), 5);
+    createButton("spawn_guard", "Spawn Guard", () => createEnemy("guard"), 5);
+    createButton("spawn_paladin", "Spawn Paladin", () => createEnemy("paladin"), 5);
+    createButton("spawn_archer", "Spawn Archer", () => createEnemy("archer"), 5);
+    createButton("spawn_doppelsoldner", "Spawn Doppelsoldner", () => createEnemy("doppelsoldner"), 5);
     createButton("level_player", "Level Up", () => gameState.player.levelUp());
     createButton("immortal_player", "Immortal Player", () =>
       gameState.player.health.subscribeToHealthChange(({ type, amount }) =>

@@ -18,7 +18,7 @@ const rollToCrit = (critChance) => {
  * @param {Unit} target 
  */
 export const attackTarget = (attackerStats, target) => {
-  if (!target.health) {
+  if (!target || !target.health) {
     console.error("invalid attack target")
     return false;
   }

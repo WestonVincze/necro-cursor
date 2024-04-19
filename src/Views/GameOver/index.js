@@ -15,9 +15,12 @@ const GameOverScreen = ({
     <img src="/assets/bones.png" alt="pile of bones" />
     <h1 class="red">GET FUCKED, NERD.</h1>
     <h2>You did okay, though...</h2>
-    <p>You killed ${killCount.guards} guards.</p>
-    <p>You killed ${killCount.paladins} paladins.</p>
-    <p>You killed ${killCount.doppelsoldners} doppelsoldners.</p>
+    <p>You killed ${killCount.total} enemies!<p>
+    <p>${killCount.peasants} peasants.</p>
+    ${killCount.guards ? `<p>${killCount.guards} guards.</p>` : ''}
+    ${killCount.paladins ? `<p>${killCount.paladins} paladins.</p>` : ''}
+    ${killCount.archers ? `<p>${killCount.archers} archers.</p>` : ''}
+    ${killCount.doppelsoldners ? `<p>${killCount.doppelsoldners} doppelsoldners.</p>` : ''}
     <br />
     <p>${reanimations} skeletons were reanimated.</p>
     <p>${deanimations} skeletons were deanimated.</p>

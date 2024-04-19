@@ -52,7 +52,7 @@ export const initializeGameState = () => {
 
 
   // run stats
-  const killCount = new BehaviorSubject({ guards: 0, paladins: 0, total: 0 });
+  const killCount = new BehaviorSubject({ peasants: 0, guards: 0, paladins: 0, archers: 0, doppelsoldners: 0, total: 0 });
   const damageTaken = new BehaviorSubject(0);
   const reanimations = new BehaviorSubject(0);
   const deanimations = new BehaviorSubject(0);

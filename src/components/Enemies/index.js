@@ -6,6 +6,7 @@ import { enemyData } from "/src/data/units";
 import { RadialSpell } from "/src/components/Spells";
 import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
 import { getClosestUnit } from "../../helpers";
+import { isIntersectingRect } from "../Colliders/isIntersecting";
 
 const {
   units: enemies,
@@ -88,10 +89,9 @@ const Enemies = () => {
       } 
 
       const options = {
-        followForce: 1,
+        followForce: isIntersectingRect(enemy.sprite, enemy.target.sprite, enemy.stats.attackRange) ? 0 : 1,
         separation: 2,
         maxSpeed: enemy.stats.maxSpeed,
-        closeEnough: enemy.target ? { x: enemy.target.sprite.width / 2 + enemy.sprite.width / 2, y: enemy.target.sprite.height / 2 + enemy.sprite.height / 2 } : null
       }
 
       followTarget(enemy.sprite, enemy.target.sprite, enemy.stats.moveSpeed, delta, options);
@@ -116,7 +116,8 @@ export const TimedSpawner = (rate = 5000) => {
 
   timer$.subscribe(() => {
     if (!app.ticker.started) return;
-    difficultyScale += 0.05;
+    difficultyScale += 0.02;
+    console.log(difficultyScale);
 
     for (let i = 0; i < Math.floor(difficultyScale); i++) {
       const name = decideEnemyToSpawn(difficultyScale);
@@ -129,15 +130,21 @@ export const TimedSpawner = (rate = 5000) => {
 const decideEnemyToSpawn = (scale) => {
   const randomRoll = Math.random();
 
-  // if the scale is less than x, only spawn peasants
-  if (scale < 1.5) return "peasant";
+  // only peasants
+  if (scale < 1.3) return "peasant";
 
-  // if the scale is greater than y, spawn peasants and guards
-  if (scale < 3) {
-    return randomRoll > Math.min(0.5, (0.1 * scale)) ? "peasant" : "guard";
-  }
+  // 50% peasants, 50% guards
+  if (scale < 1.8 && randomRoll > 0.5) return "peasant"; 
 
-  if (randomRoll >= 0.9) return "doppelsoldner";
-  if (randomRoll < Math.min(0.4, (0.05 * scale))) return "paladin";
+  // 30% paladin
+  if (scale > 2 && randomRoll <= 0.3) return "paladin";
+
+  // 10% - 30% archer
+  if (scale > 2.3 && randomRoll >= Math.max(0.7, 0.9 - (scale - 2.3) / 10)) return "archer";
+
+  // 10% - 30% doppelsolder
+  if (scale > 2.6 && randomRoll >= Math.max(0.4, 0.8 - (scale - 2.6) / 5)) return "doppelsoldner";
+
+  // 70% - 10% guard
   return "guard";
 }
