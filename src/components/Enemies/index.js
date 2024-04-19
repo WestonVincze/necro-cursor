@@ -130,16 +130,21 @@ export const TimedSpawner = (rate = 5000) => {
 const decideEnemyToSpawn = (scale) => {
   const randomRoll = Math.random();
 
-  // if the scale is less than x, only spawn peasants
+  // only peasants
   if (scale < 1.3) return "peasant";
 
-  if (scale < 2 && randomRoll > Math.min(0.5, (0.1 * scale))) return "peasant"; 
+  // 50% peasants, 50% guards
+  if (scale < 1.8 && randomRoll > 0.5) return "peasant"; 
 
-  if (scale > 2.3 && randomRoll >= 0.8) return "archer";
+  // 30% paladin
+  if (scale > 2 && randomRoll <= 0.3) return "paladin";
 
-  if (scale > 2.6 && randomRoll >= 0.9) return "doppelsoldner";
+  // 10% - 30% archer
+  if (scale > 2.3 && randomRoll >= Math.max(0.7, 0.9 - (scale - 2.3) / 10)) return "archer";
 
-  if (randomRoll < Math.min(0.3, (0.1 * scale))) return "paladin";
+  // 10% - 30% doppelsolder
+  if (scale > 2.6 && randomRoll >= Math.max(0.4, 0.8 - (scale - 2.6) / 5)) return "doppelsoldner";
 
+  // 70% - 10% guard
   return "guard";
 }

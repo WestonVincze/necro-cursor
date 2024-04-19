@@ -90,6 +90,7 @@ export const appService = {
     this.physicsUpdate.pause();
   },
   resume() {
+    this.paused = false;
     this.app.ticker.start();
     this.physicsUpdate.start();
   },
@@ -151,11 +152,12 @@ const initializeGame = () => {
       })
     );
 
-    createButton("spawn_doppelsoldner", "Spawn Doppelsoldner", () => createEnemy("doppelsoldner"), 5);
-    createButton("spawn_archer", "Spawn Archer", () => createEnemy("archer"), 5);
-    createButton("spawn_paladin", "Spawn Paladin", () => createEnemy("paladin"), 5);
-    createButton("spawn_guard", "Spawn Guard", () => createEnemy("guard"), 5);
     createButton("spawn_skeleton", "Spawn Skeleton", () => spawnMinionRandomly(), 20);
+    createButton("spawn_peasant", "Spawn Peasant", () => createEnemy("peasant"), 5);
+    createButton("spawn_guard", "Spawn Guard", () => createEnemy("guard"), 5);
+    createButton("spawn_paladin", "Spawn Paladin", () => createEnemy("paladin"), 5);
+    createButton("spawn_archer", "Spawn Archer", () => createEnemy("archer"), 5);
+    createButton("spawn_doppelsoldner", "Spawn Doppelsoldner", () => createEnemy("doppelsoldner"), 5);
     createButton("level_player", "Level Up", () => gameState.player.levelUp());
     createButton("immortal_player", "Immortal Player", () =>
       gameState.player.health.subscribeToHealthChange(({ type, amount }) =>
