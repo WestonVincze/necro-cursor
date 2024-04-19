@@ -116,7 +116,8 @@ export const TimedSpawner = (rate = 5000) => {
 
   timer$.subscribe(() => {
     if (!app.ticker.started) return;
-    difficultyScale += 0.05;
+    difficultyScale += 0.02;
+    console.log(difficultyScale);
 
     for (let i = 0; i < Math.floor(difficultyScale); i++) {
       const name = decideEnemyToSpawn(difficultyScale);
@@ -130,14 +131,15 @@ const decideEnemyToSpawn = (scale) => {
   const randomRoll = Math.random();
 
   // if the scale is less than x, only spawn peasants
-  if (scale < 1.5) return "peasant";
+  if (scale < 1.3) return "peasant";
 
-  // if the scale is greater than y, spawn peasants and guards
-  if (scale < 3) {
-    return randomRoll > Math.min(0.5, (0.1 * scale)) ? "peasant" : "guard";
-  }
+  if (scale < 2 && randomRoll > Math.min(0.5, (0.1 * scale))) return "peasant"; 
 
-  if (randomRoll >= 0.9) return "doppelsoldner";
-  if (randomRoll < Math.min(0.4, (0.05 * scale))) return "paladin";
+  if (scale > 2.3 && randomRoll >= 0.8) return "archer";
+
+  if (scale > 2.6 && randomRoll >= 0.9) return "doppelsoldner";
+
+  if (randomRoll < Math.min(0.3, (0.1 * scale))) return "paladin";
+
   return "guard";
 }

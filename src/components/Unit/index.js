@@ -36,6 +36,7 @@ import { attackTarget } from "../Attack";
 import { units } from "../../data/units";
 import { take, finalize } from "rxjs";
 import { spawnDrops } from "../Drops";
+import { Projectile } from "../Projectile";
 
 export const createUnit = (id, unitName, position, options) => {
   const _unitData = units[unitName];
@@ -151,7 +152,17 @@ export const createUnit = (id, unitName, position, options) => {
     // check if in range
     if(!isIntersectingRect(sprite, _target.sprite, _stats.attackRange)) return;
 
-    attackTarget(_stats, _target);
+    if (_unitData.ranged) {
+      Projectile({
+        startPos: sprite,
+        targetPos: _target.sprite,
+        name: "arrow",
+        viableTargets: [gameState.player, ...gameState.minions],
+        onCollide: (target) => attackTarget(_stats, target),
+      })
+    } else {
+      attackTarget(_stats, _target);
+    }
 
     _canAttack = false;
     // TODO: check for potential memory leaks here

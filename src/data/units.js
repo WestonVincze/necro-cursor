@@ -8,6 +8,7 @@
  * @prop {number} width
  * @prop {number} height
  * @prop {Stats} stats
+ * @prop {boolean} [ranged]
  * @prop {DropTable} [dropTable]
  * @prop {number} [exp] // change to expReward?
  * @prop {boolean} [hideUI]
@@ -149,6 +150,7 @@ export const enemyData = {
     width: 60,
     height: 110,
     exp: 30,
+    ranged: true,
     stats: {
       maxHP: 30,
       armor: 16,

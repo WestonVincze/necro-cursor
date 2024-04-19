@@ -25,6 +25,8 @@ export const Projectile = ({
   const sprite = Sprite.from(projectileData.url);
   sprite.width = projectileData.width;
   sprite.height = projectileData.height;
+  sprite.x = startPos.x;
+  sprite.y = startPos.y;
 
   spriteContainer.addChild(sprite);
 
