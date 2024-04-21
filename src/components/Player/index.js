@@ -28,6 +28,8 @@ const initializePlayer = () => {
   const { app } = appService;
   const player = createUnit("player", "naked", { x: app.screen.width / 2, y: app.screen.height / 2 });
 
+  gameState.playerHealth.next({ current: player.health.getHP(), max: player.stats.maxHP });
+
   player.health.subscribeToDeath(() => {
     gameState.transitionToScene("gameOver");
     appService.pause();
@@ -37,8 +39,8 @@ const initializePlayer = () => {
     if (type === "damage") {
       gameState.incrementDamageTaken(amount);
     }
-    const healthPercent = (player.health.getHP() / player.stats.maxHP) * 100;
-    gameState.playerHealthPercent.next(healthPercent)
+    // gameState.playerHealthPercent.next(healthPercent)
+    gameState.playerHealth.next({ current: player.health.getHP(), max: player.stats.maxHP });
   })
 
   const playerLevelSubject = new BehaviorSubject({

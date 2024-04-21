@@ -8,8 +8,9 @@ const UIScreen = () => `
   <span>Minions:<span id="minionCount">0</span></span>
 </div>
 <div class="${styles.bottomBar}">
-  <div class="${styles.barContainer}">
-    <span id="healthBar" class="${styles.healthBar}"></span>
+  <div id="healthBar" class="${styles.barContainer}">
+    <span class="${styles.healthBar}"></span>
+    <span class="${styles.text}"></span>
   </div>
   <div class="${styles.barContainer}">
     <span id="expBar" class="${styles.expBar}"></span>
@@ -44,7 +45,7 @@ const initializeUI = () => {
 export const UI = ({
   killCount,
   minionCount,
-  playerHealthPercent,
+  playerHealth,
   playerExpPercent,
   minionFormation,
   minionAggression
@@ -58,6 +59,7 @@ export const UI = ({
     aggressionUI,
   } = initializeUI();
 
+
   // subscribe to events
   killCount.subscribe((kills) => {
     killCountUI.innerHTML = kills.total;
@@ -66,10 +68,12 @@ export const UI = ({
     minionCountUI.innerHTML = minions;
   });
   playerExpPercent.subscribe((percent) => {
+    expBarUI.textContent = `${percent}%`;
     expBarUI.style.setProperty("--exp-percent", `${percent}%`)
   });
-  playerHealthPercent.subscribe((percent) => {
-    healthBarUI.style.setProperty("--hp-percent", `${percent}%`)
+  playerHealth.subscribe(({ current, max }) => {
+    healthBarUI.querySelector(`.${styles.healthBar}`).style.setProperty("--hp-percent", `${current / max * 100}%`);
+    healthBarUI.querySelector(`.${styles.text}`).textContent = `${Math.round(current)} / ${Math.round(max)}`;
   });
   minionFormation.subscribe(value => {
     formationUI.innerHTML = value;

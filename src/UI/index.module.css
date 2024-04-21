@@ -39,6 +39,11 @@
   height: 100%;
 }
 
+.text {
+  display: block;
+  text-align: center;
+}
+
 .expBar {
   background-color: #5555ff;
   width: var(--exp-percent);

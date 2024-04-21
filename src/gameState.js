@@ -61,7 +61,7 @@ export const initializeGameState = () => {
   const largestArmy = new BehaviorSubject(0);
 
   // player
-  const playerHealthPercent = new BehaviorSubject(100);
+  const playerHealth = new BehaviorSubject({ current: 0, max: 0 });
   const playerExpPercent = new BehaviorSubject(0);
 
   // minions
@@ -105,7 +105,7 @@ export const initializeGameState = () => {
         UI({
           killCount,
           minionCount,
-          playerHealthPercent,
+          playerHealth,
           playerExpPercent,
           minionFormation,
           minionAggression,
@@ -159,7 +159,7 @@ export const initializeGameState = () => {
     minionAggression,
     minionFormation,
     largestArmy,
-    playerHealthPercent,
+    playerHealth,
     playerExpPercent,
     incrementKillCount,
     incrementDamageTaken,
