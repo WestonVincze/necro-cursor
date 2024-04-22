@@ -26,7 +26,7 @@ export const levelUpOptions = (gameState) => [
   {
     name: "Health Regeneration",
     description: "Increases your health regeneration by 0.05 / s.",
-    currentStats: `Regeneration: ${gameState.player.stats.HPregeneration}`,
+    currentStats: `Regeneration: ${(gameState.player.stats.HPregeneration * 5).toFixed(2)} / s`,
     onSelect: () => {
       gameState.player.addToStat("HPregeneration", 0.01);
       appService.resume();
@@ -106,7 +106,7 @@ export const levelUpOptions = (gameState) => [
   {
     name: "Minion Crit Chance",
     description: "Increases your minion's crit chance by 5%.",
-    currentStats: `Minion Crit Chance: ${gameState.minions?.[0]?.stats.critChance}`,
+    currentStats: `Minion Crit Chance: ${gameState.minions?.[0]?.stats.critChance}%`,
     onSelect: () => {
       gameState.minions[0]?.addToStat("critChance", 5);
       appService.resume();
@@ -114,8 +114,8 @@ export const levelUpOptions = (gameState) => [
   },
   {
     name: "Minion Crit Damage",
-    description: "Increases multiplier of your minion's critical hits by 0.5.",
-    currentStats: `Minion Crit Damage: ${gameState.minions?.[0]?.stats.damage}`,
+    description: "Increases multiplier of your minion's critical hits by 0.5x.",
+    currentStats: `Minion Crit Damage: ${gameState.minions?.[0]?.stats.damage}x`,
     onSelect: () => {
       gameState.minions[0]?.addToStat("critDamage", 0.5);
       appService.resume();
