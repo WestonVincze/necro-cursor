@@ -117,7 +117,6 @@ export const TimedSpawner = (rate = 5000) => {
   timer$.subscribe(() => {
     if (!app.ticker.started) return;
     difficultyScale += 0.02;
-    console.log(difficultyScale);
 
     for (let i = 0; i < Math.floor(difficultyScale); i++) {
       const name = decideEnemyToSpawn(difficultyScale);

@@ -16,17 +16,16 @@ const FRICTION = 0.05;
 const initialLevel = 0;
 const initialExperience = 0;
 
-const getLevelPercentage = (level, experience) => {
+const getNextLevelExp = (level) => {
   const nextLevel = Math.min(Object.keys(experienceTable).length, level + 1);
-
-  const progress = experience / experienceTable[nextLevel];
-
-  return progress >= 1 ? 100 : Math.floor(progress * 100);
+  return experienceTable[nextLevel];
 }
 
 const initializePlayer = () => {
   const { app } = appService;
   const player = createUnit("player", "naked", { x: app.screen.width / 2, y: app.screen.height / 2 });
+
+  gameState.playerHealth.next({ current: player.health.getHP(), max: player.stats.maxHP });
 
   player.health.subscribeToDeath(() => {
     gameState.transitionToScene("gameOver");
@@ -37,8 +36,7 @@ const initializePlayer = () => {
     if (type === "damage") {
       gameState.incrementDamageTaken(amount);
     }
-    const healthPercent = (player.health.getHP() / player.stats.maxHP) * 100;
-    gameState.playerHealthPercent.next(healthPercent)
+    gameState.playerHealth.next({ current: player.health.getHP(), max: player.stats.maxHP });
   })
 
   const playerLevelSubject = new BehaviorSubject({
@@ -52,7 +50,8 @@ const initializePlayer = () => {
     .pipe(
       scan((acc, curr) => {
         const newExperience = acc.experience + curr.experience;
-        const levelUp = getLevelPercentage(acc.level, newExperience) === 100;
+        const expToNextLevel = getNextLevelExp(acc.level)
+        const levelUp = newExperience >= expToNextLevel;
         const level = levelUp ? acc.level + 1 : acc.level;
         const experience = levelUp
           ? newExperience - experienceTable[level] 
@@ -64,8 +63,7 @@ const initializePlayer = () => {
       }, { level: initialLevel, experience: initialExperience }),
     )
     .subscribe(({ level, experience }) => {
-      const percentage = getLevelPercentage(level, experience);
-      gameState.playerExpPercent.next(percentage);
+      gameState.playerExpPercent.next({ current: experience, nextLevel: getNextLevelExp(level) });
     });
 
   const addExperience = (experience) => {
@@ -83,7 +81,7 @@ const initializePlayer = () => {
     player.level = level;
     LevelUp({
       level,
-      options: getRandomElements(levelUpOptions, 3),
+      options: getRandomElements(levelUpOptions(gameState), 3),
     })
   });
 
@@ -178,15 +176,6 @@ export const Player = () => {
 
     world.pivot.x = sprite.x;
     world.pivot.y = sprite.y;
-
-    /*
-    const position = { x: sprite.x += sprite.vx, y: sprite.y += sprite.vy}
-
-    position.x = Math.min(Math.max(position.x, sprite.width / 2), app.screen.width - sprite.width / 2);
-    position.y = Math.min(Math.max(position.y, sprite.height / 2), app.screen.height - sprite.height / 2);
-    sprite.x = position.x;
-    sprite.y = position.y;
-    */
   })
 }
 

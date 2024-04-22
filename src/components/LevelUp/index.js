@@ -1,13 +1,12 @@
-import { appService, gameState } from "../../app";
+import { appService } from "../../app";
 
-
-// TODO: fix bug where adding minion stats while having no minions breaks game
-
-export const levelUpOptions = [
+// TODO: fix bug where adding minion stats while having no minions does nothing
+export const levelUpOptions = (gameState) => [
   // Player
   {
     name: "Move Speed",
-    description: "Increases how fast you can move.",
+    description: `Increases your max speed by 0.3.`,
+    currentStats: `Max Speed: ${gameState.player.stats.maxSpeed}`,
     onSelect: () => {
       gameState.player.addToStat("moveSpeed", 0.1);
       gameState.player.addToStat("maxSpeed", 0.3);
@@ -16,7 +15,8 @@ export const levelUpOptions = [
   },
   {
     name: "Summoning Spell",
-    description: "Increases how quickly your summoning circle grows and how much area it covers.",
+    description: "Increases how quickly your summoning circle grows its radius by 15.",
+    currentStats: `Radius: ${gameState.player.stats.spellRadius}`,
     onSelect: () => {
       gameState.player.addToStat("castingSpeed", 0.2);
       gameState.player.addToStat("spellRadius", 15);
@@ -25,7 +25,8 @@ export const levelUpOptions = [
   },
   {
     name: "Health Regeneration",
-    description: "How fast your health regenerates over time.",
+    description: "Increases your health regeneration by 0.05 / s.",
+    currentStats: `Regeneration: ${(gameState.player.stats.HPregeneration * 5).toFixed(2)} / s`,
     onSelect: () => {
       gameState.player.addToStat("HPregeneration", 0.01);
       appService.resume();
@@ -33,7 +34,8 @@ export const levelUpOptions = [
   },
   {
     name: "Max Health",
-    description: "The maximum amount of health you can have.",
+    description: "Increases your max health by 10.",
+    currentStats: `Max HP: ${gameState.player.stats.maxHP}`,
     onSelect: () => {
       gameState.player.addToStat("maxHP", 10);
       gameState.player.health.setMaxHP(gameState.player.stats.maxHP);
@@ -43,7 +45,8 @@ export const levelUpOptions = [
   },
   {
     name: "Armor",
-    description: "Reduces the chance you get hit by attacks.",
+    description: "Increases your armor by 1.",
+    currentStats: `Armor: ${gameState.player.stats.armor}`,
     onSelect: () => {
       gameState.player.addToStat("armor", 1);
       appService.resume();
@@ -52,42 +55,47 @@ export const levelUpOptions = [
   // MINIONS
   {
     name: "Minion Speed",
-    description: "How fast minions can move.",
+    description: "Increases minion movement speed by 0.4.",
+    currentStats: `Minion Max Speed: ${gameState.minions?.[0]?.stats.maxSpeed}`,
     onSelect: () => {
-      gameState.minions?.[0].addToStat("moveSpeed", 0.15);
-      gameState.minions?.[0].addToStat("maxSpeed", 0.4);
+      gameState.minions?.[0]?.addToStat("moveSpeed", 0.15);
+      gameState.minions?.[0]?.addToStat("maxSpeed", 0.4);
       appService.resume();
     }
   },
   {
     name: "Minion Max Hit",
-    description: "The maximum damage of your minions.",
+    description: "Increases the max hit of your minions by 1.",
+    currentStats: `Minion Max Hit: ${gameState.minions?.[0]?.stats.maxHit}`,
     onSelect: () => {
-      gameState.minions?.[0].addToStat("maxHit", 1);
+      gameState.minions?.[0]?.addToStat("maxHit", 1);
       appService.resume();
     }
   },
   {
     name: "Minion Armor",
-    description: "How difficult minions are to hit.",
+    description: "Increases minion armor by 1.",
+    currentStats: `Minion Armor: ${gameState.minions?.[0]?.stats.armor}`,
     onSelect: () => {
-      gameState.minions?.[0].addToStat("armor", 1);
+      gameState.minions?.[0]?.addToStat("armor", 1);
       appService.resume();
     }
   },
   {
     name: "Minion Accuracy",
-    description: "How likely a minion is to hit.",
+    description: "Increases minion accuracy by 1.",
+    currentStats: `Minion Accuracy: ${gameState.minions?.[0]?.stats.attackBonus}`,
     onSelect: () => {
-      gameState.minions[0].addToStat("attackBonus", 1);
+      gameState.minions[0]?.addToStat("attackBonus", 1);
       appService.resume();
     }
   },
   {
     name: "Minion MaxHP",
-    description: "The max HP of your minions.",
+    description: "Increases max HP of your minions by 5.",
+    currentStats: `Minion MaxHP: ${gameState.minions?.[0]?.stats.maxHP}`,
     onSelect: () => {
-      gameState.minions[0].addToStat("maxHP", 5);
+      gameState.minions[0]?.addToStat("maxHP", 5);
       gameState.minions.forEach(m => {
         m.health.setMaxHP(m.stats.maxHP);
         m.health.heal(5);
@@ -97,17 +105,19 @@ export const levelUpOptions = [
   },
   {
     name: "Minion Crit Chance",
-    description: "The chance a minion's attack has to crit.",
+    description: "Increases your minion's crit chance by 5%.",
+    currentStats: `Minion Crit Chance: ${gameState.minions?.[0]?.stats.critChance}%`,
     onSelect: () => {
-      gameState.minions[0].addToStat("critChance", 5);
+      gameState.minions[0]?.addToStat("critChance", 5);
       appService.resume();
     }
   },
   {
     name: "Minion Crit Damage",
-    description: "The effectiveness of a minion's critical hits.",
+    description: "Increases multiplier of your minion's critical hits by 0.5x.",
+    currentStats: `Minion Crit Damage: ${gameState.minions?.[0]?.stats.damage}x`,
     onSelect: () => {
-      gameState.minions[0].addToStat("critDamage", 0.5);
+      gameState.minions[0]?.addToStat("critDamage", 0.5);
       appService.resume();
     }
   },

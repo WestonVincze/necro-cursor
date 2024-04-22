@@ -11,6 +11,7 @@ import { initializeGameState } from "./gameState";
 import { DebugTools } from "./components/DebugTools";
 import { spawnItem } from "./components/Drops";
 import { Projectile } from "./components/Projectile";
+import { levelUpOptions } from "./components/LevelUp";
 
 // Setup PixiJS APP
 export const appService = {
@@ -133,7 +134,6 @@ const alignSprites = () => {
 gameTicks$.subscribe(alignSprites);
 
 const initializeGame = () => {
-  Player();
   if (!gameState.debugMode) {
     spawnItem("bones", { x: appService.app.screen.width / 2, y: appService.app.screen.height / 4 }, "start_bones", 0);
     TimedSpawner(spawnRate);
@@ -163,6 +163,7 @@ const initializeGame = () => {
       gameState.player.health.subscribeToHealthChange(({ type, amount }) =>
         type === "damage" && gameState.player.health.heal(amount)));
   }
+  Player();
 }
 
 gameState.onSceneChange("playingGame", initializeGame);

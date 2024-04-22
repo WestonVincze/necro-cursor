@@ -101,9 +101,13 @@ export const createUnit = (id, unitName, position, options) => {
   }
 
   const addToStat = (stat, value) => {
-    if (!checkForStat(stat)) return;
+    if (!checkForStat(stat)) {
+      console.error(`${stat} not found.`)
+      return;
+    }
 
-    _stats[stat] += value;
+    const newValue = _stats[stat] + value;
+    _stats[stat] = Math.round(newValue * 100) / 100;
   }
 
   // finds the closest available target or returns null if none found

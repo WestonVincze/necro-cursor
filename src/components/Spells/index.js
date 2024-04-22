@@ -72,7 +72,6 @@ export const RectangularSpell = ({
   target,
 }) => {
   const { UIContainer, physicsUpdate } = appService;
-  console.log(target);
 
   let emitter = null;
   let casting = true;

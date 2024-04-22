@@ -10,6 +10,7 @@ const LevelUpScreen = ({ level, options }) => `
     <div class="${styles.card}">
       <h3>${o.name}</h3>
       <p>${o.description}</p>
+      <p>Current ${o.currentStats}</p>
       <button class="option_button">Choose</button>
     </div>
   `).join('')}
