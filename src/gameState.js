@@ -50,7 +50,6 @@ export const initializeGameState = () => {
   const _enemies$ = of(_enemies);
   const _player$ = of(_player);
 
-
   // run stats
   const killCount = new BehaviorSubject({ peasants: 0, guards: 0, paladins: 0, archers: 0, doppelsoldners: 0, total: 0 });
   const damageTaken = new BehaviorSubject(0);
@@ -62,7 +61,7 @@ export const initializeGameState = () => {
 
   // player
   const playerHealth = new BehaviorSubject({ current: 0, max: 0 });
-  const playerExpPercent = new BehaviorSubject(0);
+  const playerExpPercent = new BehaviorSubject({ current: 0, nextLevel: 0 });
 
   // minions
   const minionAggression = new BehaviorSubject();
