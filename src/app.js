@@ -32,6 +32,8 @@ export const appService = {
   initialize() {
     const container = document.querySelector('#container');
     const app = new Application({ background: '#aeaeae', resizeTo: container});
+    // PIXI Dev Tools
+    globalThis.__PIXI_APP__ = app;
     container.appendChild(app.view);
 
     const world = new Container();
