@@ -1,5 +1,5 @@
 import "./style.css"
-import { Application, Container, ParticleContainer, Sprite, Graphics } from "pixi.js";
+import { Application, Container, ParticleContainer, Sprite } from "pixi.js";
 import { Player } from "./components/Player";
 import { TimedSpawner, ExplicitSpawner } from "./components/Enemies";
 import { getURLParam } from "./helpers";
@@ -11,7 +11,6 @@ import { initializeGameState } from "./gameState";
 import { DebugTools } from "./components/DebugTools";
 import { spawnItem } from "./components/Drops";
 import { Projectile } from "./components/Projectile";
-import { levelUpOptions } from "./components/LevelUp";
 
 // Setup PixiJS APP
 export const appService = {

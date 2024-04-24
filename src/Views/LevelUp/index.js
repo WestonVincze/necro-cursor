@@ -8,7 +8,7 @@ const LevelUpScreen = ({ level, options }) => `
 <div class="${styles.cards}">
   ${options.map(o => `
     <div class="${styles.card}">
-      <h3>${o.name}</h3>
+      <h2>${o.name}</h2>
       <p>${o.description}</p>
       <p>Current ${o.currentStats}</p>
       <button class="option_button">Choose</button>
