@@ -3,15 +3,23 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  entry: './src/app.js',
+  entry: './src/app.ts',
   mode: 'development',
   output: {
-    filename: 'app.js',
+    filename: 'bundle.js',
     path: path.resolve(__dirname, 'build'),
+  },
+  devtool: "source-map",
+  resolve: {
+    extensions: ["", ".webpack.js", ".web.js", ".ts", ".tsx", ".js"],
   },
   module: {
     rules: [
-       {
+      // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
+      { test: /\.tsx?$/, loader: "ts-loader" },
+      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
+      { test: /\.js$/, loader: "source-map-loader" },
+      {
         test: /\.css$/i,
         exclude: /\.module\.css$/,
         use: ['style-loader', 'css-loader'],

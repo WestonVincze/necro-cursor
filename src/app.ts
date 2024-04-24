@@ -29,8 +29,12 @@ export const appService = {
   physicsUpdate: null,
   paused: false,
   initialize() {
-    const container = document.querySelector('#container');
-    const app = new Application({ background: '#aeaeae', resizeTo: container});
+    const container = document.getElementById('container');
+    if (!container) {
+      console.error("Container required to build app.");
+      return;
+    }
+    const app = new Application<HTMLCanvasElement>({ background: '#aeaeae', resizeTo: container});
     // PIXI Dev Tools
     globalThis.__PIXI_APP__ = app;
     container.appendChild(app.view);
@@ -45,7 +49,6 @@ export const appService = {
     world.addChild(bg);
     bg.anchor.set(0.5);
 
-
     const spriteContainer = new Container();
     const UIContainer = new Container();
     const particleContainer = new ParticleContainer();
@@ -58,6 +61,10 @@ export const appService = {
     app.stage.addChild(world);
     const gameTicks$ = interval(200);
 
+    window.addEventListener('resize', () => {
+      world.x = app.screen.width / 2;
+      world.y = app.screen.height / 2;
+    })
     window.addEventListener('blur', () => this.softPause());
     window.addEventListener('focus', () => this.softResume());
 
@@ -136,7 +143,7 @@ gameTicks$.subscribe(alignSprites);
 
 const initializeGame = () => {
   if (!gameState.debugMode) {
-    spawnItem("bones", { x: appService.app.screen.width / 2, y: appService.app.screen.height / 4 }, "start_bones", 0);
+    spawnItem("bones", { x: appService.app.screen.width / 2, y: appService.app.screen.height / 4 }, 0);
     TimedSpawner(spawnRate);
     initializeMinions(skeletons);
   } else {
@@ -149,7 +156,8 @@ const initializeGame = () => {
         targetPos: gameState.player.sprite,
         name: "arrow",
         viableTargets: [gameState.player, ...gameState.minions],
-        onCollide: (target) => target.health?.takeDamage(2)
+        onCollide: (target) => target.health?.takeDamage(2),
+        onDestroy: () => {},
       })
     );
 
