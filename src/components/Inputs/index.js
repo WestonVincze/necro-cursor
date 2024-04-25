@@ -11,7 +11,7 @@ const inputActions = {
   debugMode: ["`"],
 }
 // player input and observables
-const inputs = ['w', 'a', 's', 'd', ' ', 'enter', 'escape', '`', 'q', 'e', 'f'];
+const inputs = ['w', 'a', 's', 'd', ' ', 'enter', 'escape', '`', 'q', 'e', 'f', '1', '2'];
 
 export const keyDown$ = fromEvent(document, 'keydown').pipe(
   filter(e => inputs.includes(e.key.toLowerCase())),

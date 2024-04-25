@@ -15,6 +15,10 @@ export const Health = ({ maxHP, sprite, hideHealthBar = false, type }) => {
 
   const { spawnHitSplat } = HitSplats(sprite, type);
 
+  const kill = () => {
+    takeDamage(hp);
+  }
+
   const takeDamage = (amount, isCrit) => {
     if (amount < 0) {
       console.error("cannot deal negative damage.")
@@ -60,6 +64,7 @@ export const Health = ({ maxHP, sprite, hideHealthBar = false, type }) => {
     takeDamage,
     heal,
     getHP,
+    kill,
     subscribeToDeath,
     subscribeToHealthChange,
     setMaxHP,

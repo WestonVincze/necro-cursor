@@ -6,10 +6,12 @@ import { appService, gameState } from "/src/app";
 import { items, removeItem } from "/src/components/Drops";
 import { createMinion } from "/src/components/Minions";
 import { getRandomElements, normalizeForce } from "/src/helpers";
-import { RadialSpell, RectangularSpell } from "/src/components/Spells";
+import { RadialSpell, RectangularSpell, CastBar } from "/src/components/Spells";
 import { LevelUp } from "/src/Views/LevelUp";
 import { activeKeys$ } from "/src/components/Inputs";
 import { createUnit } from "../Unit";
+import { keyDown$ } from "../Inputs";
+import { getClosestUnit } from "../../helpers";
 
 const FRICTION = 0.05;
 
@@ -63,10 +65,12 @@ const initializePlayer = () => {
       }, { level: initialLevel, experience: initialExperience }),
     )
     .subscribe(({ level, experience }) => {
+      console.log(level)
       gameState.playerExpPercent.next({ current: experience, nextLevel: getNextLevelExp(level) });
     });
 
   const addExperience = (experience) => {
+    console.log(experience);
     playerLevelSubject.next({ experience });
   }
 
@@ -85,7 +89,21 @@ const initializePlayer = () => {
     })
   });
 
+  player.selectedSpell = "summon";
+
   return { ...player, levelUp, addExperience };
+}
+
+const spells = {
+  sacrifice: (sprite) => {
+    const sacrificialLamb = getClosestUnit(sprite, gameState.minions);
+    if (sacrificialLamb) {
+      sacrificialLamb.health.kill();
+      console.log("MURDERED")
+    } else {
+      console.log("NO LAMB FOUND")
+    }
+  },
 }
 
 export const Player = () => {
@@ -94,17 +112,53 @@ export const Player = () => {
   gameState.player = player;
   const sprite = player.sprite;
 
+  keyDown$.subscribe((keydown) => {
+    if (keydown.key === '1') player.selectedSpell = "summon";
+    if (keydown.key === '2') player.selectedSpell = "sacrifice";
+  })
+
   // state
   let [ moveX, moveY ] = [0, 0]
   // TODO: implement a state machine to manage player state
-  const handleInput = ({ x, y, summoning }) => {
+  const handleInput = ({ x, y, casting }) => {
     // forbid player actions while paused
     if (appService.paused) return;
 
-    if (summoning) {
-      if (!player.summoningCircle?.casting) {
+    if (casting) {
+      if (!player.castingSpell?.casting) {
+        if (player.selectedSpell === "summon") {
+          player.castingSpell = RadialSpell({
+            position: sprite,
+            endRadius: player.stats.spellRadius,
+            growth: player.stats.castingSpeed,
+            canBeHeld: true,
+            onComplete: (radius) => { 
+              items.bones?.map(b => {
+                if (distanceBetweenPoints(b.sprite, sprite) <= radius + b.sprite.width / 2) {
+                  createMinion(b.sprite);
+                  removeItem("bones", b);
+                }
+              })
+              player.castingSpell = null
+            },
+            color: "FFAAFF"
+          })
+        } else {
+          player.castingSpell = CastBar({
+            sprite,
+            onComplete: () => {
+              console.log("DONE");
+              player.castingSpell = null;
+            },
+            onSuccess: () => {
+              console.log("CAST SPELL");
+              spells[player.selectedSpell](sprite);
+            },
+            castTime: 1,
+          })
+        }
         /*
-        player.summoningCircle = RectangularSpell({
+        player.castingSpell = RectangularSpell({
           position: sprite,
           maxWidth: 100,
           growth: 0.5,
@@ -112,33 +166,17 @@ export const Player = () => {
           onComplete: (width) => {
             console.log("COMPLETED SPELL: " + width);
             player.vx += 50;
-            player.summoningCircle = null;
+            player.castingSpell = null;
           },
           target: items.bones[0].sprite,
         })
         */
-        player.summoningCircle = RadialSpell({
-          position: sprite,
-          endRadius: player.stats.spellRadius,
-          growth: player.stats.castingSpeed,
-          canBeHeld: true,
-          onComplete: (radius) => { 
-            items.bones?.map(b => {
-              if (distanceBetweenPoints(b.sprite, sprite) <= radius + b.sprite.width / 2) {
-                createMinion(b.sprite);
-                removeItem("bones", b);
-              }
-            })
-            player.summoningCircle = null
-          },
-          color: "FFAAFF"
-        })
       }
       moveX = 0;
       moveY = 0;
     } else {
-      if (player.summoningCircle) {
-        player.summoningCircle.resolveSpell();
+      if (player.castingSpell) {
+        player.castingSpell.resolveSpell();
       }
       moveX = x;
       moveY = y;
@@ -182,7 +220,7 @@ export const Player = () => {
 // converting input to x/y values
 const playerInput$ = activeKeys$.pipe(
   map(keys => ({
-    summoning: keys[' '],
+    casting: keys[' '],
     x: (keys['d'] ? 1 : 0) + (keys['a'] ? -1 : 0),
     y: (keys['s'] ? 1 : 0) + (keys['w'] ? -1 : 0),
   })),

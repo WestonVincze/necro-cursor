@@ -4,7 +4,7 @@ import { appService } from "/src/app";
 import { explosion } from "/src/VFX/spellFX";
 
 export const RadialSpell = ({
-  position = { x: 0, y: 0 },
+  position,
   growth = 0.5,
   startRadius = 0,
   endRadius = 50,
@@ -12,7 +12,7 @@ export const RadialSpell = ({
   canBeHeld = false,
   onComplete,
 }) => {
-  const { UIContainer, particleContainer, physicsUpdate } = appService;
+  const { spriteContainer, UIContainer, particleContainer, physicsUpdate } = appService;
 
   let emitter = null; 
   let casting = true;
@@ -24,11 +24,11 @@ export const RadialSpell = ({
     circle.clear();
     circle.lineStyle({ width: 2, color })
     circle.beginFill(color, 0.3);
-    circle.drawCircle(position.x, position.y, radius);
+    circle.drawCircle(position.x, position.y + position.height / 2, radius);
     circle.endFill();
   }
 
-  UIContainer.addChild(circle);
+  spriteContainer.addChild(circle);
 
   const updateSpell = () => {
     if (radius < endRadius) {
@@ -45,7 +45,7 @@ export const RadialSpell = ({
 
   const resolveSpell = () => {
     onComplete?.(radius);
-    emitter = new Emitter(particleContainer, explosion({ x: position.x, y: position.y, color, speed: radius * 4 })); 
+    emitter = new Emitter(particleContainer, explosion({ x: position.x, y: position.y + position.height / 2, color, speed: radius * 4 })); 
     emitter.playOnceAndDestroy();
     cancelSpell();
   }
@@ -62,6 +62,7 @@ export const RadialSpell = ({
 // telegraphed rectangular spell
 export const RectangularSpell = ({
   position,
+  offset = { x: 0, y: 0 },
   growth = 0.5,
   startWith = 0,
   endWidth = 100,
@@ -88,12 +89,12 @@ export const RectangularSpell = ({
     bg.clear();
     bg.lineStyle({ width: 2, color });
     bg.beginFill(color, 0.2);
-    bg.drawRect(position.x, position.y - height / 2, endWidth, height);
+    bg.drawRect(position.x - offset.x, position.y - offset.y - height / 2, endWidth, height);
     bg.endFill();
 
     rect.clear();
     rect.beginFill(color, 0.6);
-    rect.drawRect(position.x, position.y - height / 2, width, height);
+    rect.drawRect(position.x - offset.x, position.y - offset.y - height / 2, width, height);
     rect.endFill();
   }
 
@@ -115,7 +116,7 @@ export const RectangularSpell = ({
   const growSpellUpdate$ = physicsUpdate.subscribe(updateSpell)
 
   const resolveSpell = () => {
-    onComplete(endWidth);
+    onComplete(width);
     cancelSpell();
   }
 
@@ -126,6 +127,30 @@ export const RectangularSpell = ({
   }
 
   return { casting, resolveSpell, cancelSpell };
+}
+
+export const CastBar = ({ 
+  sprite,
+  onComplete,
+  onSuccess,
+  castTime,
+}) => {
+  const growth = 100 / (castTime * 60);
+
+  const handleComplete = (endWidth) => {
+    if (endWidth >= 95) {
+      onSuccess();
+    } 
+    onComplete();
+  }
+
+  return RectangularSpell({
+    position: sprite,
+    offset: { x: sprite.width, y: 50 },
+    height: 20,
+    onComplete: handleComplete,
+    growth,
+  })
 }
 
 const SemiCircleSpell = () => {
