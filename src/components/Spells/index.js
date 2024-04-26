@@ -5,6 +5,7 @@ import { explosion } from "/src/VFX/spellFX";
 
 export const RadialSpell = ({
   position,
+  offset,
   growth = 0.5,
   startRadius = 0,
   endRadius = 50,
@@ -24,7 +25,7 @@ export const RadialSpell = ({
     circle.clear();
     circle.lineStyle({ width: 2, color })
     circle.beginFill(color, 0.3);
-    circle.drawCircle(position.x, position.y + position.height / 2, radius);
+    circle.drawCircle(position.x + offset.x, position.y + offset.y, radius);
     circle.endFill();
   }
 

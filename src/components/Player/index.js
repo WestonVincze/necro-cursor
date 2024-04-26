@@ -127,14 +127,16 @@ export const Player = () => {
     if (casting) {
       if (!player.castingSpell?.casting) {
         if (player.selectedSpell === "summon") {
+          const offset = { x: 0, y: sprite.height / 2 }
           player.castingSpell = RadialSpell({
             position: sprite,
+            offset,
             endRadius: player.stats.spellRadius,
             growth: player.stats.castingSpeed,
             canBeHeld: true,
             onComplete: (radius) => { 
               items.bones?.map(b => {
-                if (distanceBetweenPoints(b.sprite, sprite) <= radius + b.sprite.width / 2) {
+                if (distanceBetweenPoints(b.sprite, { x: sprite.x, y: sprite.y + offset.y }) <= radius + b.sprite.width / 2) {
                   createMinion(b.sprite);
                   removeItem("bones", b);
                 }
