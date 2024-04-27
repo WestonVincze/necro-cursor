@@ -115,7 +115,7 @@ export const levelUpOptions = (gameState) => [
   {
     name: "Minion Crit Damage",
     description: "Increases multiplier of your minion's critical hits by 0.5x.",
-    currentStats: `Minion Crit Damage: ${gameState.minions?.[0]?.stats.damage}x`,
+    currentStats: `Minion Crit Damage: ${gameState.minions?.[0]?.stats.critDamage}x`,
     onSelect: () => {
       gameState.minions[0]?.addToStat("critDamage", 0.5);
       appService.resume();

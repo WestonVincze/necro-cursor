@@ -189,7 +189,7 @@ export const minionData = {
       damageBonus: 0,
       moveSpeed: 0.2,
       maxSpeed: 1.5,
-      critChance: 2,
+      critChance: 5,
       critDamage: 1.5,
     },
   }
