@@ -92,15 +92,30 @@ export const createUnit = (id, unitName, position, options) => {
   }
 
   // TODO: all of these modify the original reference, when we want to be able to modify stats at the unit level we will need to change these to modify the "_statOverrides" property and move these functions out of each unit
-  const getStat = (stat) => _stats[stat];
-
   const setStat = (stat, value) => {
+    if (!checkForStat(stat)) return;
+
+    _statOverrides[stat] = value;
+  }
+
+  const addToStat = (stat, value) => {
+    if (!checkForStat(stat)) {
+      console.error(`${stat} not found.`)
+      return;
+    }
+
+    const newValue = (_statOverrides[stat] || _stats[stat]) + value;
+
+    _statOverrides[stat] = Math.round(newValue * 100) / 100;
+  }
+
+  const setStatForAll = (stat, value) => {
     if (!checkForStat(stat)) return;
 
     _stats[stat] = value;
   }
 
-  const addToStat = (stat, value) => {
+  const addToStatForAll = (stat, value) => {
     if (!checkForStat(stat)) {
       console.error(`${stat} not found.`)
       return;
@@ -202,7 +217,6 @@ export const createUnit = (id, unitName, position, options) => {
     level, // TODO: encapsulate this?
     sprite,
     health,
-    getStat,
     addToStat,
     setStat,
     setTarget,
