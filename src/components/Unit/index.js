@@ -53,6 +53,7 @@ export const createUnit = (id, unitName, position, options) => {
   let _target = null; // unit or null
   let _canAttack = _stats.maxHit > 0; // always false if there is no max hit
   let _attackers = 0;
+  const _itemsHeld = [];
 
   let level = 0;
 
@@ -230,6 +231,10 @@ export const createUnit = (id, unitName, position, options) => {
       get: () => _attackers,
       enumerable: true,
     },
+    itemsHeld: {
+      get: () => _itemsHeld,
+      enumerable: true
+    }
   })
 
   return unit;

@@ -45,10 +45,13 @@ export const initializeGameState = () => {
   let _minions = [];
   let _enemies = [];
   let _player = null;
+  let _items = [];
 
+  /*
   const _minions$ = of(_minions);
   const _enemies$ = of(_enemies);
   const _player$ = of(_player);
+  */
 
   // run stats
   const killCount = new BehaviorSubject({ peasants: 0, guards: 0, paladins: 0, archers: 0, doppelsoldners: 0, total: 0 });
@@ -142,6 +145,10 @@ export const initializeGameState = () => {
     _player = player;
   }
 
+  const setItems = (items) => {
+    _items = items;
+  }
+
   // TODO: optimize or cache values? Maybe use a subject and update whenever dependencies change to reduce excess work
   const getAllUnits = () => {
     const units = _player?.sprite ? [_player.sprite] : [];
@@ -186,6 +193,11 @@ export const initializeGameState = () => {
       set: setMinions,
       enumerable: true,
     },
+    items: {
+      get: () => _items,
+      set: setItems,
+      enumerable: true
+    }
   })
 
   return gameState;

@@ -90,7 +90,8 @@ export const enemyData = {
       critDamage: 2,
     },
     dropTable: {
-      always: ["bones"]
+      always: ["bones", "med_helm"],
+      // rare: ["med_helm"]
     }
   },
   paladin: {

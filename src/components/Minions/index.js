@@ -5,6 +5,11 @@ import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
 import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
 import { keyDown$ } from "../Inputs";
 import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator, TriangleFormationIterator } from "./formations";
+import { Texture } from "pixi.js";
+import { removeItem } from "../Drops";
+
+const skeleton_med_helm_texture = Texture.from('/assets/skeleton-med_helm.png');
+
 
 const {
   units: minions,
@@ -120,6 +125,17 @@ export const initializeMinions = (spriteCount) => {
 
   gameTicks$.subscribe(() => {
     minions.forEach(minion => {
+      gameState.items.pickups?.forEach(p => {
+        if (isIntersectingRect(p.sprite, minion.sprite)) {
+          console.log(minion.itemsHeld);
+          if (!minion.itemsHeld.includes("med_helm")) {
+            minion.itemsHeld.push(p.name);
+            removeItem("pickups", p);
+            minion.sprite.texture = skeleton_med_helm_texture;
+            minion.addToStat('armor', 2);
+          }
+        }
+      })
       if (minion.target === null) {
         gameState.enemies.some(enemy => {
           // TODO: change hard coded 100 and 150 values to chase distance
