@@ -3,7 +3,7 @@ import { BehaviorSubject, Subject, map, scan, startWith } from "rxjs";
 import { levelUpOptions, experienceTable } from "../LevelUp";
 import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
 import { appService, gameState } from "/src/app";
-import { items, removeItem } from "/src/components/Drops";
+import { removeItem } from "/src/components/Drops";
 import { createMinion } from "/src/components/Minions";
 import { getRandomElements, normalizeForce } from "/src/helpers";
 import { RadialSpell, RectangularSpell, CastBar } from "/src/components/Spells";
@@ -135,7 +135,7 @@ export const Player = () => {
             growth: player.stats.castingSpeed,
             canBeHeld: true,
             onComplete: (radius) => { 
-              items.bones?.map(b => {
+              gameState.items.bones?.map(b => {
                 if (distanceBetweenPoints(b.sprite, { x: sprite.x, y: sprite.y + offset.y }) <= radius + b.sprite.width / 2) {
                   createMinion(b.sprite);
                   removeItem("bones", b);

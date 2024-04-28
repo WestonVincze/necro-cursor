@@ -53,6 +53,7 @@ export const createUnit = (id, unitName, position, options) => {
   let _target = null; // unit or null
   let _canAttack = _stats.maxHit > 0; // always false if there is no max hit
   let _attackers = 0;
+  const _itemsHeld = [];
 
   let level = 0;
 
@@ -92,12 +93,10 @@ export const createUnit = (id, unitName, position, options) => {
   }
 
   // TODO: all of these modify the original reference, when we want to be able to modify stats at the unit level we will need to change these to modify the "_statOverrides" property and move these functions out of each unit
-  const getStat = (stat) => _stats[stat];
-
   const setStat = (stat, value) => {
     if (!checkForStat(stat)) return;
 
-    _stats[stat] = value;
+    _statOverrides[stat] = value;
   }
 
   const addToStat = (stat, value) => {
@@ -106,9 +105,11 @@ export const createUnit = (id, unitName, position, options) => {
       return;
     }
 
-    const newValue = _stats[stat] + value;
-    _stats[stat] = Math.round(newValue * 100) / 100;
+    const newValue = (_statOverrides[stat] || _stats[stat]) + value;
+
+    _statOverrides[stat] = Math.round(newValue * 100) / 100;
   }
+
 
   // finds the closest available target or returns null if none found
   // run every tick?
@@ -202,7 +203,6 @@ export const createUnit = (id, unitName, position, options) => {
     level, // TODO: encapsulate this?
     sprite,
     health,
-    getStat,
     addToStat,
     setStat,
     setTarget,
@@ -220,7 +220,7 @@ export const createUnit = (id, unitName, position, options) => {
       enumerable: true,
     },
     stats: {
-      get: () => _stats, // ({ ..._stats, ..._statOverrides }),
+      get: () => ({ ..._stats, ..._statOverrides }),
       enumerable: true,
     },
     targetType: {
@@ -231,6 +231,10 @@ export const createUnit = (id, unitName, position, options) => {
       get: () => _attackers,
       enumerable: true,
     },
+    itemsHeld: {
+      get: () => _itemsHeld,
+      enumerable: true
+    }
   })
 
   return unit;

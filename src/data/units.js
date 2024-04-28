@@ -90,7 +90,8 @@ export const enemyData = {
       critDamage: 2,
     },
     dropTable: {
-      always: ["bones"]
+      always: ["bones", "med_helm"],
+      // rare: ["med_helm"]
     }
   },
   paladin: {
@@ -218,4 +219,27 @@ export const units = {
   ...enemyData,
   ...minionData,
   ...playerData,
+}
+
+// TODO: where should this stat modifying logic actually go?
+const checkForStat = (unit, stat) => {
+  if (!units[unit].stats.hasOwnProperty(stat)) {
+    console.error(`Stat ${stat} not found on unit ${unit}.`);
+    return false;
+  }
+
+  return true;
+}
+
+export const setStat = (unit, stat, value) => {
+  if (!checkForStat(unit, stat)) return;
+
+  units[unit].stats[stat] = value;
+}
+
+export const addToStat = (unit, stat, value) => {
+  if (!checkForStat(unit, stat)) return;
+
+  const newValue = units[unit].stats[stat] + value;
+  units[unit].stats[stat] = Math.round(newValue * 100) / 100;
 }
