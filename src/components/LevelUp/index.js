@@ -1,4 +1,5 @@
 import { appService } from "../../app";
+import { addToStat, setStat } from "../../data/units";
 
 // TODO: fix bug where adding minion stats while having no minions does nothing
 export const levelUpOptions = (gameState) => [
@@ -58,8 +59,8 @@ export const levelUpOptions = (gameState) => [
     description: "Increases minion movement speed by 0.4.",
     currentStats: `Minion Max Speed: ${gameState.minions?.[0]?.stats.maxSpeed}`,
     onSelect: () => {
-      gameState.minions?.[0]?.addToStat("moveSpeed", 0.15);
-      gameState.minions?.[0]?.addToStat("maxSpeed", 0.4);
+      addToStat("skeleton", "moveSpeed", 0.15);
+      addToStat("skeleton", "maxSpeed", 0.4);
       appService.resume();
     }
   },
@@ -68,7 +69,7 @@ export const levelUpOptions = (gameState) => [
     description: "Increases the max hit of your minions by 1.",
     currentStats: `Minion Max Hit: ${gameState.minions?.[0]?.stats.maxHit}`,
     onSelect: () => {
-      gameState.minions?.[0]?.addToStat("maxHit", 1);
+      addToStat("skeleton", "maxHit", 1);
       appService.resume();
     }
   },
@@ -77,7 +78,7 @@ export const levelUpOptions = (gameState) => [
     description: "Increases minion armor by 1.",
     currentStats: `Minion Armor: ${gameState.minions?.[0]?.stats.armor}`,
     onSelect: () => {
-      gameState.minions?.[0]?.addToStat("armor", 1);
+      addToStat("skeleton", "armor", 1);
       appService.resume();
     }
   },
@@ -86,7 +87,7 @@ export const levelUpOptions = (gameState) => [
     description: "Increases minion accuracy by 1.",
     currentStats: `Minion Accuracy: ${gameState.minions?.[0]?.stats.attackBonus}`,
     onSelect: () => {
-      gameState.minions[0]?.addToStat("attackBonus", 1);
+      addToStat("skeleton", "attackBonus", 1);
       appService.resume();
     }
   },
@@ -95,7 +96,7 @@ export const levelUpOptions = (gameState) => [
     description: "Increases max HP of your minions by 5.",
     currentStats: `Minion MaxHP: ${gameState.minions?.[0]?.stats.maxHP}`,
     onSelect: () => {
-      gameState.minions[0]?.addToStat("maxHP", 5);
+      addToStat("skeleton", "maxHP", 5);
       gameState.minions.forEach(m => {
         m.health.setMaxHP(m.stats.maxHP);
         m.health.heal(5);
@@ -108,7 +109,7 @@ export const levelUpOptions = (gameState) => [
     description: "Increases your minion's crit chance by 5%.",
     currentStats: `Minion Crit Chance: ${gameState.minions?.[0]?.stats.critChance}%`,
     onSelect: () => {
-      gameState.minions[0]?.addToStat("critChance", 5);
+      addToStat("skeleton", "critChance", 5);
       appService.resume();
     }
   },
@@ -117,7 +118,7 @@ export const levelUpOptions = (gameState) => [
     description: "Increases multiplier of your minion's critical hits by 0.5x.",
     currentStats: `Minion Crit Damage: ${gameState.minions?.[0]?.stats.critDamage}x`,
     onSelect: () => {
-      gameState.minions[0]?.addToStat("critDamage", 0.5);
+      addToStat("skeleton", "critDamage", 0.5);
       appService.resume();
     }
   },

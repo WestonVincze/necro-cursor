@@ -109,21 +109,6 @@ export const createUnit = (id, unitName, position, options) => {
     _statOverrides[stat] = Math.round(newValue * 100) / 100;
   }
 
-  const setStatForAll = (stat, value) => {
-    if (!checkForStat(stat)) return;
-
-    _stats[stat] = value;
-  }
-
-  const addToStatForAll = (stat, value) => {
-    if (!checkForStat(stat)) {
-      console.error(`${stat} not found.`)
-      return;
-    }
-
-    const newValue = _stats[stat] + value;
-    _stats[stat] = Math.round(newValue * 100) / 100;
-  }
 
   // finds the closest available target or returns null if none found
   // run every tick?
@@ -234,7 +219,7 @@ export const createUnit = (id, unitName, position, options) => {
       enumerable: true,
     },
     stats: {
-      get: () => _stats, // ({ ..._stats, ..._statOverrides }),
+      get: () => ({ ..._stats, ..._statOverrides }),
       enumerable: true,
     },
     targetType: {
