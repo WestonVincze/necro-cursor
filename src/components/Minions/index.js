@@ -8,8 +8,12 @@ import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterato
 import { Texture } from "pixi.js";
 import { removeItem } from "../Drops";
 
-const skeleton_med_helm_texture = Texture.from('/assets/skeleton-med_helm.png');
-
+const itemTextures = {
+  med_helm: Texture.from('/assets/skeleton-med_helm.png'),
+  bucket_helm: Texture.from('/assets/skeleton-bucket_helm.png'),
+  great_sword:  Texture.from('/assets/skeleton-great_sword.png'),
+  crossbow: Texture.from('/assets/skeleton-crossbow.png'),
+}
 
 const {
   units: minions,
@@ -128,11 +132,19 @@ export const initializeMinions = (spriteCount) => {
       gameState.items.pickups?.forEach(p => {
         if (isIntersectingRect(p.sprite, minion.sprite)) {
           console.log(minion.itemsHeld);
-          if (!minion.itemsHeld.includes("med_helm")) {
+          /* for now, skeletons can only hold one item */
+          // if (!minion.itemsHeld.includes("med_helm")) {
+          if (minion.itemsHeld.length === 0) {
             minion.itemsHeld.push(p.name);
             removeItem("pickups", p);
-            minion.sprite.texture = skeleton_med_helm_texture;
-            minion.addToStat('armor', 2);
+            minion.sprite.texture = itemTextures[p.name];
+            if (p.name === "great_sword") {
+              minion.sprite.height += 70;
+            } else if (p.name === "crossbow") {
+              minion.sprite.width += 30;
+              minion.isRanged = true;
+            }
+            p.stats.map(stat => minion.addToStat(stat.name, stat.value));
           }
         }
       })

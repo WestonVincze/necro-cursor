@@ -65,7 +65,7 @@ export const spawnItem = (name, { x, y }, ticksToDespawn = 75) => {
   }
 
   const id = `${name}-${itemCount}`;
-  gameState.items[item.type].push({ name, id, sprite });
+  gameState.items[item.type].push({ name, id, sprite, stats: item.stats });
 
   if (ticksToDespawn > 0) {
     gameTicks$

@@ -47,6 +47,7 @@ export const createUnit = (id, unitName, position, options) => {
 
   const { gameTicks$, spriteContainer, UIContainer } = appService;
   const _stats = _unitData.stats;
+  const isRanged = _unitData.ranged;
   const _dropTable = _unitData.dropTable || {};
   const _statOverrides = {};
   let _targetTypes = null; // array of possible target types (not being used yet)
@@ -157,7 +158,7 @@ export const createUnit = (id, unitName, position, options) => {
     // check if in range
     if(!isIntersectingRect(sprite, _target.sprite, _stats.attackRange)) return;
 
-    if (_unitData.ranged) {
+    if (isRanged) {
       Projectile({
         startPos: sprite,
         targetPos: _target.sprite,
@@ -203,6 +204,7 @@ export const createUnit = (id, unitName, position, options) => {
     level, // TODO: encapsulate this?
     sprite,
     health,
+    isRanged,
     addToStat,
     setStat,
     setTarget,
