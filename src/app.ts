@@ -142,6 +142,7 @@ const alignSprites = () => {
 gameTicks$.subscribe(alignSprites);
 
 const initializeGame = () => {
+  spawnItem("crossbow", { x: appService.app.screen.width / 2, y: appService.app.screen.height / 4 }, 0);
   if (!gameState.debugMode) {
     spawnItem("bones", { x: appService.app.screen.width / 2, y: appService.app.screen.height / 4 }, 0);
     TimedSpawner(spawnRate);

@@ -47,14 +47,16 @@ export const createUnit = (id, unitName, position, options) => {
 
   const { gameTicks$, spriteContainer, UIContainer } = appService;
   const _stats = _unitData.stats;
-  const isRanged = _unitData.ranged;
   const _dropTable = _unitData.dropTable || {};
   const _statOverrides = {};
+  let _isRanged = _unitData.ranged;
   let _targetTypes = null; // array of possible target types (not being used yet)
   let _target = null; // unit or null
   let _canAttack = _stats.maxHit > 0; // always false if there is no max hit
   let _attackers = 0;
   const _itemsHeld = [];
+
+  const getStats = () => ({ ..._stats, ..._statOverrides });
 
   let level = 0;
 
@@ -72,15 +74,15 @@ export const createUnit = (id, unitName, position, options) => {
   sprite.id = id; // is this dumb?
   spriteContainer.addChild(sprite);
 
-  const health = Health({ maxHP: _stats.maxHP, sprite, hideHealthBar: _unitData.hideUI, type: _unitData.type });
+  const health = Health({ maxHP: getStats().maxHP, sprite, hideHealthBar: _unitData.hideUI, type: _unitData.type });
 
   health.subscribeToDeath(() => {
     spawnDrops(sprite, _dropTable);
   })
 
-  if (_stats.HPregeneration > 0 ) {
+  if (getStats().HPregeneration > 0 ) {
     gameTicks$.subscribe(() => {
-      health.heal(_stats.HPregeneration);
+      health.heal(getStats().HPregeneration);
     })
   }
 
@@ -156,32 +158,32 @@ export const createUnit = (id, unitName, position, options) => {
     if (!_canAttack || _target === null || !_target.sprite || !sprite) return;
 
     // check if in range
-    if(!isIntersectingRect(sprite, _target.sprite, _stats.attackRange)) return;
+    if(!isIntersectingRect(sprite, _target.sprite, getStats().attackRange)) return;
 
-    if (isRanged) {
+    if (_isRanged) {
       Projectile({
         startPos: sprite,
         targetPos: _target.sprite,
         name: "arrow",
-        viableTargets: [gameState.player, ...gameState.minions],
-        onCollide: (target) => attackTarget(_stats, target),
+        viableTargets: _unitData.type === "enemy" ? [gameState.player, ...gameState.minions] : gameState.enemies,
+        onCollide: (target) => attackTarget(getStats(), target),
       })
     } else {
-      attackTarget(_stats, _target);
+      attackTarget(getStats(), _target);
     }
 
     _canAttack = false;
     // TODO: check for potential memory leaks here
     gameTicks$
       .pipe(
-        take(_stats.attackSpeed + 1),
+        take(getStats().attackSpeed + 1),
         finalize(() => _canAttack = true),
       ).subscribe();
   }
 
   // "attackers" might not be necessary...
   const addAttacker = () => {
-    if (_attackers + 1 > _stats.maxAttackers) return false;
+    if (_attackers + 1 > getStats().maxAttackers) return false;
     _attackers++;
     return true;
   }
@@ -204,7 +206,6 @@ export const createUnit = (id, unitName, position, options) => {
     level, // TODO: encapsulate this?
     sprite,
     health,
-    isRanged,
     addToStat,
     setStat,
     setTarget,
@@ -222,7 +223,7 @@ export const createUnit = (id, unitName, position, options) => {
       enumerable: true,
     },
     stats: {
-      get: () => ({ ..._stats, ..._statOverrides }),
+      get: getStats,
       enumerable: true,
     },
     targetType: {
@@ -236,6 +237,11 @@ export const createUnit = (id, unitName, position, options) => {
     itemsHeld: {
       get: () => _itemsHeld,
       enumerable: true
+    },
+    isRanged: {
+      get: () => _isRanged,
+      set: (v) => _isRanged = v,
+      enumerable: true,
     }
   })
 

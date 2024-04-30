@@ -7,6 +7,22 @@ import { keyDown$ } from "../Inputs";
 import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator, TriangleFormationIterator } from "./formations";
 import { Texture } from "pixi.js";
 import { removeItem } from "../Drops";
+import { getClosestUnit } from "../../helpers";
+
+const tryEquipItem = (item, unit) => {
+  if (unit.itemsHeld.length === 0) {
+    unit.itemsHeld.push(item.name);
+    removeItem("pickups", item);
+    unit.sprite.texture = itemTextures[item.name];
+    if (item.name === "great_sword") {
+      unit.sprite.height += 70;
+    } else if (item.name === "crossbow") {
+      unit.sprite.width += 20;
+      unit.isRanged = true;
+    }
+    item.stats.map(stat => unit.addToStat(stat.name, stat.value));
+  }
+}
 
 const itemTextures = {
   med_helm: Texture.from('/assets/skeleton-med_helm.png'),
@@ -18,17 +34,33 @@ const itemTextures = {
 const {
   units: minions,
   addUnit,
+  getUnitById,
 } = Swarm();
 
 // TODO: Fix performance issues (might be related to high number of containers being used)
 export const createMinion = (position) => {
   const minion = addUnit("skeleton", position);
 
+  const findTarget = () => {
+    const newTarget = getClosestUnit(minion.sprite, gameState.enemies);
+    if (!newTarget) return;
+    minion.setTarget(newTarget);
+    newTarget.health.subscribeToDeath(() => {
+      if (!getUnitById(minion.id)) return;
+      minion.clearTarget();
+      findTarget();
+    });
+  }
+
+  findTarget();
+  const searchForTarget = appService.gameTicks$.subscribe(findTarget);
+
   // let's see how the game is with 0% chance to get bones when minion dies
   // if (Math.random() * 100 >= 10) minion.addItemToDrops("bones");
 
   gameState.incrementReanimations();
   minion.health.subscribeToDeath(() => { 
+    searchForTarget.unsubscribe();
     gameState.incrementDeanimations();
   });
 }
@@ -129,25 +161,14 @@ export const initializeMinions = (spriteCount) => {
 
   gameTicks$.subscribe(() => {
     minions.forEach(minion => {
-      gameState.items.pickups?.forEach(p => {
-        if (isIntersectingRect(p.sprite, minion.sprite)) {
-          console.log(minion.itemsHeld);
+      gameState.items.pickups?.forEach(item => {
+        if (isIntersectingRect(item.sprite, minion.sprite)) {
           /* for now, skeletons can only hold one item */
           // if (!minion.itemsHeld.includes("med_helm")) {
-          if (minion.itemsHeld.length === 0) {
-            minion.itemsHeld.push(p.name);
-            removeItem("pickups", p);
-            minion.sprite.texture = itemTextures[p.name];
-            if (p.name === "great_sword") {
-              minion.sprite.height += 70;
-            } else if (p.name === "crossbow") {
-              minion.sprite.width += 30;
-              minion.isRanged = true;
-            }
-            p.stats.map(stat => minion.addToStat(stat.name, stat.value));
-          }
+          tryEquipItem(item, minion);
         }
       })
+      /*
       if (minion.target === null) {
         gameState.enemies.some(enemy => {
           // TODO: change hard coded 100 and 150 values to chase distance
@@ -166,6 +187,7 @@ export const initializeMinions = (spriteCount) => {
           minion.clearTarget();
         }
       }
+      */
     })
   })
 
