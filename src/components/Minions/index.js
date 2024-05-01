@@ -45,10 +45,11 @@ export const createMinion = (position) => {
     const newTarget = getClosestUnit(minion.sprite, gameState.enemies);
     if (!newTarget) return;
     minion.setTarget(newTarget);
-    newTarget.health.subscribeToDeath(() => {
+    const getNewTarget = newTarget.health.subscribeToDeath(() => {
       if (!getUnitById(minion.id)) return;
       minion.clearTarget();
       findTarget();
+      getNewTarget.unsubscribe();
     });
   }
 
