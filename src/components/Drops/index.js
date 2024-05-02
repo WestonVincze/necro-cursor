@@ -8,8 +8,6 @@ import { take } from "rxjs";
 import { getRandomElements } from "../../helpers";
 import { itemData } from "../../data/items";
 
-// TODO: move to gameState and change to "items" once we have more items
-// export let items = {};
 let itemCount = 0;
 const despawnTickCount = 75;
 const flashTickCount = 50;

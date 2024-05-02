@@ -32,6 +32,7 @@ export const Health = ({ maxHP, sprite, hideHealthBar = false, type }) => {
     healthBar?.updateHealth(hp, maxHP);
     onHealthChange.next({ type: 'damage', amount });
     if (hp <= 0) {
+      hp = 0;
       onDeath.next();
       onDeath.complete();
       onHealthChange.complete();
