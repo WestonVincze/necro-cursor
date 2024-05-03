@@ -26,9 +26,10 @@ const createEnemy = (name, position = {
   const findTarget = () => {
     const newTarget = getClosestUnit(enemy.sprite, gameState.minions.concat(gameState.player));
     enemy.setTarget(newTarget);
-    newTarget.health.subscribeToDeath(() => {
+    const targetDeath = newTarget.health.subscribeToDeath(() => {
       if (!getUnitById(enemy.id)) return;
-      findTarget();
+      enemy.clearTarget();
+      targetDeath.unsubscribe();
     });
   }
 
@@ -88,6 +89,7 @@ const Enemies = () => {
         }
       } 
 
+      if (!enemy.target) return;
       const options = {
         followForce: isIntersectingRect(enemy.sprite, enemy.target.sprite, enemy.stats.attackRange) ? 0 : 1,
         separation: 2,

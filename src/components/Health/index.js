@@ -1,11 +1,11 @@
 import { Container, Graphics, Ticker } from "pixi.js";
-import { Subject } from "rxjs";
+import { AsyncSubject, Observable, Subject } from "rxjs";
 import { HitSplats } from "./HitSplats";
 import { appService } from "../../app";
 
 export const Health = ({ maxHP, sprite, hideHealthBar = false, type }) => {
   let hp = maxHP;
-  const onDeath = new Subject();
+  const onDeath = new AsyncSubject();
   const onHealthChange = new Subject();
   let healthBar = null;
 
