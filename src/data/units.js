@@ -90,8 +90,8 @@ export const enemyData = {
       critDamage: 2,
     },
     dropTable: {
-      always: ["bones", "med_helm"],
-      // rare: ["med_helm"]
+      always: ["bones"],
+      common: ["med_helm"]
     }
   },
   paladin: {
@@ -116,7 +116,8 @@ export const enemyData = {
       critDamage: 2,
     },
     dropTable: {
-      always: ["bones"]
+      always: ["bones"],
+      common: ["bucket_helm"]
     }
   },
   doppelsoldner: {
@@ -142,6 +143,7 @@ export const enemyData = {
     },
     dropTable: {
       always: ["bones"],
+      common: ["great_sword"]
     }
   },
   archer: {
@@ -168,6 +170,7 @@ export const enemyData = {
     },
     dropTable: {
       always: ["bones"],
+      common: ["crossbow"],
     }
   }
 }

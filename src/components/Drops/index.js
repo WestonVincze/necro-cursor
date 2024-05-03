@@ -8,8 +8,6 @@ import { take } from "rxjs";
 import { getRandomElements } from "../../helpers";
 import { itemData } from "../../data/items";
 
-// TODO: move to gameState and change to "items" once we have more items
-// export let items = {};
 let itemCount = 0;
 const despawnTickCount = 75;
 const flashTickCount = 50;
@@ -65,7 +63,7 @@ export const spawnItem = (name, { x, y }, ticksToDespawn = 75) => {
   }
 
   const id = `${name}-${itemCount}`;
-  gameState.items[item.type].push({ name, id, sprite });
+  gameState.items[item.type].push({ name, id, sprite, stats: item.stats });
 
   if (ticksToDespawn > 0) {
     gameTicks$

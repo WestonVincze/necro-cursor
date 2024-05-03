@@ -5,7 +5,7 @@ import { explosion } from "/src/VFX/spellFX";
 
 export const RadialSpell = ({
   position,
-  offset,
+  offset = { x: 0, y: 0 },
   growth = 0.5,
   startRadius = 0,
   endRadius = 50,

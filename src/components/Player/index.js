@@ -65,12 +65,10 @@ const initializePlayer = () => {
       }, { level: initialLevel, experience: initialExperience }),
     )
     .subscribe(({ level, experience }) => {
-      console.log(level)
       gameState.playerExpPercent.next({ current: experience, nextLevel: getNextLevelExp(level) });
     });
 
   const addExperience = (experience) => {
-    console.log(experience);
     playerLevelSubject.next({ experience });
   }
 
