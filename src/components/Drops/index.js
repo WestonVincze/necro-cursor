@@ -91,9 +91,7 @@ export const removeItem = (type, { id, sprite, method }) => {
   try {
     sprite.destroy();
     // TODO: if multiple bones are being removed at once we can be more efficient
-    if (gameState.items.type) {
-      gameState.items[type] = [...gameState.items[type].filter(i => i.id !== id)];
-    }
+    gameState.items[type] = [...gameState.items[type].filter(i => i.id !== id)];
   } catch (e) {
     console.error(e);
   }
