@@ -161,11 +161,18 @@ export const initializeMinions = (spriteCount) => {
 
   gameTicks$.subscribe(() => {
     minions.forEach(minion => {
+      if (!gameState.items?.pickups?.length > 0) return;
       gameState.items.pickups?.forEach(item => {
-        if (isIntersectingRect(item.sprite, minion.sprite)) {
-          /* for now, skeletons can only hold one item */
-          // if (!minion.itemsHeld.includes("med_helm")) {
-          tryEquipItem(item, minion);
+        try {
+          if (!minion.sprite || !item.sprite) return;
+          if (isIntersectingRect(item.sprite, minion.sprite)) {
+            /* for now, skeletons can only hold one item */
+            // if (!minion.itemsHeld.includes("med_helm")) {
+            console.log(item);
+            tryEquipItem(item, minion);
+          }
+        } catch (e) {
+          console.error('I fucked up');
         }
       })
       /*

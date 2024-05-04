@@ -17,6 +17,14 @@ export const getURLParam = (param, defer) => {
   return params.get(param) || defer;
 }
 
+export const getRandomElement = (array) => {
+  if (!array.length > 0) return;
+
+  const randomIndex = Math.floor(Math.random() * array.length);
+
+  return array[randomIndex]
+}
+
 export const getRandomElements = (array, count) => {
   if (count > array.length) return false;
 

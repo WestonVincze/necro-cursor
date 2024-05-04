@@ -5,7 +5,7 @@
 import { Sprite } from "pixi.js";
 import { appService, gameState } from "/src/app";
 import { take } from "rxjs";
-import { getRandomElements } from "../../helpers";
+import { getRandomElement } from "../../helpers";
 import { itemData } from "../../data/items";
 
 let itemCount = 0;
@@ -20,11 +20,11 @@ const rollForLoot = (dropTable) => {
 
   const roll = Math.random() * 100;
   if (dropTable.legendary?.length > 0 && roll >= 99.5) {
-    drops.push(getRandomElements(dropTable.legendary, 1));
+    drops.push(getRandomElement(dropTable.legendary));
   } else if (dropTable.rare?.length > 0 && roll >= 95) {
-    drops.push(getRandomElements(dropTable.rare, 1));
+    drops.push(getRandomElement(dropTable.rare));
   } else if (dropTable.common?.length > 0 && roll >= 50) {
-    drops.push(getRandomElements(dropTable.common, 1));
+    drops.push(getRandomElement(dropTable.common));
   }
 
   return drops;
@@ -84,12 +84,16 @@ export const spawnItem = (name, { x, y }, ticksToDespawn = 75) => {
 export const removeItem = (type, { id, sprite, method }) => {
   if (sprite.destroyed) return;
 
-  name === "bones" && method === "despawn" && gameState.incrementBonesDespawned();
+  if (type === "bones" && method === "despawn") {
+    gameState.incrementBonesDespawned();
+  } 
 
   try {
     sprite.destroy();
     // TODO: if multiple bones are being removed at once we can be more efficient
-    gameState.items[type] = [...gameState.items[type].filter(i => i.id !== id)];
+    if (gameState.items.type) {
+      gameState.items[type] = [...gameState.items[type].filter(i => i.id !== id)];
+    }
   } catch (e) {
     console.error(e);
   }

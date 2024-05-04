@@ -135,6 +135,7 @@ const { createButton } = DebugTools(gameState);
 
 const skeletons = getURLParam("skeletons", 0);
 const spawnRate = getURLParam("spawnRate", 5000);
+const item = getURLParam("item", null);
 
 const alignSprites = () => {
   spriteContainer.children.map(c => c.zIndex = c.y);
@@ -142,7 +143,9 @@ const alignSprites = () => {
 gameTicks$.subscribe(alignSprites);
 
 const initializeGame = () => {
-  spawnItem("crossbow", { x: appService.app.screen.width / 2, y: appService.app.screen.height / 4 }, 0);
+  if (item) {
+    spawnItem(item, { x: appService.app.screen.width / 2, y: appService.app.screen.height / 4 }, 0);
+  }
   if (!gameState.debugMode) {
     spawnItem("bones", { x: appService.app.screen.width / 2, y: appService.app.screen.height / 4 }, 0);
     TimedSpawner(spawnRate);
