@@ -4,17 +4,17 @@ import { StatEditor } from "../StatEditor";
 
 const MainMenuScreen = () => `
   <div class=${styles.menu}>
-    <h1>NECRO CURSOR</h1>
+    <h1>NECRO</h1>
 
     <div id="content" class="${styles.content}">
       <img class="${styles.hero}" src="/assets/necro.png" alt="necromancer image" />
     </div>
 
     <div class="${styles.buttons}">
+      <button id="start_game_btn">Start Game</button>
       <button id="how_to_play_btn">How to Play</button>
       <button id="highscores_btn">Highscores</button>
       <button id="stat_editor_btn">Edit Stats</button>
-      <button id="start_game_btn">Start Game</button>
     </div>
   </div>
 `

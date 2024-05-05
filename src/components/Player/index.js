@@ -132,16 +132,19 @@ export const Player = () => {
             endRadius: player.stats.spellRadius,
             growth: player.stats.castingSpeed,
             canBeHeld: true,
-            onComplete: (radius) => { 
+            onComplete: () => { 
+              player.castingSpell = null
+            },
+            successCondition: (radius) => radius > 25,
+            onSuccess: (radius) => {
               gameState.items.bones?.map(b => {
                 if (distanceBetweenPoints(b.sprite, { x: sprite.x, y: sprite.y + offset.y }) <= radius + b.sprite.width / 2) {
                   createMinion(b.sprite);
                   removeItem("bones", b);
                 }
               })
-              player.castingSpell = null
             },
-            color: "FFAAFF"
+            color: "FFAAFF",
           })
         } else {
           player.castingSpell = CastBar({

@@ -12,8 +12,10 @@ export const RadialSpell = ({
   color,
   canBeHeld = false,
   onComplete,
+  successCondition,
+  onSuccess,
 }) => {
-  const { spriteContainer, UIContainer, particleContainer, physicsUpdate } = appService;
+  const { spriteContainer, particleContainer, physicsUpdate } = appService;
 
   let emitter = null; 
   let casting = true;
@@ -22,9 +24,10 @@ export const RadialSpell = ({
   const circle = new Graphics();
 
   const updateTelegraph = () => {
+    let fill = successCondition(radius) ? color : "FFAAAA";
     circle.clear();
-    circle.lineStyle({ width: 2, color })
-    circle.beginFill(color, 0.3);
+    circle.lineStyle({ width: 2, color: fill })
+    circle.beginFill(fill, 0.3);
     circle.drawCircle(position.x + offset.x, position.y + offset.y, radius);
     circle.endFill();
   }
@@ -45,9 +48,12 @@ export const RadialSpell = ({
   const growCircleLoop$ = physicsUpdate.subscribe(updateSpell);
 
   const resolveSpell = () => {
+    if (successCondition(radius)) {
+      onSuccess?.(radius);
+      emitter = new Emitter(particleContainer, explosion({ x: position.x, y: position.y + position.height / 2, color, speed: radius * 4 })); 
+      emitter.playOnceAndDestroy();
+    }
     onComplete?.(radius);
-    emitter = new Emitter(particleContainer, explosion({ x: position.x, y: position.y + position.height / 2, color, speed: radius * 4 })); 
-    emitter.playOnceAndDestroy();
     cancelSpell();
   }
 

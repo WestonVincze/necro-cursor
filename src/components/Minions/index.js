@@ -160,34 +160,11 @@ export const initializeMinions = (spriteCount) => {
   }
 
   gameTicks$.subscribe(() => {
-    minions.forEach(minion => {
-      gameState.items.pickups?.forEach(item => {
-        if (isIntersectingRect(item.sprite, minion.sprite)) {
-          /* for now, skeletons can only hold one item */
-          // if (!minion.itemsHeld.includes("med_helm")) {
-          tryEquipItem(item, minion);
-        }
-      })
-      /*
-      if (minion.target === null) {
-        gameState.enemies.some(enemy => {
-          // TODO: change hard coded 100 and 150 values to chase distance
-          if (isIntersectingRect(minion.sprite, enemy.sprite, 100) && enemy.addAttacker()) {
-            minion.setTarget(enemy);
-            enemy.health.subscribeToDeath(() => minion.clearTarget());
-            return true;
-          }
-          return false;
-        });
-      } else {
-        // TODO: make this more obvious?
-        const chaseDistance = aggressionSubject.getValue() ? 150 : 100;
-        if (!isIntersectingRect(minion.sprite, minion.target.sprite, chaseDistance)) {
-          minion.target.removeAttacker();
-          minion.clearTarget();
-        }
+    gameState.items.pickups?.forEach(item => {
+      const minion = minions.find(m => isIntersectingRect(item.sprite, m.sprite));
+      if (minion) {
+        tryEquipItem(item, minion);
       }
-      */
     })
   })
 
