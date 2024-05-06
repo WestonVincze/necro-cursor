@@ -206,6 +206,7 @@ export const createUnit = (id, unitName, position, options) => {
     level, // TODO: encapsulate this?
     sprite,
     health,
+    getStats, // TODO: fix "stats" definition so that player doesn't have to call this function...
     addToStat,
     setStat,
     setTarget,

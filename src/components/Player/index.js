@@ -26,8 +26,9 @@ const getNextLevelExp = (level) => {
 const initializePlayer = () => {
   const { app } = appService;
   const player = createUnit("player", "naked", { x: app.screen.width / 2, y: app.screen.height / 2 });
+  gameState.player = player;
 
-  gameState.playerHealth.next({ current: player.health.getHP(), max: player.stats.maxHP });
+  gameState.playerHealth.next({ current: player.health.getHP(), max: player.getStats().maxHP });
 
   player.health.subscribeToDeath(() => {
     gameState.transitionToScene("gameOver");
@@ -38,7 +39,7 @@ const initializePlayer = () => {
     if (type === "damage") {
       gameState.incrementDamageTaken(amount);
     }
-    gameState.playerHealth.next({ current: player.health.getHP(), max: player.stats.maxHP });
+    gameState.playerHealth.next({ current: player.health.getHP(), max: player.getStats().maxHP });
   })
 
   const playerLevelSubject = new BehaviorSubject({
@@ -106,8 +107,9 @@ const spells = {
 
 export const Player = () => {
   const { physicsUpdate, world } = appService;
-  const player = initializePlayer();
-  gameState.player = player;
+  gameState.player = initializePlayer();
+  const { player } = gameState;
+
   const sprite = player.sprite;
 
   keyDown$.subscribe((keydown) => {
@@ -129,8 +131,8 @@ export const Player = () => {
           player.castingSpell = RadialSpell({
             position: sprite,
             offset,
-            endRadius: player.stats.spellRadius,
-            growth: player.stats.castingSpeed,
+            endRadius: player.getStats().spellRadius,
+            growth: player.getStats().castingSpeed,
             canBeHeld: true,
             onComplete: () => { 
               player.castingSpell = null
@@ -195,19 +197,19 @@ export const Player = () => {
     if (x === 0) {
       sprite.vx += -sprite.vx * FRICTION * delta;
     } else {
-      sprite.vx += x * player.stats.moveSpeed * delta;
+      sprite.vx += x * player.getStats().moveSpeed * delta;
     }
 
     if (y === 0) {
       sprite.vy += -sprite.vy * FRICTION * delta;
     } else {
-      sprite.vy += y * player.stats.moveSpeed * delta;
+      sprite.vy += y * player.getStats().moveSpeed * delta;
     }
 
     // limit max speed
     const magnitude = Math.sqrt(sprite.vx * sprite.vx + sprite.vy * sprite.vy);
-    if (magnitude > player.stats.maxSpeed) {
-      const scale = player.stats.maxSpeed / magnitude
+    if (magnitude > player.getStats().maxSpeed) {
+      const scale = player.getStats().maxSpeed / magnitude
       sprite.vx *= scale;
       sprite.vy *= scale;
     }

@@ -15,7 +15,7 @@ export const levelUpOptions = (gameState) => [
   {
     name: "Move Speed",
     description: `Increases your max speed by 0.3.`,
-    currentStats: `Max Speed: ${gameState.player.stats.maxSpeed}`,
+    currentStats: `Max Speed: ${gameState.player.getStats().maxSpeed}`,
     onSelect: () => {
       gameState.player.addToStat("moveSpeed", 0.15);
       gameState.player.addToStat("maxSpeed", 0.35);
@@ -25,17 +25,17 @@ export const levelUpOptions = (gameState) => [
   {
     name: "Summoning Spell",
     description: "Increases how quickly your summoning circle grows its radius by 30.",
-    currentStats: `Radius: ${gameState.player.stats.spellRadius}`,
+    currentStats: `Radius: ${gameState.player.getStats().spellRadius}`,
     onSelect: () => {
-      gameState.player.addToStat("castingSpeed", 0.25);
-      gameState.player.addToStat("spellRadius", 30);
+      gameState.player.addToStat("castingSpeed", 0.5);
+      gameState.player.addToStat("spellRadius", 35);
       appService.resume();
     }
   },
   {
     name: "Health Regeneration",
     description: "Increases your health regeneration by 0.15 / s.",
-    currentStats: `Regeneration: ${(gameState.player.stats.HPregeneration * 5).toFixed(2)} / s`,
+    currentStats: `Regeneration: ${(gameState.player.getStats().HPregeneration * 5).toFixed(2)} / s`,
     onSelect: () => {
       gameState.player.addToStat("HPregeneration", 0.03);
       appService.resume();
@@ -44,10 +44,10 @@ export const levelUpOptions = (gameState) => [
   {
     name: "Max Health",
     description: "Increases your max health by 10.",
-    currentStats: `Max HP: ${gameState.player.stats.maxHP}`,
+    currentStats: `Max HP: ${gameState.player.getStats().maxHP}`,
     onSelect: () => {
       gameState.player.addToStat("maxHP", 10);
-      gameState.player.health.setMaxHP(gameState.player.stats.maxHP);
+      gameState.player.health.setMaxHP(gameState.player.getStats().maxHP);
       gameState.player.health.heal(10);
       appService.resume();
     }
@@ -55,7 +55,7 @@ export const levelUpOptions = (gameState) => [
   {
     name: "Armor",
     description: "Increases your armor by 2.",
-    currentStats: `Armor: ${gameState.player.stats.armor}`,
+    currentStats: `Armor: ${gameState.player.getStats().armor}`,
     onSelect: () => {
       gameState.player.addToStat("armor", 2);
       appService.resume();
