@@ -98,6 +98,7 @@ const spells = {
     const sacrificialLamb = getClosestUnit(sprite, gameState.minions);
     if (sacrificialLamb) {
       sacrificialLamb.health.kill();
+      gameState.minions.forEach(minion => minion.health.heal(5));
       console.log("MURDERED")
     } else {
       console.log("NO LAMB FOUND")

@@ -24,7 +24,7 @@ export const RadialSpell = ({
   const circle = new Graphics();
 
   const updateTelegraph = () => {
-    let fill = successCondition(radius) ? color : "FFAAAA";
+    let fill = !successCondition || successCondition(radius) ? color : "FFAAAA";
     circle.clear();
     circle.lineStyle({ width: 2, color: fill })
     circle.beginFill(fill, 0.3);
@@ -48,7 +48,7 @@ export const RadialSpell = ({
   const growCircleLoop$ = physicsUpdate.subscribe(updateSpell);
 
   const resolveSpell = () => {
-    if (successCondition(radius)) {
+    if (!successCondition || successCondition(radius)) {
       onSuccess?.(radius);
       emitter = new Emitter(particleContainer, explosion({ x: position.x, y: position.y + position.height / 2, color, speed: radius * 4 })); 
       emitter.playOnceAndDestroy();
