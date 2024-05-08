@@ -8,6 +8,8 @@ import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting"
 import { getClosestUnit } from "../../helpers";
 import { isIntersectingRect } from "../Colliders/isIntersecting";
 
+const MAX_ENEMIES = 500;
+
 const {
   units: enemies,
   addUnit,
@@ -18,6 +20,11 @@ const createEnemy = (name, position = {
         x: Math.random() < 0.5 ? Math.random() * 100 : appService.app.screen.width - Math.random() * 100,
         y: Math.random() < 0.5 ? Math.random() * 100 : appService.app.screen.height - Math.random() * 100,
     }) => {
+
+  if (gameState.enemies.length >= MAX_ENEMIES) {
+    console.log("There's already enough meat on the field.")
+    return;
+  }
 
   position.x += appService.world.pivot.x - appService.app.screen.width / 2;
   position.y += appService.world.pivot.y - appService.app.screen.height / 2;

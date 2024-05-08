@@ -132,17 +132,7 @@ export const initializeMinions = (spriteCount) => {
     })
   }
 
-  aggressionSubject.subscribe(aggression => {
-    gameState.minionAggression.next(aggression);
-    if (!aggression) {
-      minions.map(minion => { 
-        if (!minion.target) return;
-
-        minion.target.removeAttacker();
-        minion.clearTarget();
-      });
-    }
-  })
+  aggressionSubject.subscribe(aggression => gameState.minionAggression.next(aggression));
 
   selectedFormationTypeSubject.subscribe(formation => gameState.minionFormation.next(formation.value));
 
