@@ -7,7 +7,7 @@
  * 
  */
 
-import { of, BehaviorSubject, combineLatest, distinctUntilChanged, map, scan } from "rxjs";
+import { BehaviorSubject, combineLatest, distinctUntilChanged, map, scan } from "rxjs";
 import { MainMenu } from "./Views/MainMenu";
 import { UI } from "./UI";
 import { GameOver } from "./Views/GameOver";
@@ -38,7 +38,6 @@ export const initializeGameState = () => {
 
   // metadata
   const gameVersion = "0.2";
-  let time = 0;
   let debugMode = false;
 
   // live data references
@@ -46,12 +45,6 @@ export const initializeGameState = () => {
   let _enemies = [];
   let _player = null;
   let _items = [];
-
-  /*
-  const _minions$ = of(_minions);
-  const _enemies$ = of(_enemies);
-  const _player$ = of(_player);
-  */
 
   // run stats
   const killCount = new BehaviorSubject({ peasants: 0, guards: 0, paladins: 0, archers: 0, doppelsoldners: 0, total: 0 });
@@ -191,6 +184,10 @@ export const initializeGameState = () => {
     minions: {
       get: () => _minions,
       set: setMinions,
+      enumerable: true,
+    },
+    allUnits: {
+      get: () => getAllUnits(),
       enumerable: true,
     },
     items: {

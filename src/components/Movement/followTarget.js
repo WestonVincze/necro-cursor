@@ -21,16 +21,6 @@ export const followTarget = (sprite, target, speed, delta, options) => {
     alignment: {x: 0, y: 0 },
   }
 
-  /*
-  perhaps the caller of followForce should be responsible for determining the follow force to add
-  if (options?.closeEnough && options?.followForce) {
-    if (!(sprite.x + options.closeEnough.x < target.x || sprite.x - options.closeEnough.x > target.x) &&
-        !(sprite.y + options.closeEnough.y < target.y || sprite.y - options.closeEnough.y > target.y)) {
-      options.followForce = 0;
-    }
-  }
-  */
-
   if (options?.followForce > 0) {
     forces.follow = calculateFollowForce({ targetX, targetY }, sprite);
     forces.follow.x *= options.followForce;

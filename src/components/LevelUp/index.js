@@ -2,7 +2,6 @@ import { appService } from "../../app";
 import { addToStat } from "../../data/units";
 
 /**
- * 
  * Potential Perks
  * * skeletons gain a 15/30/45/60/75/100 % chance to drop bones on death
  * * skeletons gain a 35/70/100 % chance to drop held items on death
@@ -11,7 +10,6 @@ import { addToStat } from "../../data/units";
  */
 export const levelUpOptions = (gameState) => [
   // Player
-  // TODO: Player upgrades are no longer working...
   {
     name: "Move Speed",
     description: `Increases your max speed by 0.3.`,

@@ -126,8 +126,6 @@ const gameState = initializeGameState();
 appService.physicsUpdate.subscribe(() => {
   // creates a cache for the app to use
   // gameState.separationForceCache.clear();
-  // TODO: convert to a Subject instead of updating every frame
-  gameState.allUnits = gameState.getAllUnits();
 })
 export { gameState };
 
