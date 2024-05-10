@@ -1,7 +1,7 @@
 // @ts-check
 
 /**
- * @typedef {Object} Unit 
+ * @typedef {Object} UnitData 
  * @prop {string} name 
  * @prop {string} type
  * @prop {string} url
@@ -43,7 +43,7 @@
  * @prop {number} [knockback]
  */
 
-/** @type {Object.<string, Unit>} */
+/** @type {Object.<string, UnitData>} */
 export const enemyData = {
   peasant: {
     name: "peasant",
@@ -175,7 +175,7 @@ export const enemyData = {
   }
 }
 
-/** @type {Object.<string, Unit>} */
+/** @type {Object.<string, UnitData>} */
 export const minionData = {
   skeleton: {
     name: "skeleton",
@@ -198,7 +198,7 @@ export const minionData = {
     },
   }
 }
-/** @type {Object.<string, Unit>} */
+/** @type {Object.<string, UnitData>} */
 export const playerData = {
   naked: {
     name: "naked",

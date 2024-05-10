@@ -4,6 +4,17 @@ import { appService, gameState } from "../../app";
 import { normalizeForce } from "../../helpers";
 import { take } from "rxjs";
 import { isIntersectingRect } from "../Colliders/isIntersecting";
+import { UnitData } from "../../data/units";
+
+interface ProjectProps {
+  startPos: { x: number, y: number },
+  targetPos: { x: number, y: number },
+  maxLifetimeTicks?: number,
+  name: string,
+  viableTargets: UnitData[],
+  onCollide: (target: UnitData) => void,
+  onDestroy?: () => void,
+}
 
 export const Projectile = ({
   startPos,
@@ -13,7 +24,7 @@ export const Projectile = ({
   viableTargets,
   onCollide,
   onDestroy,
-}) => {
+}: ProjectProps) => {
   const projectileData = projectiles[name];
 
   if (!projectileData) {
