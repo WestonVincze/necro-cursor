@@ -15,7 +15,7 @@ const rollToCrit = (critChance) => {
 
 /**
  * @param {Stats} attackerStats 
- * @param {UnitData} target 
+ * @param {Unit} target 
  */
 export const attackTarget = (attackerStats, target) => {
   if (!target || !target.health) {

@@ -13,9 +13,9 @@ export const Swarm = () => {
   let id = 0;
   const units = [];
 
-  const addUnit = (unitName, position = { x: 0, y: 0 }, options) => {
+  const addUnit = (unitName, position = { x: 0, y: 0 }) => {
     const { particleContainer } = appService;
-    const unit = createUnit(`${unitName}-${id++}`, unitName, position, options);
+    const unit = createUnit(`${unitName}-${id++}`, unitName, position);
 
     units.push(unit);
 

@@ -5,14 +5,15 @@ import { normalizeForce } from "../../helpers";
 import { take } from "rxjs";
 import { isIntersectingRect } from "../Colliders/isIntersecting";
 import { UnitData } from "../../data/units";
+import { Unit } from "../Unit/Unit";
 
 interface ProjectProps {
   startPos: { x: number, y: number },
   targetPos: { x: number, y: number },
   maxLifetimeTicks?: number,
   name: string,
-  viableTargets: UnitData[],
-  onCollide: (target: UnitData) => void,
+  viableTargets: Unit[],
+  onCollide: (target: Unit) => void,
   onDestroy?: () => void,
 }
 
