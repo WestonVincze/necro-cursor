@@ -117,7 +117,6 @@ export const createUnit = (id: string, unitName: string, position: {x: number, y
 
   const clearTarget = () => {
     attackTicks?.complete();
-    _target?.removeAttacker();
     _target = null;
     attackTicks = null;
     line.clear();
