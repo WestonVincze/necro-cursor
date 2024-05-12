@@ -1,4 +1,4 @@
-import { Unit } from "../../data/units";
+import { UnitData } from "../../data/units";
 
 // dice rolls are 0 inclusive
 const rollDice = (sides, bonus = 0) => {
@@ -14,7 +14,7 @@ const rollToCrit = (critChance) => {
 }
 
 /**
- * @param {Unit} attackerStats 
+ * @param {Stats} attackerStats 
  * @param {Unit} target 
  */
 export const attackTarget = (attackerStats, target) => {

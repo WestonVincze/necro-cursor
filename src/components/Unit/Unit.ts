@@ -1,44 +1,27 @@
-/**
- * "UNIT" -> anything that can attack or be attacked
- * 
- * type -> type of unit (guard, paladin, skeleton, player, etc)
- * possibleTargets -> array of unit types the unit can attack
- * canAttack -> boolean value (likely Subject) that determines whether or not a unit can attack
- * 
- * "HEALTH" (maxHP, currentHP)
- * A/C -> chance to be hit
- * ARMOR
- * material -> the type of material the unit is comprised of (will be used for SFX and VFX -> metal would make a "clang" and emit sparks)
- * 
- * AttackSpeed -> how often the unit can attack
- * Damage -> how much damage the unit deals
- * Accuracy -> base accuracy of attacker
- * Crit% -> chance to crit
- * CritDmg -> critical hit damage multiplier
- * knockBack -> how much force the attack has 
- * Range -> how far from the target the unit needs to be
- * 
- * 
- * dynamic values?
- * target -> the current target of the unit
- * isInRange -> whether or not the unit is in range of the target
- * ticksUntilCanAttack -> the number of ticks that need to happen before unit can attack
- * 
- * 
- * 
- */
-
 import { Graphics, Sprite } from "pixi.js"
 import { appService, gameState } from "../../app";
 import { Health } from "../Health";
 import { isIntersectingRect } from "../Colliders/isIntersecting";
 import { attackTarget } from "../Attack";
-import { units } from "../../data/units";
+import { Stats, units } from "../../data/units";
 import { take, finalize } from "rxjs";
 import { spawnDrops } from "../Drops";
 import { Projectile } from "../Projectile";
 
-export const createUnit = (id, unitName, position, options) => {
+export interface Unit {
+  id: string,
+  name: string,
+  level: number,
+  sprite: Sprite,
+  health: any, // TODO: add Health type
+  getStats: () => Stats,
+  addToStat: (stat: string, value: string) => void,
+  setTarget: (target: Unit) => void
+  clearTarget: () => void,
+  addItemToDrops: (item: any) => void, // TODO: add Item type
+}
+
+export const createUnit = (id: string, unitName: string, position: {x: number, y: number}): Unit => {
   const _unitData = units[unitName];
   if (!_unitData) {
     console.error(`${unitName} is not a valid unit.`); 
@@ -113,7 +96,6 @@ export const createUnit = (id, unitName, position, options) => {
     _statOverrides[stat] = Math.round(newValue * 100) / 100;
   }
 
-
   // finds the closest available target or returns null if none found
   // run every tick?
   const assignClosestTarget = (type) => {
@@ -135,7 +117,6 @@ export const createUnit = (id, unitName, position, options) => {
 
   const clearTarget = () => {
     attackTicks?.complete();
-    _target?.removeAttacker();
     _target = null;
     attackTicks = null;
     line.clear();
@@ -181,24 +162,12 @@ export const createUnit = (id, unitName, position, options) => {
       ).subscribe();
   }
 
-  // "attackers" might not be necessary...
-  const addAttacker = () => {
-    if (_attackers + 1 > getStats().maxAttackers) return false;
-    _attackers++;
-    return true;
-  }
-
-  const removeAttacker = () => {
-    _attackers = Math.max(0, _attackers - 1);
-  }
-
   const addItemToDrops = (item) => {
     if (!_dropTable.always) {
       _dropTable.always = [];
     }
     _dropTable.always.push(item);
   }
-
 
   const unit = {
     id,
@@ -211,10 +180,7 @@ export const createUnit = (id, unitName, position, options) => {
     setStat,
     setTarget,
     clearTarget,
-    addAttacker,
-    removeAttacker,
     addItemToDrops,
-    ...options // might want to remove this as well
   }
 
   // define public accessors
