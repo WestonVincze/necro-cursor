@@ -3,13 +3,13 @@ import { normalizeForce } from '../../helpers';
 
 /**
  * @param {Object} options 
- * @param {number} options.followForce
- * @param {number} options.separation 
- * @param {number} options.cohesion
- * @param {number} options.alignment
- * @param {number} options.maxSpeed
+ * @param {number} [options.followForce]
+ * @param {number} [options.separation]
+ * @param {number} [options.cohesion]
+ * @param {number} [options.alignment]
+ * @param {number} [options.maxSpeed]
  */
-export const followTarget = (sprite, target, speed, delta, options) => {
+export const followTarget = async (sprite, target, speed, delta, options) => {
   // get the sprites from our swarm
   const sprites = gameState.allUnits;
   let { x: targetX, y: targetY } = target;

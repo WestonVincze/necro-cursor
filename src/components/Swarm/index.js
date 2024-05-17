@@ -1,5 +1,5 @@
 import { createUnit } from "../Unit";
-import { spawnDrops } from "../Drops";
+import { spawnDrops } from "../Drops/Drops";
 import { Emitter } from "@pixi/particle-emitter";
 import { explode } from "/src/VFX/deathFX";
 import { appService } from "../../app";

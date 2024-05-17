@@ -1,7 +1,7 @@
 import { Graphics, Sprite } from "pixi.js"
 import { appService, gameState } from "../../app";
 import { Health } from "../Health";
-import { isIntersectingRect } from "../Colliders/isIntersecting";
+import { isIntersectingRect } from "../Colliders";
 import { attackTarget } from "../Attack";
 import { Stats, units } from "../../data/units";
 import { take, finalize } from "rxjs";

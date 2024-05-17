@@ -1,14 +1,14 @@
 import { BehaviorSubject, Subject, map, scan, startWith } from "rxjs";
 
 import { levelUpOptions, experienceTable } from "../LevelUp";
-import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
-import { appService, gameState } from "/src/app";
-import { removeItem } from "/src/components/Drops";
-import { createMinion } from "/src/components/Minions";
-import { getRandomElements, normalizeForce } from "/src/helpers";
-import { RadialSpell, RectangularSpell, CastBar } from "/src/components/Spells";
-import { LevelUp } from "/src/Views/LevelUp";
-import { activeKeys$ } from "/src/components/Inputs";
+import { distanceBetweenPoints } from "../Colliders";
+import { appService, gameState } from "../../app";
+import { removeItem } from "../Drops";
+import { createMinion } from "../Minions";
+import { getRandomElements, normalizeForce } from "../../helpers";
+import { RadialSpell, RectangularSpell, CastBar } from "../Spells";
+import { LevelUp } from "../../Views/LevelUp";
+import { activeKeys$ } from "../Inputs";
 import { createUnit } from "../Unit";
 import { keyDown$ } from "../Inputs";
 import { getClosestUnit } from "../../helpers";
@@ -132,7 +132,7 @@ export const Player = () => {
           player.castingSpell = RadialSpell({
             position: sprite,
             offset,
-            endRadius: player.getStats().spellRadius,
+            endSize: player.getStats().spellRadius,
             growth: player.getStats().castingSpeed,
             canBeHeld: true,
             onComplete: () => { 

@@ -3,7 +3,7 @@ import { projectiles } from "../../data/projectiles";
 import { appService, gameState } from "../../app";
 import { normalizeForce } from "../../helpers";
 import { take } from "rxjs";
-import { isIntersectingRect } from "../Colliders/isIntersecting";
+import { isIntersectingRect } from "../Colliders";
 import { UnitData } from "../../data/units";
 import { Unit } from "../Unit/Unit";
 

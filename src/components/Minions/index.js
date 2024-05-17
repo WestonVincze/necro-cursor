@@ -2,11 +2,11 @@ import { Swarm } from "/src/components/Swarm";
 import { appService, gameState } from "/src/app";
 import { followTarget } from "/src/components/Movement/followTarget";
 import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
-import { isIntersectingRect } from "/src/components/Colliders/isIntersecting";
+import { isIntersectingRect } from "/src/components/Colliders";
 import { keyDown$ } from "../Inputs";
 import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator, TriangleFormationIterator } from "./formations";
 import { Texture } from "pixi.js";
-import { removeItem } from "../Drops";
+import { removeItem } from "../Drops/Drops";
 import { getClosestUnit } from "../../helpers";
 
 const tryEquipItem = (item, unit) => {

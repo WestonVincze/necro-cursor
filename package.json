@@ -9,6 +9,7 @@
     "pixi.js": "^7.4.2",
     "rxjs": "^7.8.1",
     "source-map-loader": "^5.0.0",
+    "stats.js": "^0.17.0",
     "ts-loader": "^9.5.1"
   },
   "devDependencies": {
