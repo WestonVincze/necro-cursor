@@ -1,12 +1,11 @@
 import { interval } from "rxjs";
-import { followTarget } from "/src/components/Movement/followTarget";
-import { appService, gameState } from "/src/app";
-import { Swarm } from "/src/components/Swarm";
-import { enemyData } from "/src/data/units";
-import { RadialSpell } from "/src/components/Spells";
-import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
+import { followTarget } from "../Movement";
+import { appService, gameState } from "../../app";
+import { Swarm } from "../Swarm";
+import { enemyData } from "../../data/units";
+import { RadialSpell } from "../Spells";
+import { distanceBetweenPoints, isIntersectingRect } from "../Colliders";
 import { getClosestUnit } from "../../helpers";
-import { isIntersectingRect } from "../Colliders/isIntersecting";
 
 const MAX_ENEMIES = 500;
 
@@ -61,8 +60,8 @@ const createEnemy = (name, position = {
     gameState.incrementKillCount(enemy.name);
     gameState.player.addExperience(enemyData[name].exp);
 
-    if (enemy.name === "paladin" && enemy.holyNova) {
-      enemy.holyNova.cancelSpell();
+    if (enemy.name === "paladin" && (enemy as any).holyNova) {
+      (enemy as any).holyNova.cancelSpell();
     }
   })
 }
@@ -77,7 +76,7 @@ const Enemies = () => {
           enemy.holyNova = RadialSpell({
             position: enemy.sprite,
             growth: 0.15,
-            endRadius: 70,
+            endSize: 70,
             color: "FFFF55",
             onComplete: (radius) => {
               if (!enemy.sprite.destroyed) {

@@ -34,11 +34,11 @@ export const DebugTools = (gameState) => {
     const FPS = document.getElementById('FPS');
     const lowestFPSElement = document.getElementById('lowestFPS');
     const showFPS = () => {
-      FPS.innerHTML = Math.round(app.ticker.FPS);
-      lowestFPSElement.innerHTML = lowestFPS;
+      FPS.innerHTML = Math.round(app.ticker.FPS).toString();
+      lowestFPSElement.innerHTML = lowestFPS.toString();
     }
     if (!gameState.debugMode) {
-      if (!window.gameState) window.gameState = gameState;
+      if (!(window as any).gameState) (window as any).gameState = gameState;
       debugSubscription = gameTicks$.subscribe(showFPS);
       app.ticker.add(() => {
         const currentFPS = Math.round(app.ticker.FPS)

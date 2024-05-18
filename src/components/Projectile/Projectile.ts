@@ -1,11 +1,12 @@
 import { Sprite } from "pixi.js";
-import { projectiles } from "../../data/projectiles";
-import { appService, gameState } from "../../app";
-import { normalizeForce } from "../../helpers";
 import { take } from "rxjs";
-import { isIntersectingRect } from "../Colliders/isIntersecting";
-import { UnitData } from "../../data/units";
-import { Unit } from "../Unit/Unit";
+
+import { appService, gameState } from "../../app";
+import { isIntersectingRect } from "../Colliders";
+import { Unit } from "../Unit";
+import { normalizeForce } from "../../helpers";
+
+import { projectiles } from "../../data/projectiles";
 
 interface ProjectProps {
   startPos: { x: number, y: number },

@@ -1,17 +1,19 @@
 import { BehaviorSubject, Subject, map, scan, startWith } from "rxjs";
 
+import { LevelUp } from "../../Views/LevelUp";
 import { levelUpOptions, experienceTable } from "../LevelUp";
-import { distanceBetweenPoints } from "/src/components/Colliders/isIntersecting";
-import { appService, gameState } from "/src/app";
-import { removeItem } from "/src/components/Drops";
-import { createMinion } from "/src/components/Minions";
-import { getRandomElements, normalizeForce } from "/src/helpers";
-import { RadialSpell, RectangularSpell, CastBar } from "/src/components/Spells";
-import { LevelUp } from "/src/Views/LevelUp";
-import { activeKeys$ } from "/src/components/Inputs";
-import { createUnit } from "../Unit";
-import { keyDown$ } from "../Inputs";
-import { getClosestUnit } from "../../helpers";
+import { distanceBetweenPoints } from "../Colliders";
+import { appService, gameState } from "../../app";
+import { removeItem } from "../Drops";
+import { createMinion } from "../Minions";
+import { getRandomElements, normalizeForce, getClosestUnit } from "../../helpers";
+import { RadialSpell, RectangularSpell, CastBar } from "../Spells";
+import { activeKeys$, keyDown$ } from "../Inputs";
+import { createUnit, Unit } from "../Unit";
+
+interface Player extends Unit {
+  selectedSpell?: string,
+}
 
 const FRICTION = 0.05;
 
@@ -25,7 +27,7 @@ const getNextLevelExp = (level) => {
 
 const initializePlayer = () => {
   const { app } = appService;
-  const player = createUnit("player", "naked", { x: app.screen.width / 2, y: app.screen.height / 2 });
+  const player: Player = createUnit("player", "naked", { x: app.screen.width / 2, y: app.screen.height / 2 });
   gameState.player = player;
 
   gameState.playerHealth.next({ current: player.health.getHP(), max: player.getStats().maxHP });
@@ -70,15 +72,15 @@ const initializePlayer = () => {
     });
 
   const addExperience = (experience) => {
-    playerLevelSubject.next({ experience });
+    playerLevelSubject.next({ experience, level: 0 });
   }
 
   const levelUp = () => {
-    if (player.level >= experienceTable.length) return;
+    if (player.level >= Object.keys(experienceTable).length) return;
     addExperience(experienceTable[player.level + 1]);
   }
 
-  onLevelUp.subscribe((level) => {
+  onLevelUp.subscribe((level: number) => {
     console.log(`Congratulations! You've reached level ${level}!`);
     appService.pause();
     player.level = level;
@@ -132,7 +134,7 @@ export const Player = () => {
           player.castingSpell = RadialSpell({
             position: sprite,
             offset,
-            endRadius: player.getStats().spellRadius,
+            endSize: player.getStats().spellRadius,
             growth: player.getStats().castingSpeed,
             canBeHeld: true,
             onComplete: () => { 
@@ -189,7 +191,7 @@ export const Player = () => {
     }
   }
 
-  playerInput$.subscribe((e) => handleInput(e))
+  playerInput$.subscribe((e: { x: number, y: number, casting: boolean }) => handleInput(e))
 
   // apply x and y state to move player
   physicsUpdate.subscribe((delta) => {

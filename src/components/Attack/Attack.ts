@@ -1,5 +1,3 @@
-import { UnitData } from "../../data/units";
-
 // dice rolls are 0 inclusive
 const rollDice = (sides, bonus = 0) => {
   return Math.round(Math.random() * sides) + bonus;

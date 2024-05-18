@@ -1,59 +1,72 @@
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Sprite } from "pixi.js";
 import { Emitter } from "@pixi/particle-emitter";
-import { appService } from "/src/app";
-import { explosion } from "/src/VFX/spellFX";
+import { appService } from "../../app";
+import { explosion } from "../../VFX/spellFX";
+
+interface Spell {
+  position: Sprite,// | { x: number, y: number },
+  offset?: { x: number, y: number },
+  growth?: number,
+  color?: string | number,
+  canBeHeld?: boolean,
+  startSize?: number,
+  endSize?: number,
+  onComplete?: (size?: number) => void,
+  successCondition?: (size?: number) => boolean,
+  onSuccess?: (size?: number) => void,
+}
 
 export const RadialSpell = ({
   position,
   offset = { x: 0, y: 0 },
   growth = 0.5,
-  startRadius = 0,
-  endRadius = 50,
+  startSize = 0,
+  endSize = 50,
   color,
   canBeHeld = false,
   onComplete,
   successCondition,
   onSuccess,
-}) => {
+}: Spell) => {
   const { spriteContainer, particleContainer, physicsUpdate } = appService;
 
   let emitter = null; 
   let casting = true;
-  let radius = startRadius;
+  let size = startSize;
 
   const circle = new Graphics();
 
   const updateTelegraph = () => {
-    let fill = !successCondition || successCondition(radius) ? color : "FFAAAA";
+    let fill = !successCondition || successCondition(size) ? color : "FFAAAA";
     circle.clear();
     circle.lineStyle({ width: 2, color: fill })
     circle.beginFill(fill, 0.3);
-    circle.drawCircle(position.x + offset.x, position.y + offset.y, radius);
+    circle.drawCircle(position.x + offset.x, position.y + offset.y, size);
     circle.endFill();
   }
 
   spriteContainer.addChild(circle);
 
   const updateSpell = () => {
-    if (radius < endRadius) {
-      radius += growth;
+    if (size < endSize) {
+      size += growth;
       updateTelegraph();
     } else if (!canBeHeld) {
       resolveSpell();
     }
 
-    return radius;
+    return size;
   }
 
   const growCircleLoop$ = physicsUpdate.subscribe(updateSpell);
 
   const resolveSpell = () => {
-    if (!successCondition || successCondition(radius)) {
-      onSuccess?.(radius);
-      emitter = new Emitter(particleContainer, explosion({ x: position.x, y: position.y + position.height / 2, color, speed: radius * 4 })); 
+    if (!successCondition || successCondition(size)) {
+      onSuccess?.(size);
+      emitter = new Emitter(particleContainer, explosion({ x: position.x, y: position.y + position.height / 2, color, speed: size * 4 })); 
       emitter.playOnceAndDestroy();
     }
-    onComplete?.(radius);
+    onComplete?.(size);
     cancelSpell();
   }
 
@@ -66,24 +79,28 @@ export const RadialSpell = ({
   return { casting, resolveSpell, cancelSpell };
 }
 
+interface RectangularSpellProps extends Spell {
+  height?: number,
+  target?: Sprite,
+}
 // telegraphed rectangular spell
 export const RectangularSpell = ({
   position,
   offset = { x: 0, y: 0 },
   growth = 0.5,
-  startWith = 0,
-  endWidth = 100,
+  startSize = 0,
+  endSize = 100,
   height = 30,
   color = 0xaa5555,
   canBeHeld = false,
   onComplete,
   target,
-}) => {
+}: RectangularSpellProps) => {
   const { UIContainer, physicsUpdate } = appService;
 
   let emitter = null;
   let casting = true;
-  let width = startWith;
+  let width = startSize;
 
   const container = new Container();
   const bg = new Graphics();
@@ -96,7 +113,7 @@ export const RectangularSpell = ({
     bg.clear();
     bg.lineStyle({ width: 2, color });
     bg.beginFill(color, 0.2);
-    bg.drawRect(position.x - offset.x, position.y - offset.y - height / 2, endWidth, height);
+    bg.drawRect(position.x - offset.x, position.y - offset.y - height / 2, endSize, height);
     bg.endFill();
 
     rect.clear();
@@ -110,7 +127,7 @@ export const RectangularSpell = ({
   UIContainer.addChild(container);
 
   const updateSpell = () => {
-    if (width < endWidth) {
+    if (width < endSize) {
       width += growth;
       updateTelegraph();
     } else if (!canBeHeld) {
@@ -136,6 +153,12 @@ export const RectangularSpell = ({
   return { casting, resolveSpell, cancelSpell };
 }
 
+interface CastBarProps {
+  sprite: Sprite,
+  onComplete?: (size?: number) => void,
+  onSuccess?: (size?: number) => void,
+  castTime?: number,
+}
 export const CastBar = ({ 
   sprite,
   onComplete,

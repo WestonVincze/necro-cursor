@@ -3,7 +3,7 @@
  */
 
 import { Sprite } from "pixi.js";
-import { appService, gameState } from "/src/app";
+import { appService, gameState } from "../../app";
 import { take } from "rxjs";
 import { getRandomElement } from "../../helpers";
 import { itemData } from "../../data/items";
