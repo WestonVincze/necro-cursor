@@ -1,14 +1,14 @@
 import "./style.css"
 import { Application, Container, ParticleContainer, Sprite } from "pixi.js";
 import { Player } from "./components/Player";
-import { TimedSpawner, ExplicitSpawner } from "./components/Enemies/Enemies";
+import { TimedSpawner, ExplicitSpawner } from "./components/Enemies";
 import { getURLParam } from "./helpers";
 import { filter, interval } from "rxjs";
 import { initializeMinions } from "./components/Minions";
 import { activeKeys$ } from "./components/Inputs";
 import { PhysicsUpdate } from "./components/PhysicsUpdate";
 import { initializeGameState } from "./gameState";
-import { DebugTools } from "./components/DebugTools/DebugTools";
+import { DebugTools } from "./components/DebugTools";
 import { spawnItem } from "./components/Drops";
 import { Projectile } from "./components/Projectile";
 

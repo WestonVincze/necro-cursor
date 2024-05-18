@@ -77,7 +77,7 @@ export const HitSplats = (sprite, type) => {
     const x = spot.offset.x + (Math.random() * positionVariance * 2) - positionVariance
     const y = spot.offset.y + (Math.random() * positionVariance * 2) - positionVariance
 
-    const text = new Text(damage, { style: { fontFamily: 'monospace', fontSize: isCrit ? 15 : 12, fontWeight: isCrit ? 600 : 400 }});
+    const text = new Text(damage, { fontFamily: 'monospace', fontSize: isCrit ? 15 : 12 });
     text.anchor.set(0.5);
     // text.position.set(x, y);
 

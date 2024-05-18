@@ -13,7 +13,7 @@ const inputActions = {
 // player input and observables
 const inputs = ['w', 'a', 's', 'd', ' ', 'enter', 'escape', '`', 'q', 'e', 'f', '1', '2'];
 
-export const keyDown$ = fromEvent(document, 'keydown').pipe(
+export const keyDown$ = fromEvent<KeyboardEvent>(document, 'keydown').pipe(
   filter(e => inputs.includes(e.key.toLowerCase())),
   map(e => ({
     key: e.key.toLowerCase(),
@@ -21,7 +21,7 @@ export const keyDown$ = fromEvent(document, 'keydown').pipe(
   }))
 )
 
-export const keyUp$ = fromEvent(document, 'keyup').pipe(
+export const keyUp$ = fromEvent<KeyboardEvent>(document, 'keyup').pipe(
   filter(e => inputs.includes(e.key.toLowerCase())),
   map(e => ({
     key: e.key.toLowerCase(),

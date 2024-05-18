@@ -1,5 +1,5 @@
 import { interval } from "rxjs";
-import { followTarget } from "../Movement/followTarget";
+import { followTarget } from "../Movement";
 import { appService, gameState } from "../../app";
 import { Swarm } from "../Swarm";
 import { enemyData } from "../../data/units";

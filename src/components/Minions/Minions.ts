@@ -1,12 +1,13 @@
-import { Swarm } from "/src/components/Swarm";
-import { appService, gameState } from "/src/app";
-import { followTarget } from "/src/components/Movement/followTarget";
 import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
-import { isIntersectingRect } from "/src/components/Colliders";
+
+import { Swarm } from "../Swarm";
+import { appService, gameState } from "../../app";
+import { followTarget } from "../Movement";
+import { isIntersectingRect } from "../Colliders";
 import { keyDown$ } from "../Inputs";
 import { CrossFormationIterator, RandomFormationIterator, SpiralFormationIterator, TriangleFormationIterator } from "./formations";
 import { Texture } from "pixi.js";
-import { removeItem } from "../Drops/Drops";
+import { removeItem } from "../Drops";
 import { getClosestUnit } from "../../helpers";
 
 const tryEquipItem = (item, unit) => {
@@ -71,6 +72,7 @@ export const initializeMinions = (spriteCount) => {
 
   // register mousemove event
   // maybe make this on click?
+  const container = document.getElementById("container");
   const move$ = fromEvent(container, 'mousemove');
   const result$ = move$.pipe(auditTime(200));
   const rect = container.getBoundingClientRect();

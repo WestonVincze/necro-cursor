@@ -1,5 +1,5 @@
-import { Container, Graphics, Ticker } from "pixi.js";
-import { AsyncSubject, Observable, Subject } from "rxjs";
+import { Container, Graphics } from "pixi.js";
+import { AsyncSubject, Subject } from "rxjs";
 import { HitSplats } from "./HitSplats";
 import { appService } from "../../app";
 
@@ -19,7 +19,7 @@ export const Health = ({ maxHP, sprite, hideHealthBar = false, type }) => {
     takeDamage(hp);
   }
 
-  const takeDamage = (amount, isCrit) => {
+  const takeDamage = (amount, isCrit = false) => {
     if (amount < 0) {
       console.error("cannot deal negative damage.")
       return;
@@ -33,7 +33,6 @@ export const Health = ({ maxHP, sprite, hideHealthBar = false, type }) => {
     onHealthChange.next({ type: 'damage', amount });
     if (hp <= 0) {
       hp = 0;
-      onDeath.next();
       onDeath.complete();
       onHealthChange.complete();
       healthBar.clearHealthBar();
