@@ -33,6 +33,9 @@ export const Health = ({ maxHP, sprite, hideHealthBar = false, type }) => {
     onHealthChange.next({ type: 'damage', amount });
     if (hp <= 0) {
       hp = 0;
+      // TODO: why can't TS allow onDeath.next()?
+      // @ts-ignore
+      onDeath.next()
       onDeath.complete();
       onHealthChange.complete();
       healthBar.clearHealthBar();
