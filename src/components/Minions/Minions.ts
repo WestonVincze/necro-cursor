@@ -1,6 +1,6 @@
 import { BehaviorSubject, auditTime, fromEvent } from 'rxjs'
 
-import { Swarm } from "../Swarm";
+import { Swarm } from "../Swarm/Swarm";
 import { appService, gameState } from "../../app";
 import { followTarget } from "../Movement";
 import { isIntersectingRect } from "../Colliders";
@@ -218,12 +218,12 @@ export const initializeMinions = (spriteCount) => {
       const targetPosition = !aggressionSubject.getValue() || !target ? { x: targetX + mod.x, y: targetY + mod.y } : target.sprite;
 
       const options = {
-        followForce: targetPosition.isSprite && isIntersectingRect(minion.sprite, minion.target.sprite, minion.stats.attackRange) ? 0 : 1,
+        followForce: (targetPosition as any).isSprite && isIntersectingRect(minion.sprite, minion.target.sprite, (minion as any).stats.attackRange) ? 0 : 1,
         separation: 2,
-        maxSpeed: minion.stats.maxSpeed,
+        maxSpeed: (minion as any).stats.maxSpeed,
       }
 
-      followTarget(minion.sprite, targetPosition, minion.stats.moveSpeed, delta, options)
+      followTarget(minion.sprite, targetPosition, (minion as any).stats.moveSpeed, delta, options)
     })
   })
 

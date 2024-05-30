@@ -11,6 +11,7 @@ import { Projectile } from "../Projectile";
 
 export interface Unit {
   id: string,
+  target: Unit | null,
   name: string,
   level: number,
   sprite: Sprite,
@@ -173,6 +174,7 @@ export const createUnit = (id: string, unitName: string, position: {x: number, y
   const unit = {
     id,
     name: unitName,
+    target: null,
     level, // TODO: encapsulate this?
     sprite,
     health,
@@ -182,7 +184,7 @@ export const createUnit = (id: string, unitName: string, position: {x: number, y
     setTarget,
     clearTarget,
     addItemToDrops,
-  }
+  } as Unit
 
   // define public accessors
   Object.defineProperties(unit, {
@@ -213,5 +215,5 @@ export const createUnit = (id: string, unitName: string, position: {x: number, y
     }
   })
 
-  return unit;
+  return unit as Unit;
 }

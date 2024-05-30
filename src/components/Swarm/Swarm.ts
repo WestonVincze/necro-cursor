@@ -1,6 +1,6 @@
-import { createUnit } from "../Unit";
+import { Unit, createUnit } from "../Unit";
 import { Emitter } from "@pixi/particle-emitter";
-import { explode } from "/src/VFX/deathFX";
+import { explode } from "../../VFX/deathFX";
 import { appService } from "../../app";
 
 /**
@@ -10,7 +10,7 @@ import { appService } from "../../app";
 
 export const Swarm = () => {
   let id = 0;
-  const units = [];
+  const units: Unit[] = [];
 
   const addUnit = (unitName, position = { x: 0, y: 0 }) => {
     const { particleContainer } = appService;
@@ -41,12 +41,13 @@ export const Swarm = () => {
 
   const getClosestUnit = ({ x, y }) => {
     let closestDistanceSq = Infinity;
-    return units.reduce((closestUnit, currentUnit) => {
+    return units.reduce((closestUnit, currentUnit, i) => {
       const distance = (currentUnit.sprite.x - x) ** 2 + (currentUnit.sprite.y - y) ** 2;
       if (distance < closestDistanceSq) {
         closestUnit = currentUnit;
       }
-    })
+      return closestUnit;
+    }, null)
   }
 
   const getFirstUnitWithin = (position, range) => {}

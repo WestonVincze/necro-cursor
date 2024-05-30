@@ -1,7 +1,7 @@
 import { interval } from "rxjs";
 import { followTarget } from "../Movement";
 import { appService, gameState } from "../../app";
-import { Swarm } from "../Swarm";
+import { Swarm } from "../Swarm/Swarm";
 import { enemyData } from "../../data/units";
 import { RadialSpell } from "../Spells";
 import { distanceBetweenPoints, isIntersectingRect } from "../Colliders";
@@ -72,8 +72,8 @@ const Enemies = () => {
   physicsUpdate.subscribe((delta) => {
     enemies.forEach(enemy => {
       if (enemy.name === "paladin") {
-        if (Math.random() > 0.99 && !enemy.holyNova) {
-          enemy.holyNova = RadialSpell({
+        if (Math.random() > 0.99 && !(enemy as any).holyNova) {
+          (enemy as any).holyNova = RadialSpell({
             position: enemy.sprite,
             growth: 0.15,
             endSize: 70,
@@ -89,7 +89,7 @@ const Enemies = () => {
                   }
                 })
               }
-              enemy.holyNova = null;
+              (enemy as any).holyNova = null;
             }
           })
         }
@@ -97,12 +97,12 @@ const Enemies = () => {
 
       if (!enemy.target) return;
       const options = {
-        followForce: isIntersectingRect(enemy.sprite, enemy.target.sprite, enemy.stats.attackRange) ? 0 : 1,
+        followForce: isIntersectingRect(enemy.sprite, enemy.target.sprite, (enemy as any).stats.attackRange) ? 0 : 1,
         separation: 2,
-        maxSpeed: enemy.stats.maxSpeed,
+        maxSpeed: (enemy as any).stats.maxSpeed,
       }
 
-      followTarget(enemy.sprite, enemy.target.sprite, enemy.stats.moveSpeed, delta, options);
+      followTarget(enemy.sprite, enemy.target.sprite, (enemy as any).stats.moveSpeed, delta, options);
     })
   })
 }

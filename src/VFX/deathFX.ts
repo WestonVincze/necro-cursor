@@ -1,4 +1,4 @@
-export const explode = ({ x, y, color }) => ({
+export const explode = ({ x, y }) => ({
   "lifetime": {
     "min": 0.5,
     "max": 0.5

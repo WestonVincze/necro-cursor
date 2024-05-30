@@ -34,7 +34,7 @@
 
 ##### morph spells:
 - summon golem (10 skeletons merge into one mega skeleton)
-
+- spell that kills skeletons and spawns twice as many but for a limited time
 
 ## alternative spellcasting concepts
 - time based spells (no other costs)
@@ -68,3 +68,6 @@
 - boss that is multiple bosses and they only take damage if they are all being attacked
 - boss where you have to sacrifice units to avoid attacks
 - group of enemies that you have to break the formation of to get to a powerful enemy
+
+
+## 
