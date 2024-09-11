@@ -11,6 +11,11 @@
   user-select: none;
 }
 
+.topBar {
+  background-color: #fefefe55;
+  padding: 15px;
+}
+
 .topBar, .bottomBar {
   display: flex;
   justify-content: space-between;

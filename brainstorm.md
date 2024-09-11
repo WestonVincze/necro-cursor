@@ -7,9 +7,7 @@
 - skeleton summon radius grows as player holds a key, at a certain threshold, more powerful skeletons are spawned, but if a player gets to 9/10 they will spawn the lower threshhold
 - multiplayer: "zombicide" mode where one player spawns the enemies
 
-
 - rare upgrade that silences paladins??
-
 
 #### SPELLCASTING BRAINSTORM
 - spells cost "living" skeletons to cast, holding the cast will increase its cost and power level
@@ -40,14 +38,12 @@
 - time based spells (no other costs)
 - spells have random negative effects (or specific negative effects based on the spell)
 
-
 ## Peasants merge into mob if there are 10 or more on screen?
 
-## Dopple attacks
+## Doppelsoldner attacks
 - low accuracy, high damage, big aoe strikes?
 - knockback
 - telegraphed charged
-
 
 ## Other types of skeletons
 - at level ~5 choose a type of skeleton to randomly spawn?
@@ -61,13 +57,9 @@
 
   - skeleton lifesteal (minus accuracy)
 
-
 ## boss ideas
 - minotaur charges at player and brutally massacres minions, forcing the player to dodge the minotaur attacks with the player and skeletons
 
 - boss that is multiple bosses and they only take damage if they are all being attacked
 - boss where you have to sacrifice units to avoid attacks
 - group of enemies that you have to break the formation of to get to a powerful enemy
-
-
-## 

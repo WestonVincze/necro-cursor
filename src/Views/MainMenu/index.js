@@ -4,7 +4,7 @@ import { StatEditor } from "../StatEditor";
 
 const MainMenuScreen = () => `
   <div class=${styles.menu}>
-    <h1>NECRO</h1>
+    <h1>Necro Cursor</h1>
 
     <div id="content" class="${styles.content}">
       <img class="${styles.hero}" src="/assets/necro.png" alt="necromancer image" />
@@ -22,16 +22,26 @@ const MainMenuScreen = () => `
 // TODO: create separate (and more detailed) "how to play" view
 const printControls = (container) => {
   container.innerHTML = `
-    <h2>Controls</h2>
+    <div class="${styles.row}">
+      <div class="${styles.controls}">
+        <h2>Controls</h2>
+        <p><b>WASD</b> - move</p>
+        <p><b>Spacebar</b> - summon skeleton</p>
+        <p><b>QE</b> - change formation</p>
+        <p><b>F</b> - toggle auto-chase</p>
+        <p><b>ESC</b> - pause</p>
+      </div>
 
-    <h3>Skeletons</h3>
-    <p>Use your cursor to command the skeletons.</p>
-
-    <h3>Movement</h3>
-    <p>WASD to move the necromancer.</p>
-
-    <h3>Summoning Skeletons</h3>
-    <p>Hold spacebar to create a summoning circle that transforms bones into new skeletons.</p>
+      <div class="${styles.howToPlay}">
+        <h2>How To Play</h2>
+        <p>You are feeble and cannot attack! Move away from enemies to avoid their attacks</p>
+        <p>Stand near bone piles and cast the summon spell to reanimate skeleton minions under your control</p>
+        <p>Minions will follow your cursor, or chase the closest enemy if "auto chase" is toggled</p>
+        <p>Gain experience by slaying enemies and choose powerful upgrades when you level up</p>
+        <p>Enemies have a chance to drop items that your minions will quickly pick up and use</p>
+        <p>When the game ends your highscore and all of your run's stats are saved and can be viewed later from the Highscore menu</p>
+      </div>
+    </div>
   `
 }
 
