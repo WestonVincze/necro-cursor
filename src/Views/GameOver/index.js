@@ -13,7 +13,7 @@ const GameOverScreen = ({
 }) => `
   <div class="${styles.gameOver}">
     <img src="/assets/bones.png" alt="pile of bones" />
-    <h1 class="red">GET FUCKED, NERD.</h1>
+    <h1 class="red">YOU DIED.</h1>
     <h2>You did okay, though...</h2>
     <p>You killed ${killCount.total} enemies!<p>
     <p>${killCount.peasants} peasants.</p>

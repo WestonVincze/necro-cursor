@@ -67,6 +67,6 @@ export const UI = ({
     formationUI.innerHTML = value;
   })
   minionAggression.subscribe(aggression => {
-    aggressionUI.innerHTML = aggression ? "chase enemies" : "hold the line";
+    aggressionUI.innerHTML = aggression ? "auto chase" : "follow cursor";
   })
 }

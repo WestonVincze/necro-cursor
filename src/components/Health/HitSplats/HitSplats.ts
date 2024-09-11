@@ -71,13 +71,15 @@ export const HitSplats = (sprite, type) => {
 
     const hitSplatContainer = new Container();
     // add a 10% variance to the x and y offsets
-    const positionVariance = 5;
+    // const positionVariance = 5;
     hitSplatContainer.position.set(sprite.x + spot.offset.x, sprite.y + spot.offset.y);
 
-    const x = spot.offset.x + (Math.random() * positionVariance * 2) - positionVariance
-    const y = spot.offset.y + (Math.random() * positionVariance * 2) - positionVariance
+    // const x = spot.offset.x + (Math.random() * positionVariance * 2) - positionVariance
+    // const y = spot.offset.y + (Math.random() * positionVariance * 2) - positionVariance
 
-    const text = new Text(damage, { fontFamily: 'monospace', fontSize: isCrit ? 15 : 12 });
+    // const text = new Text(damage, { fontFamily: 'monospace', fontSize: isCrit ? 35 : 22 });
+    // @ts-ignore
+    const text = new Text(damage, { style: { fontFamily: 'monospace', fontSize: 12 }});
     text.anchor.set(0.5);
     // text.position.set(x, y);
 

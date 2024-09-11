@@ -9,11 +9,24 @@
 
 .content {
   margin: 0 auto;
-  width: 50%;
+  width: 75%;
 }
 
 .hero {
   width: 100px;
+}
+
+.row {
+  font-size: 1rem;
+  gap: 15px;
+}
+
+.row div {
+  min-width: 30%;
+}
+
+.row p { 
+  margin-bottom: 10px;
 }
 
 .buttons {
