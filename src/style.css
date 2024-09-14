@@ -102,5 +102,6 @@ img {
 }
 
 h1 {
-  color: #AA4444;
+  color: var(--primary);
+  text-shadow: 0 0 3px #eee;
 }

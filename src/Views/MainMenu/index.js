@@ -4,7 +4,7 @@ import { StatEditor } from "../StatEditor";
 
 const MainMenuScreen = () => `
   <div class=${styles.menu}>
-    <h1>Necro Cursor</h1>
+    <h1>Necro Cursor (POC)</h1>
 
     <div id="content" class="${styles.content}">
       <img class="${styles.hero}" src="/assets/necro.png" alt="necromancer image" />
